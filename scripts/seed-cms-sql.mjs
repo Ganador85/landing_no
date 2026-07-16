@@ -362,7 +362,7 @@ try {
         trust_sqm_renewed, trust_warranty_years, trust_happy_customers, trust_rating,
         created_at, updated_at
       ) values (
-        'Takfornying', '+47 944 54 000', 'post@takfornying.no',
+        'Takproff', '+47 966 52 999', 'post@takproff.no',
         'Nesbruveien 75', '1394', 'Nesbru', '931 799 495', 'Fornyingsgruppen AS',
         $1, $2, $3,
         2490, 350, 50, 500, 150,

@@ -79,7 +79,7 @@ export async function POST(request: Request) {
       try {
         const resend = new Resend(process.env.RESEND_API_KEY);
         await resend.emails.send({
-          from: process.env.LEAD_FROM_EMAIL || "leads@takfornying.no",
+          from: process.env.LEAD_FROM_EMAIL || "leads@takproff.no",
           to: process.env.LEAD_TO_EMAIL || siteConfig.email,
           subject: `Ny henvendelse: ${rest.name} (${type})`,
           text: [

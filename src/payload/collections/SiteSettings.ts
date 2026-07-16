@@ -18,9 +18,9 @@ export const SiteSettings: GlobalConfig = {
         {
           label: "Contact",
           fields: [
-            { name: "brandName", type: "text", defaultValue: "Takfornying" },
-            { name: "phone", type: "text", defaultValue: "+47 944 54 000" },
-            { name: "email", type: "email", defaultValue: "post@takfornying.no" },
+            { name: "brandName", type: "text", defaultValue: "Takproff" },
+            { name: "phone", type: "text", defaultValue: "+47 966 52 999" },
+            { name: "email", type: "email", defaultValue: "post@takproff.no" },
             { name: "street", type: "text", defaultValue: "Nesbruveien 75" },
             { name: "postal", type: "text", defaultValue: "1394" },
             { name: "city", type: "text", defaultValue: "Nesbru" },

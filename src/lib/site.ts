@@ -1,10 +1,10 @@
 export const siteConfig = {
-  name: "Takfornying",
-  domain: "takfornying.no",
+  name: "Takproff",
+  domain: "takproff.no",
   url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
-  phone: "+47 944 54 000",
-  phoneHref: "tel:+4794454000",
-  email: "post@takfornying.no",
+  phone: "+47 966 52 999",
+  phoneHref: "tel:+4796652999",
+  email: "post@takproff.no",
   address: {
     street: "Nesbruveien 75",
     postal: "1394",
