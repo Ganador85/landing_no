@@ -43,7 +43,6 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    // Strip unknown honeypot leftovers from older clients
     const {
       website: _website,
       company_url_hp: _hp,
@@ -61,13 +60,15 @@ export async function POST(request: Request) {
       );
     }
 
-    const { phone, ...rest } = parsed.data;
+    const { phone, type, locale, ...rest } = parsed.data;
 
     const payload = await getPayload();
     const created = await payload.create({
       collection: "leads",
       data: {
         ...rest,
+        inquiryType: type,
+        language: locale,
         ...(phone ? { phone } : {}),
         status: "new",
       },
@@ -80,14 +81,14 @@ export async function POST(request: Request) {
         await resend.emails.send({
           from: process.env.LEAD_FROM_EMAIL || "leads@takfornying.no",
           to: process.env.LEAD_TO_EMAIL || siteConfig.email,
-          subject: `Ny henvendelse: ${rest.name} (${rest.type})`,
+          subject: `Ny henvendelse: ${rest.name} (${type})`,
           text: [
             `Navn: ${rest.name}`,
             `E-post: ${rest.email}`,
             `Telefon: ${phone || "-"}`,
             `Adresse: ${rest.address} ${rest.houseNumber}, ${rest.postal} ${rest.city}`,
-            `Type: ${rest.type}`,
-            `Språk: ${rest.locale}`,
+            `Type: ${type}`,
+            `Språk: ${locale}`,
             "",
             rest.message,
           ].join("\n"),

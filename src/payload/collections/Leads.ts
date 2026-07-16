@@ -4,7 +4,7 @@ export const Leads: CollectionConfig = {
   slug: "leads",
   admin: {
     useAsTitle: "name",
-    defaultColumns: ["name", "email", "type", "locale", "createdAt"],
+    defaultColumns: ["name", "email", "inquiryType", "language", "createdAt"],
   },
   access: {
     create: () => true,
@@ -21,7 +21,7 @@ export const Leads: CollectionConfig = {
     { name: "postal", type: "text", required: true },
     { name: "city", type: "text", required: true },
     {
-      name: "type",
+      name: "inquiryType",
       type: "select",
       required: true,
       options: [
@@ -32,7 +32,7 @@ export const Leads: CollectionConfig = {
     },
     { name: "message", type: "textarea", required: true },
     {
-      name: "locale",
+      name: "language",
       type: "select",
       required: true,
       options: [
