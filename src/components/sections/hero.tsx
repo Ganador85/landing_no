@@ -1,11 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import { Shield, Star, Users } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
 import { usePageCopy } from "@/components/site-settings-provider";
 import { siteImages } from "@/content/images";
+import { optimizeRemoteImageUrl } from "@/lib/images";
 
 type Props = {
   heroImage?: string;
@@ -13,14 +15,18 @@ type Props = {
 
 export function HeroSection({ heroImage = siteImages.hero }: Props) {
   const copy = usePageCopy();
+  const src = optimizeRemoteImageUrl(heroImage, { width: 2000, quality: 72 });
 
   return (
     <section className="relative flex min-h-[100svh] items-end overflow-hidden pb-28 pt-28 md:items-center md:pb-20 md:pt-24">
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage: `url('${heroImage}')`,
-        }}
+      <Image
+        src={src}
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        quality={72}
+        className="object-cover"
         aria-hidden
       />
       <div

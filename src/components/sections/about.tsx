@@ -1,11 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
 import { usePageCopy, useSiteSettings } from "@/components/site-settings-provider";
 import type { CmsSettings } from "@/lib/cms-content";
 import { siteImages } from "@/content/images";
+import { optimizeRemoteImageUrl } from "@/lib/images";
 
 type Props = {
   imageUrl?: string;
@@ -16,7 +18,10 @@ export function AboutSection({ imageUrl, settings: settingsProp }: Props) {
   const copy = usePageCopy();
   const ctx = useSiteSettings();
   const settings = settingsProp ?? ctx;
-  const image = imageUrl ?? settings.images.about ?? siteImages.about;
+  const image = optimizeRemoteImageUrl(
+    imageUrl ?? settings.images.about ?? siteImages.about,
+    { width: 1200, quality: 75 },
+  );
 
   return (
     <section id="om-oss" className="section-pad">
@@ -24,10 +29,12 @@ export function AboutSection({ imageUrl, settings: settingsProp }: Props) {
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
           <Reveal>
             <div className="relative mb-8 aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 lg:mb-10">
-              <img
+              <Image
                 src={image}
                 alt={copy.about.title}
-                className="absolute inset-0 h-full w-full object-cover"
+                fill
+                sizes="(max-width: 1024px) 100vw, 560px"
+                className="object-cover"
                 loading="lazy"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />

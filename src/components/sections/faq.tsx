@@ -32,7 +32,9 @@ export function FaqSection({ items }: Props) {
           <Accordion type="single" collapsible className="mt-8">
             {items.map((item) => (
               <AccordionItem key={item.id} value={item.id}>
-                <AccordionTrigger>{item.question[locale]}</AccordionTrigger>
+                <AccordionTrigger>
+                  <h3 className="pr-4 text-base font-medium leading-snug">{item.question[locale]}</h3>
+                </AccordionTrigger>
                 <AccordionContent>{item.answer[locale]}</AccordionContent>
               </AccordionItem>
             ))}

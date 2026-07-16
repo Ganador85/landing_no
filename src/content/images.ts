@@ -1,6 +1,6 @@
 /** Curated Unsplash stock for client preview (illustrative, not real project photos). */
 const u = (id: string, w = 1600) =>
-  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80`;
+  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=75&fm=webp`;
 
 export const siteImages = {
   hero: u("photo-1568605114967-8130f3a36994", 2000),

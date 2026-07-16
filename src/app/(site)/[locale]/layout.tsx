@@ -1,13 +1,14 @@
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Manrope } from "next/font/google";
 import { Toaster } from "sonner";
 import { routing } from "@/i18n/routing";
 import { siteConfig } from "@/lib/site";
 import { getSiteContent } from "@/lib/cms-content";
 import { localizeCopy } from "@/lib/page-copy";
+import { optimizeRemoteImageUrl } from "@/lib/images";
 import { SiteSettingsProvider } from "@/components/site-settings-provider";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
@@ -15,6 +16,12 @@ import { StickyBottomCta } from "@/components/layout/sticky-cta";
 import "../../globals.css";
 
 export const revalidate = 30;
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#0b0d10",
+};
 
 const manrope = Manrope({
   subsets: ["latin", "latin-ext"],
@@ -35,6 +42,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const content = await getSiteContent();
   const meta = localizeCopy(content.copy, locale as "no" | "en").meta;
+  const ogImage = optimizeRemoteImageUrl(content.settings.images.hero, {
+    width: 1200,
+    quality: 70,
+  });
   const languages = Object.fromEntries(
     routing.locales.map((l) => [l, `${siteConfig.url}/${l}`]),
   );
@@ -59,7 +70,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: "website",
       images: [
         {
-          url: content.settings.images.hero,
+          url: ogImage,
           width: 1200,
           height: 630,
           alt: content.settings.brandName,
@@ -70,7 +81,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: "summary_large_image",
       title: meta.title,
       description: meta.description,
-      images: [content.settings.images.hero],
+      images: [ogImage],
     },
     robots: { index: true, follow: true },
   };

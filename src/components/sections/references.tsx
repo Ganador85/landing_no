@@ -1,12 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocale } from "next-intl";
 import { Reveal } from "@/components/ui/reveal";
 import { usePageCopy } from "@/components/site-settings-provider";
 import type { CmsProject } from "@/lib/cms-content";
+import { optimizeRemoteImageUrl } from "@/lib/images";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -86,10 +88,15 @@ export function ReferencesSection({ projects }: Props) {
                         key={`${project.id}-${idx}`}
                         className="relative aspect-[4/3] overflow-hidden bg-black/40"
                       >
-                        <img
-                          src={stage.image}
+                        <Image
+                          src={optimizeRemoteImageUrl(stage.image, {
+                            width: 900,
+                            quality: 72,
+                          })}
                           alt={stage.caption[locale]}
-                          className="absolute inset-0 h-full w-full object-cover"
+                          fill
+                          sizes="(max-width: 640px) 85vw, (max-width: 1024px) 40vw, 360px"
+                          className="object-cover"
                           loading="lazy"
                         />
                         <div

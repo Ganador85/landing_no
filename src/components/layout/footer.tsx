@@ -38,9 +38,9 @@ export function Footer() {
         </div>
 
         <div>
-          <h4 className="mb-4 text-sm font-semibold uppercase tracking-wider">
+          <p className="mb-4 text-sm font-semibold uppercase tracking-wider">
             {copy.footer.quickLinks}
-          </h4>
+          </p>
           <ul className="space-y-2">
             {quick.map((item) => (
               <li key={item.href}>
@@ -56,9 +56,9 @@ export function Footer() {
         </div>
 
         <div>
-          <h4 className="mb-4 text-sm font-semibold uppercase tracking-wider">
+          <p className="mb-4 text-sm font-semibold uppercase tracking-wider">
             {copy.footer.contact}
-          </h4>
+          </p>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li>
               <a href={`mailto:${settings.email}`} className="hover:text-accent">

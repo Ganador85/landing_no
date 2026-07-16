@@ -1,11 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import { Check } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
 import { usePageCopy } from "@/components/site-settings-provider";
 import { siteImages } from "@/content/images";
+import { optimizeRemoteImageUrl } from "@/lib/images";
 
 type Props = {
   imageUrl?: string;
@@ -13,6 +15,7 @@ type Props = {
 
 export function NewRoofSection({ imageUrl = siteImages.newRoof }: Props) {
   const copy = usePageCopy();
+  const src = optimizeRemoteImageUrl(imageUrl, { width: 1200, quality: 75 });
 
   return (
     <section id="nytt-tak" className="section-pad">
@@ -30,10 +33,12 @@ export function NewRoofSection({ imageUrl = siteImages.newRoof }: Props) {
         <Reveal delay={0.1}>
           <div className="overflow-hidden rounded-2xl border border-white/10">
             <div className="relative aspect-[4/3]">
-              <img
-                src={imageUrl}
+              <Image
+                src={src}
                 alt={copy.newRoof.title}
-                className="absolute inset-0 h-full w-full object-cover"
+                fill
+                sizes="(max-width: 1024px) 100vw, 560px"
+                className="object-cover"
                 loading="lazy"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
