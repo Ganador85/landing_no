@@ -32,9 +32,10 @@ export function AboutSection({ imageUrl, settings: settingsProp }: Props) {
               <Image
                 src={image}
                 alt={copy.about.title}
-                fill
+                width={1200}
+                height={750}
                 sizes="(max-width: 1024px) 100vw, 560px"
-                className="object-cover"
+                className="absolute inset-0 h-full w-full object-cover"
                 loading="lazy"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />

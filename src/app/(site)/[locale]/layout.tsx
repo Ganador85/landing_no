@@ -54,6 +54,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     metadataBase: new URL(siteConfig.url),
     title: meta.title,
     description: meta.description,
+    applicationName: content.settings.brandName,
+    icons: {
+      icon: [{ url: "/icon", type: "image/png" }],
+      apple: [{ url: "/apple-icon", type: "image/png" }],
+    },
     alternates: {
       canonical: `${siteConfig.url}/${locale}`,
       languages: {

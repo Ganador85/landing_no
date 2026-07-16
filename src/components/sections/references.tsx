@@ -94,9 +94,10 @@ export function ReferencesSection({ projects }: Props) {
                             quality: 72,
                           })}
                           alt={stage.caption[locale]}
-                          fill
+                          width={900}
+                          height={675}
                           sizes="(max-width: 640px) 85vw, (max-width: 1024px) 40vw, 360px"
-                          className="object-cover"
+                          className="absolute inset-0 h-full w-full object-cover"
                           loading="lazy"
                         />
                         <div

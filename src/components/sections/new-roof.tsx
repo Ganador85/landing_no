@@ -36,9 +36,10 @@ export function NewRoofSection({ imageUrl = siteImages.newRoof }: Props) {
               <Image
                 src={src}
                 alt={copy.newRoof.title}
-                fill
+                width={1200}
+                height={900}
                 sizes="(max-width: 1024px) 100vw, 560px"
-                className="object-cover"
+                className="absolute inset-0 h-full w-full object-cover"
                 loading="lazy"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />

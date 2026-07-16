@@ -21,13 +21,13 @@ export function HeroSection({ heroImage = siteImages.hero }: Props) {
     <section className="relative flex min-h-[100svh] items-end overflow-hidden pb-28 pt-28 md:items-center md:pb-20 md:pt-24">
       <Image
         src={src}
-        alt=""
-        fill
+        alt={`${copy.hero.title} ${copy.hero.titleAccent}`}
+        width={2000}
+        height={1125}
         priority
         sizes="100vw"
         quality={72}
-        className="object-cover"
-        aria-hidden
+        className="absolute inset-0 h-full w-full object-cover"
       />
       <div
         className="absolute inset-0"
