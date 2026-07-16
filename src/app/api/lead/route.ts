@@ -15,7 +15,9 @@ const leadSchema = z.object({
   type: z.enum(["vedlikehold", "nytt_tak", "kledning"]),
   message: z.string().min(10).max(5000),
   locale: z.enum(["no", "en"]),
+  // Keep accepting legacy honeypot key during deploy overlap
   website: z.string().optional(),
+  company_url_hp: z.string().optional(),
 });
 
 const rateMap = new Map<string, { count: number; reset: number }>();
@@ -50,12 +52,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
     }
 
-    // Honeypot — bots filled hidden field
-    if (parsed.data.website) {
+    // Only the obscure honeypot blocks saves. Ignore legacy "website" autofill.
+    if (parsed.data.company_url_hp) {
       return NextResponse.json({ ok: true });
     }
 
-    const { website: _honeypot, phone, ...rest } = parsed.data;
+    const {
+      website: _website,
+      company_url_hp: _honeypot,
+      phone,
+      ...rest
+    } = parsed.data;
+    void _website;
     void _honeypot;
 
     const payload = await getPayload();

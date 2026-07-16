@@ -28,7 +28,8 @@ const step2Schema = z.object({
 });
 
 const leadSchema = step1Schema.merge(step2Schema).extend({
-  website: z.string().optional(),
+  // Intentionally obscure name so browsers/password managers do not autofill it.
+  company_url_hp: z.string().optional(),
 });
 
 type FormState = {
@@ -41,7 +42,7 @@ type FormState = {
   city: string;
   type: "vedlikehold" | "nytt_tak" | "kledning";
   message: string;
-  website: string;
+  company_url_hp: string;
 };
 
 const initial: FormState = {
@@ -54,7 +55,7 @@ const initial: FormState = {
   city: "",
   type: "vedlikehold",
   message: "",
-  website: "",
+  company_url_hp: "",
 };
 
 export function ContactSection() {
@@ -130,7 +131,7 @@ export function ContactSection() {
     const parsed = leadSchema.safeParse({
       ...step1.data,
       ...step2.data,
-      website: form.website || undefined,
+      company_url_hp: form.company_url_hp || undefined,
     });
 
     if (!parsed.success) {
@@ -139,7 +140,7 @@ export function ContactSection() {
     }
 
     // Honeypot: pretend success for bots
-    if (parsed.data.website) {
+    if (parsed.data.company_url_hp) {
       toast.success(t("form.success"));
       setForm(initial);
       setStep(1);
@@ -148,10 +149,12 @@ export function ContactSection() {
 
     setLoading(true);
     try {
+      const { company_url_hp: _hp, ...leadData } = parsed.data;
+      void _hp;
       const res = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...parsed.data, locale }),
+        body: JSON.stringify({ ...leadData, locale }),
       });
 
       if (!res.ok) throw new Error("Failed");
@@ -225,11 +228,11 @@ export function ContactSection() {
           <form onSubmit={onSubmit} className="surface-card space-y-4 p-5 sm:p-8" noValidate>
             <input
               type="text"
-              name="website"
-              value={form.website}
-              onChange={(e) => update("website", e.target.value)}
+              name="company_url_hp"
+              value={form.company_url_hp}
+              onChange={(e) => update("company_url_hp", e.target.value)}
               tabIndex={-1}
-              autoComplete="off"
+              autoComplete="new-password"
               className="absolute left-[-9999px] h-0 w-0 opacity-0"
               aria-hidden
             />
