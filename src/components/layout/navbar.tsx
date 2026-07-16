@@ -5,8 +5,8 @@ import { Menu, Phone, X } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { Link, usePathname } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
-import { siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
+import { useSiteSettings } from "@/components/site-settings-provider";
 
 const links = [
   { href: "/#tjenester", key: "services" as const },
@@ -20,6 +20,7 @@ export function Navbar() {
   const t = useTranslations("nav");
   const locale = useLocale();
   const pathname = usePathname();
+  const settings = useSiteSettings();
   const [open, setOpen] = useState(false);
   const otherLocale = locale === "no" ? "en" : "no";
 
@@ -31,7 +32,7 @@ export function Navbar() {
             T
           </span>
           <span className="text-sm font-bold tracking-wide uppercase sm:text-base">
-            {siteConfig.name}
+            {settings.brandName}
           </span>
         </Link>
 
@@ -58,7 +59,7 @@ export function Navbar() {
           </Link>
 
           <Button asChild size="sm" variant="secondary" className="hidden sm:inline-flex">
-            <a href={siteConfig.phoneHref}>
+            <a href={settings.phoneHref}>
               <Phone className="size-3.5" />
               {t("call")}
             </a>
@@ -99,7 +100,7 @@ export function Navbar() {
           ))}
           <div className="mt-2 flex gap-2 border-t border-white/10 pt-4">
             <Button asChild className="flex-1" variant="secondary">
-              <a href={siteConfig.phoneHref}>
+              <a href={settings.phoneHref}>
                 <Phone className="size-4" />
                 {t("call")}
               </a>

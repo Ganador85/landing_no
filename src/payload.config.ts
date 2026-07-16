@@ -3,6 +3,7 @@ import { fileURLToPath } from "url";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { sqliteAdapter } from "@payloadcms/db-sqlite";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
+import { vercelBlobStorage } from "@payloadcms/storage-vercel-blob";
 import { buildConfig } from "payload";
 import sharp from "sharp";
 
@@ -23,6 +24,7 @@ const rawDatabaseUrl = process.env.DATABASE_URL || "file:./takfornying.db";
 // Neon sometimes adds channel_binding=require which breaks node-pg on Vercel
 const databaseUrl = rawDatabaseUrl.replace(/[&?]channel_binding=require/g, "");
 const usePostgres = databaseUrl.startsWith("postgres");
+const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
 
 const serverURL =
   process.env.NEXT_PUBLIC_SITE_URL ||
@@ -70,4 +72,16 @@ export default buildConfig({
         },
       }),
   sharp,
+  plugins: [
+    vercelBlobStorage({
+      enabled: Boolean(blobToken),
+      collections: {
+        media: true,
+      },
+      token: blobToken,
+      // Bypass Vercel 4.5MB serverless body limit — upload goes client → Blob.
+      clientUploads: true,
+      addRandomSuffix: true,
+    }),
+  ],
 });

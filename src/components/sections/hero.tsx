@@ -7,7 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
 import { siteImages } from "@/content/images";
 
-export function HeroSection() {
+type Props = {
+  heroImage?: string;
+};
+
+export function HeroSection({ heroImage = siteImages.hero }: Props) {
   const t = useTranslations("hero");
 
   return (
@@ -15,7 +19,7 @@ export function HeroSection() {
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage: `url('${siteImages.hero}')`,
+          backgroundImage: `url('${heroImage}')`,
         }}
         aria-hidden
       />

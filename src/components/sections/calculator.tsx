@@ -6,14 +6,20 @@ import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
 import { CountUp } from "@/components/ui/count-up";
+import type { CmsSettings } from "@/lib/cms-content";
 import { siteConfig } from "@/lib/site";
 import { formatNok } from "@/lib/utils";
 
-export function CalculatorSection() {
+type Props = {
+  calculator?: CmsSettings["calculator"];
+};
+
+export function CalculatorSection({
+  calculator = siteConfig.calculator,
+}: Props) {
   const t = useTranslations("calculator");
   const locale = useLocale();
-  const { minSqm, maxSqm, defaultSqm, newRoofPerSqm, renewalPerSqm } =
-    siteConfig.calculator;
+  const { minSqm, maxSqm, defaultSqm, newRoofPerSqm, renewalPerSqm } = calculator;
   const [sqm, setSqm] = useState(defaultSqm);
 
   const { newRoof, renewal, save, percent } = useMemo(() => {

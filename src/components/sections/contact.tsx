@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Reveal } from "@/components/ui/reveal";
-import { siteConfig } from "@/lib/site";
+import { useSiteSettings } from "@/components/site-settings-provider";
 
 const step1Schema = z.object({
   name: z.string().trim().min(2),
@@ -56,6 +56,7 @@ const initial: FormState = {
 export function ContactSection() {
   const t = useTranslations("contact");
   const locale = useLocale();
+  const settings = useSiteSettings();
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
   const [form, setForm] = useState<FormState>(initial);
@@ -174,8 +175,8 @@ export function ContactSection() {
               </span>
               <div>
                 <p className="text-sm text-muted-foreground">{t("phone")}</p>
-                <a href={siteConfig.phoneHref} className="text-lg font-semibold hover:text-accent">
-                  {siteConfig.phone}
+                <a href={settings.phoneHref} className="text-lg font-semibold hover:text-accent">
+                  {settings.phone}
                 </a>
                 <p className="text-xs text-muted-foreground">{t("hours")}</p>
               </div>
@@ -187,10 +188,10 @@ export function ContactSection() {
               <div>
                 <p className="text-sm text-muted-foreground">{t("email")}</p>
                 <a
-                  href={`mailto:${siteConfig.email}`}
+                  href={`mailto:${settings.email}`}
                   className="text-lg font-semibold hover:text-accent"
                 >
-                  {siteConfig.email}
+                  {settings.email}
                 </a>
                 <p className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Clock className="size-3" />
@@ -205,9 +206,9 @@ export function ContactSection() {
               <div>
                 <p className="text-sm text-muted-foreground">{t("office")}</p>
                 <p className="font-semibold">
-                  {siteConfig.address.street}
+                  {settings.address.street}
                   <br />
-                  {siteConfig.address.postal} {siteConfig.address.city}
+                  {settings.address.postal} {settings.address.city}
                 </p>
               </div>
             </li>

@@ -1,32 +1,36 @@
-import { faqItems } from "@/content/site-content";
+import type { CmsFaq, CmsSettings } from "@/lib/cms-content";
 import { siteConfig } from "@/lib/site";
 
-type Props = { locale: "no" | "en" };
+type Props = {
+  locale: "no" | "en";
+  settings: CmsSettings;
+  faq: CmsFaq[];
+};
 
-export function JsonLd({ locale }: Props) {
+export function JsonLd({ locale, settings, faq }: Props) {
   const business = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    name: siteConfig.name,
+    name: settings.brandName,
     description:
       locale === "no"
         ? "Spesialist på takfornying: vask, impregnering og maling – eller nytt tak."
         : "Specialist in roof renewal: washing, impregnation and painting – or new roofs.",
     url: `${siteConfig.url}/${locale}`,
-    telephone: siteConfig.phoneHref.replace("tel:", ""),
-    email: siteConfig.email,
+    telephone: settings.phoneHref.replace("tel:", ""),
+    email: settings.email,
     address: {
       "@type": "PostalAddress",
-      streetAddress: siteConfig.address.street,
-      addressLocality: siteConfig.address.city,
-      postalCode: siteConfig.address.postal,
+      streetAddress: settings.address.street,
+      addressLocality: settings.address.city,
+      postalCode: settings.address.postal,
       addressCountry: siteConfig.address.country,
     },
     areaServed: locale === "no" ? "Sør- og Midt-Norge" : "Southern and Central Norway",
     priceRange: "$$",
     aggregateRating: {
       "@type": "AggregateRating",
-      ratingValue: "4.9",
+      ratingValue: settings.trust.rating.split("/")[0] || "4.9",
       reviewCount: "500",
     },
     openingHoursSpecification: {
@@ -37,14 +41,14 @@ export function JsonLd({ locale }: Props) {
     },
     parentOrganization: {
       "@type": "Organization",
-      name: siteConfig.parentOrg,
+      name: settings.parentOrg,
     },
   };
 
-  const faq = {
+  const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: faqItems.map((item) => ({
+    mainEntity: faq.map((item) => ({
       "@type": "Question",
       name: item.question[locale],
       acceptedAnswer: {
@@ -62,7 +66,7 @@ export function JsonLd({ locale }: Props) {
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faq) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
     </>
   );

@@ -2,9 +2,13 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { Reveal } from "@/components/ui/reveal";
-import { products } from "@/content/site-content";
+import type { CmsProduct } from "@/lib/cms-content";
 
-export function ProductsSection() {
+type Props = {
+  products: CmsProduct[];
+};
+
+export function ProductsSection({ products }: Props) {
   const t = useTranslations("products");
   const locale = useLocale() as "no" | "en";
 

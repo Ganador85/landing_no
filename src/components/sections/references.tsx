@@ -5,10 +5,14 @@ import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Reveal } from "@/components/ui/reveal";
-import { projects } from "@/content/site-content";
+import type { CmsProject } from "@/lib/cms-content";
 import { cn } from "@/lib/utils";
 
-export function ReferencesSection() {
+type Props = {
+  projects: CmsProject[];
+};
+
+export function ReferencesSection({ projects }: Props) {
   const t = useTranslations("references");
   const locale = useLocale() as "no" | "en";
   const [emblaRef, emblaApi] = useEmblaCarousel({

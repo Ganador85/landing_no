@@ -11,6 +11,8 @@
     "generate:types": "payload generate:types",
     "generate:importmap": "payload generate:importmap",
     "db:push": "node --env-file=.env --import tsx scripts/push-schema.mjs",
+    "db:seed": "node --env-file=.env scripts/seed-cms-sql.mjs",
+    "db:ensure": "node --env-file=.env scripts/ensure-cms-schema.mjs",
     "db:migrate": "payload migrate"
   },
   "dependencies": {
@@ -18,6 +20,7 @@
     "@payloadcms/db-sqlite": "^3.86.0",
     "@payloadcms/next": "^3.86.0",
     "@payloadcms/richtext-lexical": "^3.86.0",
+    "@payloadcms/storage-vercel-blob": "^3.86.0",
     "@payloadcms/ui": "^3.86.0",
     "@radix-ui/react-accordion": "^1.2.16",
     "@radix-ui/react-dialog": "^1.1.19",

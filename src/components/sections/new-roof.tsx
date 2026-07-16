@@ -7,7 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
 import { siteImages } from "@/content/images";
 
-export function NewRoofSection() {
+type Props = {
+  imageUrl?: string;
+};
+
+export function NewRoofSection({ imageUrl = siteImages.newRoof }: Props) {
   const t = useTranslations("newRoof");
   const types = t.raw("types") as string[];
 
@@ -28,7 +32,7 @@ export function NewRoofSection() {
           <div className="overflow-hidden rounded-2xl border border-white/10">
             <div className="relative aspect-[4/3]">
               <img
-                src={siteImages.newRoof}
+                src={imageUrl}
                 alt={t("title")}
                 className="absolute inset-0 h-full w-full object-cover"
                 loading="lazy"

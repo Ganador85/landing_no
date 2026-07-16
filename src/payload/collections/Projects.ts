@@ -4,17 +4,19 @@ export const Projects: CollectionConfig = {
   slug: "projects",
   admin: {
     useAsTitle: "titleNo",
+    defaultColumns: ["titleNo", "order", "updatedAt"],
   },
   access: {
     read: () => true,
   },
   fields: [
-    { name: "titleNo", type: "text", required: true },
-    { name: "titleEn", type: "text", required: true },
+    { name: "titleNo", type: "text", required: true, label: "Title (NO)" },
+    { name: "titleEn", type: "text", required: true, label: "Title (EN)" },
     { name: "order", type: "number", defaultValue: 0 },
     {
       name: "stages",
       type: "array",
+      labels: { singular: "Stage", plural: "Stages" },
       fields: [
         {
           name: "label",
@@ -26,12 +28,33 @@ export const Projects: CollectionConfig = {
             { label: "After", value: "after" },
           ],
         },
-        { name: "captionNo", type: "text", required: true },
-        { name: "captionEn", type: "text", required: true },
+        { name: "captionNo", type: "text", required: true, label: "Caption (NO)" },
+        { name: "captionEn", type: "text", required: true, label: "Caption (EN)" },
         {
           name: "image",
           type: "upload",
           relationTo: "media",
+          label: "Image",
+          admin: {
+            description: "Upload via Media library (Vercel Blob). Preferred.",
+          },
+        },
+        {
+          name: "imageUrl",
+          type: "text",
+          label: "Image URL (fallback)",
+          admin: {
+            description: "Used only if no uploaded image is selected",
+          },
+          validate: (
+            value: string | null | undefined,
+            { siblingData }: { siblingData: { image?: unknown } },
+          ) => {
+            if (!value && !siblingData?.image) {
+              return "Upload an image or paste an image URL";
+            }
+            return true;
+          },
         },
       ],
     },

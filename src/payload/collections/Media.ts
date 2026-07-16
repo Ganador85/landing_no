@@ -2,20 +2,47 @@ import type { CollectionConfig } from "payload";
 
 export const Media: CollectionConfig = {
   slug: "media",
+  admin: {
+    useAsTitle: "alt",
+    description:
+      "Upload images here (stored on Vercel Blob). Then pick them in Site Settings or Project stages. Prefer WebP when possible; large JPEG/PNG are auto-converted when supported.",
+  },
   access: {
     read: () => true,
   },
   upload: {
-    // Vercel has no persistent local disk; keep metadata working without local writes.
     staticDir: "media",
-    disableLocalStorage: true,
     mimeTypes: ["image/*"],
+    formatOptions: {
+      format: "webp",
+      options: {
+        quality: 82,
+      },
+    },
+    imageSizes: [
+      {
+        name: "card",
+        width: 900,
+        height: 675,
+        position: "centre",
+        formatOptions: { format: "webp", options: { quality: 80 } },
+      },
+      {
+        name: "hero",
+        width: 2000,
+        withoutEnlargement: true,
+        formatOptions: { format: "webp", options: { quality: 82 } },
+      },
+    ],
   },
   fields: [
     {
       name: "alt",
       type: "text",
       required: true,
+      admin: {
+        description: "Short description for accessibility / SEO",
+      },
     },
   ],
 };

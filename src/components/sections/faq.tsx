@@ -8,9 +8,13 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Reveal } from "@/components/ui/reveal";
-import { faqItems } from "@/content/site-content";
+import type { CmsFaq } from "@/lib/cms-content";
 
-export function FaqSection() {
+type Props = {
+  items: CmsFaq[];
+};
+
+export function FaqSection({ items }: Props) {
   const t = useTranslations("faq");
   const locale = useLocale() as "no" | "en";
 
@@ -25,7 +29,7 @@ export function FaqSection() {
 
         <Reveal delay={0.1}>
           <Accordion type="single" collapsible className="mt-8">
-            {faqItems.map((item) => (
+            {items.map((item) => (
               <AccordionItem key={item.id} value={item.id}>
                 <AccordionTrigger>{item.question[locale]}</AccordionTrigger>
                 <AccordionContent>{item.answer[locale]}</AccordionContent>

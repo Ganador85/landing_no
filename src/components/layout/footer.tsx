@@ -1,11 +1,14 @@
-import { getTranslations, getLocale } from "next-intl/server";
-import { Link } from "@/i18n/routing";
-import { siteConfig } from "@/lib/site";
+"use client";
 
-export async function Footer() {
-  const t = await getTranslations("footer");
-  const tNav = await getTranslations("nav");
-  const locale = await getLocale();
+import { useTranslations, useLocale } from "next-intl";
+import { Link } from "@/i18n/routing";
+import { useSiteSettings } from "@/components/site-settings-provider";
+
+export function Footer() {
+  const t = useTranslations("footer");
+  const tNav = useTranslations("nav");
+  const locale = useLocale();
+  const settings = useSiteSettings();
   const year = new Date().getFullYear();
 
   const quick = [
@@ -24,14 +27,14 @@ export async function Footer() {
             <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-amber-700 text-sm font-bold text-accent-foreground">
               T
             </span>
-            <span className="font-bold tracking-wide uppercase">{siteConfig.name}</span>
+            <span className="font-bold tracking-wide uppercase">{settings.brandName}</span>
           </div>
           <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
             {t("tagline")}
           </p>
           <p className="text-sm text-muted-foreground">
             {t("partOf")}{" "}
-            <span className="text-foreground">{siteConfig.parentOrg}</span>
+            <span className="text-foreground">{settings.parentOrg}</span>
           </p>
         </div>
 
@@ -59,20 +62,20 @@ export async function Footer() {
           </h4>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li>
-              <a href={`mailto:${siteConfig.email}`} className="hover:text-accent">
-                {siteConfig.email}
+              <a href={`mailto:${settings.email}`} className="hover:text-accent">
+                {settings.email}
               </a>
             </li>
             <li>
-              <a href={siteConfig.phoneHref} className="hover:text-accent">
-                {siteConfig.phone}
+              <a href={settings.phoneHref} className="hover:text-accent">
+                {settings.phone}
               </a>
             </li>
             <li>
-              {siteConfig.address.street}, {siteConfig.address.postal}{" "}
-              {siteConfig.address.city}
+              {settings.address.street}, {settings.address.postal}{" "}
+              {settings.address.city}
             </li>
-            <li>Org.nr: {siteConfig.orgNr}</li>
+            <li>Org.nr: {settings.orgNr}</li>
           </ul>
         </div>
       </div>
@@ -80,7 +83,7 @@ export async function Footer() {
       <div className="border-t border-white/5">
         <div className="container-narrow flex flex-col gap-2 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
           <p>
-            © {year} {siteConfig.name}. {t("rights")}
+            © {year} {settings.brandName}. {t("rights")}
           </p>
           <p>{t("warrantyNote")}</p>
           <p className="uppercase tracking-wider">{locale}</p>

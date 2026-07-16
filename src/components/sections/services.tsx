@@ -10,42 +10,46 @@ import {
   Sparkles,
   Wrench,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Reveal } from "@/components/ui/reveal";
 import { Button } from "@/components/ui/button";
-import { type ServiceKey } from "@/content/site-content";
+import type { CmsService } from "@/lib/cms-content";
 import { cn } from "@/lib/utils";
 
 const icons: Record<string, React.ComponentType<{ className?: string }>> = {
+  check: CheckCircle2,
+  shield: Shield,
+  droplets: Droplets,
+  paint: Paintbrush,
+  home: Home,
+  wrench: Wrench,
+  sparkles: Sparkles,
+  // legacy keys from static content
   inspection: CheckCircle2,
   tiles: Wrench,
   wash: Droplets,
   impregnation: Sparkles,
-  paint: Paintbrush,
   maintenance: Wrench,
   warranty: Shield,
   newRoof: Home,
   softwash: Droplets,
 };
 
-export function ServicesSection() {
+type Props = {
+  items: CmsService[];
+};
+
+export function ServicesSection({ items }: Props) {
   const t = useTranslations("services");
+  const locale = useLocale() as "no" | "en";
   const [expanded, setExpanded] = useState(false);
 
-  const primaryKeys: ServiceKey[] = [
-    "inspection",
-    "tiles",
-    "wash",
-    "impregnation",
-    "paint",
-  ];
-  const secondaryKeys: ServiceKey[] = [
-    "maintenance",
-    "warranty",
-    "newRoof",
-    "softwash",
-  ];
-  const visible = expanded ? [...primaryKeys, ...secondaryKeys] : primaryKeys;
+  const featured = items.filter((item) => item.featured);
+  const rest = items.filter((item) => !item.featured);
+  const primary = featured.length > 0 ? featured : items.slice(0, 5);
+  const secondary = featured.length > 0 ? rest : items.slice(5);
+  const visible = expanded ? [...primary, ...secondary] : primary;
+  const canExpand = secondary.length > 0;
 
   return (
     <section id="tjenester" className="section-pad relative">
@@ -60,17 +64,17 @@ export function ServicesSection() {
         </Reveal>
 
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {visible.map((key, i) => {
-            const Icon = icons[key] || CheckCircle2;
+          {visible.map((item, i) => {
+            const Icon = icons[item.icon] || icons[item.key] || CheckCircle2;
             return (
-              <Reveal key={key} delay={Math.min(i * 0.05, 0.25)}>
+              <Reveal key={item.id} delay={Math.min(i * 0.05, 0.25)}>
                 <article className="group surface-card h-full p-5 transition-all duration-300 hover:border-accent/30 hover:bg-background-elevated sm:p-6">
                   <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-accent-soft text-accent transition-transform group-hover:scale-105">
                     <Icon className="size-5" />
                   </div>
-                  <h3 className="text-lg font-semibold">{t(`items.${key}.title`)}</h3>
+                  <h3 className="text-lg font-semibold">{item.title[locale]}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {t(`items.${key}.description`)}
+                    {item.description[locale]}
                   </p>
                 </article>
               </Reveal>
@@ -78,15 +82,18 @@ export function ServicesSection() {
           })}
         </div>
 
-        <div className="mt-8 flex justify-center">
-          <Button
-            variant="secondary"
-            onClick={() => setExpanded((v) => !v)}
-            className={cn("min-w-[200px]")}
-          >
-            {expanded ? t("showLess") : t("showMore")}
-          </Button>
-        </div>
+        {canExpand ? (
+          <div className="mt-8 flex justify-center">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setExpanded((v) => !v)}
+              className={cn(expanded && "opacity-90")}
+            >
+              {expanded ? t("showLess") : t("showMore")}
+            </Button>
+          </div>
+        ) : null}
       </div>
     </section>
   );

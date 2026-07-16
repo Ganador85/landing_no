@@ -4,11 +4,20 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
-import { siteConfig } from "@/lib/site";
+import type { CmsSettings } from "@/lib/cms-content";
 import { siteImages } from "@/content/images";
+import { useSiteSettings } from "@/components/site-settings-provider";
 
-export function AboutSection() {
+type Props = {
+  imageUrl?: string;
+  settings?: CmsSettings;
+};
+
+export function AboutSection({ imageUrl, settings: settingsProp }: Props) {
   const t = useTranslations("about");
+  const ctx = useSiteSettings();
+  const settings = settingsProp ?? ctx;
+  const image = imageUrl ?? settings.images.about ?? siteImages.about;
 
   const stats = [
     { title: t("stats.roofs"), desc: t("stats.roofsDesc") },
@@ -24,7 +33,7 @@ export function AboutSection() {
           <Reveal>
             <div className="relative mb-8 aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 lg:mb-10">
               <img
-                src={siteImages.about}
+                src={image}
                 alt={t("title")}
                 className="absolute inset-0 h-full w-full object-cover"
                 loading="lazy"
@@ -60,29 +69,29 @@ export function AboutSection() {
               <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
                 <div>
                   <dt className="text-muted-foreground">{t("company.org")}</dt>
-                  <dd className="font-medium">{siteConfig.orgNr}</dd>
+                  <dd className="font-medium">{settings.orgNr}</dd>
                 </div>
                 <div>
                   <dt className="text-muted-foreground">{t("company.phone")}</dt>
                   <dd className="font-medium">
-                    <a href={siteConfig.phoneHref} className="hover:text-accent">
-                      {siteConfig.phone}
+                    <a href={settings.phoneHref} className="hover:text-accent">
+                      {settings.phone}
                     </a>
                   </dd>
                 </div>
                 <div>
                   <dt className="text-muted-foreground">{t("company.email")}</dt>
                   <dd className="font-medium">
-                    <a href={`mailto:${siteConfig.email}`} className="hover:text-accent">
-                      {siteConfig.email}
+                    <a href={`mailto:${settings.email}`} className="hover:text-accent">
+                      {settings.email}
                     </a>
                   </dd>
                 </div>
                 <div>
                   <dt className="text-muted-foreground">{t("company.address")}</dt>
                   <dd className="font-medium">
-                    {siteConfig.address.street}, {siteConfig.address.postal}{" "}
-                    {siteConfig.address.city}
+                    {settings.address.street}, {settings.address.postal}{" "}
+                    {settings.address.city}
                   </dd>
                 </div>
               </dl>
