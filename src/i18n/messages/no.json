@@ -185,7 +185,10 @@
       "sending": "Sender…",
       "success": "Takk! Vi tar kontakt snart.",
       "error": "Noe gikk galt. Prøv igjen eller ring oss.",
-      "required": "Påkrevd felt"
+      "required": "Fyll ut alle påkrevde felt",
+      "invalidEmail": "Skriv inn en gyldig e-postadresse",
+      "messageTooShort": "Meldingen må være minst 10 tegn",
+      "messageHint": "Minst 10 tegn"
     }
   },
   "footer": {

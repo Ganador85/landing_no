@@ -12,17 +12,23 @@ import { Label } from "@/components/ui/label";
 import { Reveal } from "@/components/ui/reveal";
 import { siteConfig } from "@/lib/site";
 
-const leadSchema = z.object({
-  name: z.string().min(2),
-  email: z.string().email(),
-  phone: z.string().optional(),
-  address: z.string().min(2),
-  houseNumber: z.string().min(1),
-  postal: z.string().min(3),
-  city: z.string().min(2),
+const step1Schema = z.object({
+  name: z.string().trim().min(2),
+  email: z.string().trim().email(),
+  phone: z.string().trim().optional(),
+  address: z.string().trim().min(2),
+  houseNumber: z.string().trim().min(1),
+});
+
+const step2Schema = z.object({
+  postal: z.string().trim().min(3),
+  city: z.string().trim().min(2),
   type: z.enum(["vedlikehold", "nytt_tak", "kledning"]),
-  message: z.string().min(10),
-  website: z.string().max(0).optional().or(z.literal("")),
+  message: z.string().trim().min(10),
+});
+
+const leadSchema = step1Schema.merge(step2Schema).extend({
+  website: z.string().optional(),
 });
 
 type FormState = {
@@ -63,19 +69,68 @@ export function ContactSection() {
   }
 
   function goNext() {
-    if (!form.name || !form.email || !form.address || !form.houseNumber) {
-      toast.error(t("form.required"));
+    const parsed = step1Schema.safeParse({
+      name: form.name,
+      email: form.email,
+      phone: form.phone || undefined,
+      address: form.address,
+      houseNumber: form.houseNumber,
+    });
+
+    if (!parsed.success) {
+      const issue = parsed.error.issues[0];
+      if (issue?.path[0] === "email") {
+        toast.error(t("form.invalidEmail"));
+      } else {
+        toast.error(t("form.required"));
+      }
       return;
     }
+
     setStep(2);
   }
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    const parsed = leadSchema.safeParse({
-      ...form,
+    const step1 = step1Schema.safeParse({
+      name: form.name,
+      email: form.email,
       phone: form.phone || undefined,
+      address: form.address,
+      houseNumber: form.houseNumber,
+    });
+
+    if (!step1.success) {
+      setStep(1);
+      const issue = step1.error.issues[0];
+      toast.error(
+        issue?.path[0] === "email" ? t("form.invalidEmail") : t("form.required"),
+      );
+      return;
+    }
+
+    const step2 = step2Schema.safeParse({
+      postal: form.postal,
+      city: form.city,
+      type: form.type,
+      message: form.message,
+    });
+
+    if (!step2.success) {
+      const issue = step2.error.issues[0];
+      if (issue?.path[0] === "message") {
+        toast.error(t("form.messageTooShort"));
+      } else {
+        toast.error(t("form.required"));
+      }
+      return;
+    }
+
+    const parsed = leadSchema.safeParse({
+      ...step1.data,
+      ...step2.data,
+      website: form.website || undefined,
     });
 
     if (!parsed.success) {
@@ -83,6 +138,7 @@ export function ContactSection() {
       return;
     }
 
+    // Honeypot: pretend success for bots
     if (parsed.data.website) {
       toast.success(t("form.success"));
       setForm(initial);
@@ -166,7 +222,7 @@ export function ContactSection() {
         </Reveal>
 
         <Reveal delay={0.1}>
-          <form onSubmit={onSubmit} className="surface-card space-y-4 p-5 sm:p-8">
+          <form onSubmit={onSubmit} className="surface-card space-y-4 p-5 sm:p-8" noValidate>
             <input
               type="text"
               name="website"
@@ -178,16 +234,20 @@ export function ContactSection() {
               aria-hidden
             />
 
+            <p className="text-xs text-muted-foreground">
+              {locale === "no" ? `Steg ${step} av 2` : `Step ${step} of 2`}
+            </p>
+
             {step === 1 ? (
               <>
                 <div className="space-y-2">
                   <Label htmlFor="name">{t("form.name")} *</Label>
                   <Input
                     id="name"
-                    required
                     value={form.name}
                     onChange={(e) => update("name", e.target.value)}
                     placeholder={t("form.name")}
+                    autoComplete="name"
                   />
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -199,6 +259,7 @@ export function ContactSection() {
                       value={form.phone}
                       onChange={(e) => update("phone", e.target.value)}
                       placeholder={t("form.phone")}
+                      autoComplete="tel"
                     />
                   </div>
                   <div className="space-y-2">
@@ -206,10 +267,10 @@ export function ContactSection() {
                     <Input
                       id="email"
                       type="email"
-                      required
                       value={form.email}
                       onChange={(e) => update("email", e.target.value)}
-                      placeholder={t("form.email")}
+                      placeholder="name@email.com"
+                      autoComplete="email"
                     />
                   </div>
                 </div>
@@ -218,17 +279,16 @@ export function ContactSection() {
                     <Label htmlFor="address">{t("form.address")} *</Label>
                     <Input
                       id="address"
-                      required
                       value={form.address}
                       onChange={(e) => update("address", e.target.value)}
                       placeholder={t("form.address")}
+                      autoComplete="street-address"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="houseNumber">{t("form.houseNumber")} *</Label>
                     <Input
                       id="houseNumber"
-                      required
                       value={form.houseNumber}
                       onChange={(e) => update("houseNumber", e.target.value)}
                       placeholder="12"
@@ -246,20 +306,20 @@ export function ContactSection() {
                     <Label htmlFor="postal">{t("form.postal")} *</Label>
                     <Input
                       id="postal"
-                      required
                       value={form.postal}
                       onChange={(e) => update("postal", e.target.value)}
                       placeholder="1394"
+                      autoComplete="postal-code"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="city">{t("form.city")} *</Label>
                     <Input
                       id="city"
-                      required
                       value={form.city}
                       onChange={(e) => update("city", e.target.value)}
                       placeholder={t("form.city")}
+                      autoComplete="address-level2"
                     />
                   </div>
                 </div>
@@ -267,7 +327,6 @@ export function ContactSection() {
                   <Label htmlFor="type">{t("form.type")}</Label>
                   <select
                     id="type"
-                    required
                     value={form.type}
                     onChange={(e) =>
                       update("type", e.target.value as FormState["type"])
@@ -283,11 +342,11 @@ export function ContactSection() {
                   <Label htmlFor="message">{t("form.message")} *</Label>
                   <Textarea
                     id="message"
-                    required
                     value={form.message}
                     onChange={(e) => update("message", e.target.value)}
                     placeholder={t("form.message")}
                   />
+                  <p className="text-xs text-muted-foreground">{t("form.messageHint")}</p>
                 </div>
                 <div className="flex gap-2">
                   <Button

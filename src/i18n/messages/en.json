@@ -185,7 +185,10 @@
       "sending": "Sending…",
       "success": "Thank you! We will be in touch soon.",
       "error": "Something went wrong. Try again or call us.",
-      "required": "Required field"
+      "required": "Please fill in all required fields",
+      "invalidEmail": "Enter a valid email address",
+      "messageTooShort": "Message must be at least 10 characters",
+      "messageHint": "Min. 10 characters"
     }
   },
   "footer": {
