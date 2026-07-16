@@ -50,50 +50,54 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
     }
 
+    // Honeypot — bots filled hidden field
     if (parsed.data.website) {
       return NextResponse.json({ ok: true });
     }
 
-    const { website: _honeypot, ...lead } = parsed.data;
+    const { website: _honeypot, phone, ...rest } = parsed.data;
     void _honeypot;
 
-    try {
-      const payload = await getPayload();
-      await payload.create({
-        collection: "leads",
-        data: {
-          ...lead,
-          status: "new",
-        },
-      });
-    } catch (err) {
-      console.error("Payload lead create failed (continuing with email):", err);
-    }
+    const payload = await getPayload();
+    await payload.create({
+      collection: "leads",
+      data: {
+        ...rest,
+        ...(phone ? { phone } : {}),
+        status: "new",
+      },
+      overrideAccess: true,
+    });
 
     if (process.env.RESEND_API_KEY) {
-      const resend = new Resend(process.env.RESEND_API_KEY);
-      await resend.emails.send({
-        from: process.env.LEAD_FROM_EMAIL || "leads@takfornying.no",
-        to: process.env.LEAD_TO_EMAIL || siteConfig.email,
-        subject: `Ny henvendelse: ${lead.name} (${lead.type})`,
-        text: [
-          `Navn: ${lead.name}`,
-          `E-post: ${lead.email}`,
-          `Telefon: ${lead.phone || "-"}`,
-          `Adresse: ${lead.address} ${lead.houseNumber}, ${lead.postal} ${lead.city}`,
-          `Type: ${lead.type}`,
-          `Språk: ${lead.locale}`,
-          "",
-          lead.message,
-        ].join("\n"),
-      });
+      try {
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        await resend.emails.send({
+          from: process.env.LEAD_FROM_EMAIL || "leads@takfornying.no",
+          to: process.env.LEAD_TO_EMAIL || siteConfig.email,
+          subject: `Ny henvendelse: ${rest.name} (${rest.type})`,
+          text: [
+            `Navn: ${rest.name}`,
+            `E-post: ${rest.email}`,
+            `Telefon: ${phone || "-"}`,
+            `Adresse: ${rest.address} ${rest.houseNumber}, ${rest.postal} ${rest.city}`,
+            `Type: ${rest.type}`,
+            `Språk: ${rest.locale}`,
+            "",
+            rest.message,
+          ].join("\n"),
+        });
+      } catch (err) {
+        // Lead is already saved — don't fail the request on email issues
+        console.error("Lead email failed:", err);
+      }
     } else {
-      console.info("[lead]", lead);
+      console.info("[lead]", { ...rest, phone });
     }
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error(err);
+    console.error("Lead create failed:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
