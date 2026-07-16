@@ -6,7 +6,9 @@ export const Media: CollectionConfig = {
     read: () => true,
   },
   upload: {
+    // Vercel has no persistent local disk; keep metadata working without local writes.
     staticDir: "media",
+    disableLocalStorage: true,
     mimeTypes: ["image/*"],
   },
   fields: [

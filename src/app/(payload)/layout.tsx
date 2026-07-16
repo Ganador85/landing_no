@@ -5,6 +5,7 @@ import type { ServerFunctionClient } from "payload";
 import "@payloadcms/next/css";
 
 import { importMap } from "./admin/importMap.js";
+import "./custom.scss";
 
 type Args = {
   children: React.ReactNode;

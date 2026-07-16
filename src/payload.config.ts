@@ -14,6 +14,7 @@ import { Products } from "./payload/collections/Products";
 import { Faq } from "./payload/collections/Faq";
 import { Leads } from "./payload/collections/Leads";
 import { SiteSettings } from "./payload/collections/SiteSettings";
+import { migrations } from "./payload/migrations";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -28,6 +29,8 @@ const serverURL =
   (process.env.VERCEL_PROJECT_PRODUCTION_URL
     ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
     : "http://localhost:3000");
+
+const migrationDir = path.resolve(dirname, "payload/migrations");
 
 export default buildConfig({
   serverURL,
@@ -48,9 +51,18 @@ export default buildConfig({
     ? postgresAdapter({
         pool: {
           connectionString: databaseUrl,
-          max: 1,
+          // max:1 deadlocks Payload (transactions + nested queries) on serverless.
+          max: 10,
+          idleTimeoutMillis: 20_000,
+          connectionTimeoutMillis: 15_000,
         },
-        push: true,
+        // Avoid nested transaction connection grabs that stall with small pools.
+        transactionOptions: false,
+        // Production never auto-pushes; migrations handle schema.
+        // Local/dev push stays available unless explicitly disabled.
+        push: process.env.NODE_ENV !== "production",
+        migrationDir,
+        prodMigrations: migrations,
       })
     : sqliteAdapter({
         client: {
