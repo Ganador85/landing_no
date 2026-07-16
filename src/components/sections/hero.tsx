@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
+import { siteImages } from "@/content/images";
 
 export function HeroSection() {
   const t = useTranslations("hero");
@@ -14,8 +15,7 @@ export function HeroSection() {
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1632778149955-e80f8ceca2e8?auto=format&fit=crop&w=2000&q=80')",
+          backgroundImage: `url('${siteImages.hero}')`,
         }}
         aria-hidden
       />
@@ -79,7 +79,10 @@ export function HeroSection() {
         </Reveal>
       </div>
 
-      <div className="absolute bottom-24 left-1/2 hidden -translate-x-1/2 animate-bounce text-white/40 md:bottom-8 md:block" aria-hidden>
+      <div
+        className="absolute bottom-24 left-1/2 hidden -translate-x-1/2 animate-bounce text-white/40 md:bottom-8 md:block"
+        aria-hidden
+      >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M6 9l6 6 6-6" />
         </svg>

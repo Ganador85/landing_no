@@ -5,6 +5,8 @@ export const routing = defineRouting({
   locales: ["no", "en"],
   defaultLocale: "no",
   localePrefix: "always",
+  // Always open Norwegian first for client/share links (language switcher still works).
+  localeDetection: false,
 });
 
 export const { Link, redirect, usePathname, useRouter, getPathname } =

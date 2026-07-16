@@ -126,6 +126,7 @@ export const projects = [
     stages: [
       {
         label: "before" as const,
+        image: "https://images.unsplash.com/photo-1572120360610-d971b9d7767c?auto=format&fit=crop&w=900&q=80",
         caption: {
           no: "Slitt og mosegrodd takstein",
           en: "Worn and moss-covered tiles",
@@ -133,6 +134,7 @@ export const projects = [
       },
       {
         label: "during" as const,
+        image: "https://images.unsplash.com/photo-1628624747186-a941c476b7ef?auto=format&fit=crop&w=900&q=80",
         caption: {
           no: "Taket er vasket og impregnert",
           en: "Washed and impregnated",
@@ -140,6 +142,7 @@ export const projects = [
       },
       {
         label: "after" as const,
+        image: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=900&q=80",
         caption: {
           no: "Vasket, impregnert og malt – som nytt",
           en: "Washed, impregnated and painted – like new",
@@ -153,14 +156,17 @@ export const projects = [
     stages: [
       {
         label: "during" as const,
+        image: "https://images.unsplash.com/photo-1605146768851-eda79da39897?auto=format&fit=crop&w=900&q=80",
         caption: { no: "Under arbeid", en: "In progress" },
       },
       {
         label: "during" as const,
+        image: "https://images.unsplash.com/photo-1430285561322-7808604715df?auto=format&fit=crop&w=900&q=80",
         caption: { no: "Under arbeid", en: "In progress" },
       },
       {
         label: "after" as const,
+        image: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=900&q=80",
         caption: { no: "Ferdig fornyet", en: "Fully renewed" },
       },
     ],
@@ -171,10 +177,12 @@ export const projects = [
     stages: [
       {
         label: "before" as const,
+        image: "https://images.unsplash.com/photo-1572120360610-d971b9d7767c?auto=format&fit=crop&w=900&q=80",
         caption: { no: "Slitt tak med mose", en: "Worn roof with moss" },
       },
       {
         label: "after" as const,
+        image: "https://images.unsplash.com/photo-1475855581690-80accde3ae2b?auto=format&fit=crop&w=900&q=80",
         caption: {
           no: "Vasket, impregnert og malt",
           en: "Washed, impregnated and painted",
@@ -191,6 +199,7 @@ export const projects = [
     stages: [
       {
         label: "during" as const,
+        image: "https://images.unsplash.com/photo-1605146768851-eda79da39897?auto=format&fit=crop&w=900&q=80",
         caption: {
           no: "Taket klargjøres for maling",
           en: "Roof prepared for painting",
@@ -198,6 +207,7 @@ export const projects = [
       },
       {
         label: "after" as const,
+        image: "https://images.unsplash.com/photo-1464146072230-91cabc968266?auto=format&fit=crop&w=900&q=80",
         caption: { no: "Ferdig malt og fornyet", en: "Painted and renewed" },
       },
     ],
@@ -208,6 +218,7 @@ export const projects = [
     stages: [
       {
         label: "during" as const,
+        image: "https://images.unsplash.com/photo-1628624747186-a941c476b7ef?auto=format&fit=crop&w=900&q=80",
         caption: {
           no: "Taket klargjøres for maling",
           en: "Roof prepared for painting",
@@ -215,6 +226,7 @@ export const projects = [
       },
       {
         label: "after" as const,
+        image: "https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=900&q=80",
         caption: { no: "Ferdig malt og fornyet", en: "Painted and renewed" },
       },
     ],

@@ -5,6 +5,7 @@ import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
 import { siteConfig } from "@/lib/site";
+import { siteImages } from "@/content/images";
 
 export function AboutSection() {
   const t = useTranslations("about");
@@ -21,6 +22,15 @@ export function AboutSection() {
       <div className="container-narrow">
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
           <Reveal>
+            <div className="relative mb-8 aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 lg:mb-10">
+              <img
+                src={siteImages.about}
+                alt={t("title")}
+                className="absolute inset-0 h-full w-full object-cover"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+            </div>
             <p className="eyebrow">{t("eyebrow")}</p>
             <h2 className="heading-display mt-3 text-balance">{t("title")}</h2>
             <p className="mt-4 text-lg text-muted-foreground">{t("subtitle")}</p>

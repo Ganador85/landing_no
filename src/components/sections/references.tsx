@@ -8,12 +8,6 @@ import { Reveal } from "@/components/ui/reveal";
 import { projects } from "@/content/site-content";
 import { cn } from "@/lib/utils";
 
-const stageColors = {
-  before: "from-stone-700/80 to-stone-900/90",
-  during: "from-amber-800/70 to-stone-900/90",
-  after: "from-emerald-800/60 to-stone-900/90",
-};
-
 export function ReferencesSection() {
   const t = useTranslations("references");
   const locale = useLocale() as "no" | "en";
@@ -46,6 +40,7 @@ export function ReferencesSection() {
               <p className="eyebrow">{t("eyebrow")}</p>
               <h2 className="heading-display mt-3 text-balance">{t("title")}</h2>
               <p className="mt-4 max-w-xl text-muted-foreground">{t("subtitle")}</p>
+              <p className="mt-2 max-w-xl text-xs text-muted-foreground/80">{t("note")}</p>
             </div>
             <div className="flex gap-2">
               <button
@@ -84,15 +79,24 @@ export function ReferencesSection() {
                     {project.stages.map((stage, idx) => (
                       <div
                         key={`${project.id}-${idx}`}
-                        className={cn(
-                          "relative aspect-[4/3] bg-gradient-to-br p-4",
-                          stageColors[stage.label],
-                        )}
+                        className="relative aspect-[4/3] overflow-hidden bg-black/40"
                       >
-                        <span className="inline-flex rounded-full bg-black/40 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white/90 backdrop-blur-sm">
+                        <img
+                          src={stage.image}
+                          alt={stage.caption[locale]}
+                          className="absolute inset-0 h-full w-full object-cover"
+                          loading="lazy"
+                        />
+                        <div
+                          className={cn(
+                            "absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent",
+                          )}
+                          aria-hidden
+                        />
+                        <span className="absolute left-3 top-3 inline-flex rounded-full bg-black/45 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white/90 backdrop-blur-sm">
                           {t(stage.label)}
                         </span>
-                        <p className="absolute inset-x-4 bottom-4 text-sm font-medium text-white/95">
+                        <p className="absolute inset-x-3 bottom-3 text-sm font-medium text-white/95">
                           {stage.caption[locale]}
                         </p>
                       </div>

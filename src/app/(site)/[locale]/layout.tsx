@@ -6,6 +6,7 @@ import { Manrope } from "next/font/google";
 import { Toaster } from "sonner";
 import { routing } from "@/i18n/routing";
 import { siteConfig } from "@/lib/site";
+import { siteImages } from "@/content/images";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { StickyBottomCta } from "@/components/layout/sticky-cta";
@@ -51,11 +52,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       siteName: siteConfig.name,
       locale: locale === "no" ? "nb_NO" : "en_GB",
       type: "website",
+      images: [{ url: siteImages.og, width: 1200, height: 630, alt: siteConfig.name }],
     },
     twitter: {
       card: "summary_large_image",
       title: t("title"),
       description: t("description"),
+      images: [siteImages.og],
     },
     robots: { index: true, follow: true },
   };
