@@ -3,8 +3,9 @@
 import { useCallback, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import { Reveal } from "@/components/ui/reveal";
+import { usePageCopy } from "@/components/site-settings-provider";
 import type { CmsProject } from "@/lib/cms-content";
 import { cn } from "@/lib/utils";
 
@@ -13,7 +14,7 @@ type Props = {
 };
 
 export function ReferencesSection({ projects }: Props) {
-  const t = useTranslations("references");
+  const copy = usePageCopy();
   const locale = useLocale() as "no" | "en";
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "start",
@@ -41,10 +42,10 @@ export function ReferencesSection({ projects }: Props) {
         <Reveal>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="eyebrow">{t("eyebrow")}</p>
-              <h2 className="heading-display mt-3 text-balance">{t("title")}</h2>
-              <p className="mt-4 max-w-xl text-muted-foreground">{t("subtitle")}</p>
-              <p className="mt-2 max-w-xl text-xs text-muted-foreground/80">{t("note")}</p>
+              <p className="eyebrow">{copy.references.eyebrow}</p>
+              <h2 className="heading-display mt-3 text-balance">{copy.references.title}</h2>
+              <p className="mt-4 max-w-xl text-muted-foreground">{copy.references.subtitle}</p>
+              <p className="mt-2 max-w-xl text-xs text-muted-foreground/80">{copy.references.note}</p>
             </div>
             <div className="flex gap-2">
               <button
@@ -69,7 +70,7 @@ export function ReferencesSection({ projects }: Props) {
           </div>
         </Reveal>
 
-        <p className="mt-4 text-xs text-muted-foreground md:hidden">{t("swipe")}</p>
+        <p className="mt-4 text-xs text-muted-foreground md:hidden">{copy.references.swipe}</p>
 
         <div className="mt-8 overflow-hidden" ref={emblaRef}>
           <div className="flex gap-4">
@@ -98,7 +99,7 @@ export function ReferencesSection({ projects }: Props) {
                           aria-hidden
                         />
                         <span className="absolute left-3 top-3 inline-flex rounded-full bg-black/45 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white/90 backdrop-blur-sm">
-                          {t(stage.label)}
+                          {copy.references[stage.label]}
                         </span>
                         <p className="absolute inset-x-3 bottom-3 text-sm font-medium text-white/95">
                           {stage.caption[locale]}

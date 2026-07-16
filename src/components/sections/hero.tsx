@@ -1,10 +1,10 @@
 "use client";
 
 import { Shield, Star, Users } from "lucide-react";
-import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
+import { usePageCopy } from "@/components/site-settings-provider";
 import { siteImages } from "@/content/images";
 
 type Props = {
@@ -12,7 +12,7 @@ type Props = {
 };
 
 export function HeroSection({ heroImage = siteImages.hero }: Props) {
-  const t = useTranslations("hero");
+  const copy = usePageCopy();
 
   return (
     <section className="relative flex min-h-[100svh] items-end overflow-hidden pb-28 pt-28 md:items-center md:pb-20 md:pt-24">
@@ -34,30 +34,30 @@ export function HeroSection({ heroImage = siteImages.hero }: Props) {
         <Reveal>
           <div className="mb-5 inline-flex max-w-full items-center gap-2 rounded-full border border-accent/30 bg-accent-soft px-3 py-1.5 text-xs font-medium text-accent sm:text-sm">
             <Star className="size-3.5 shrink-0 fill-accent" />
-            <span className="truncate">{t("badge")}</span>
+            <span className="truncate">{copy.hero.badge}</span>
           </div>
         </Reveal>
 
         <Reveal delay={0.08}>
           <h1 className="max-w-3xl text-balance text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl xl:text-7xl">
-            {t("title")}{" "}
-            <span className="text-accent">{t("titleAccent")}</span>
+            {copy.hero.title}{" "}
+            <span className="text-accent">{copy.hero.titleAccent}</span>
           </h1>
         </Reveal>
 
         <Reveal delay={0.14}>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-white/80 sm:text-lg">
-            {t("subtitle")}
+            {copy.hero.subtitle}
           </p>
         </Reveal>
 
         <Reveal delay={0.2}>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
             <Button asChild size="xl" className="w-full sm:w-auto">
-              <Link href="/#kontakt">{t("cta")}</Link>
+              <Link href="/#kontakt">{copy.hero.cta}</Link>
             </Button>
             <Button asChild size="xl" variant="secondary" className="w-full sm:w-auto">
-              <Link href="/#tjenester">{t("ctaSecondary")}</Link>
+              <Link href="/#tjenester">{copy.hero.ctaSecondary}</Link>
             </Button>
           </div>
         </Reveal>
@@ -65,9 +65,9 @@ export function HeroSection({ heroImage = siteImages.hero }: Props) {
         <Reveal delay={0.28}>
           <ul className="mt-10 grid grid-cols-3 gap-2 sm:gap-4 md:max-w-xl">
             {[
-              { icon: Shield, label: t("trustWarranty") },
-              { icon: Users, label: t("trustCustomers") },
-              { icon: Star, label: t("trustRating") },
+              { icon: Shield, label: copy.hero.trustWarranty },
+              { icon: Users, label: copy.hero.trustCustomers },
+              { icon: Star, label: copy.hero.trustRating },
             ].map(({ icon: Icon, label }) => (
               <li
                 key={label}

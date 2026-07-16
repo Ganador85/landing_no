@@ -1,12 +1,11 @@
 "use client";
 
 import { Phone, CalendarCheck } from "lucide-react";
-import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
-import { useSiteSettings } from "@/components/site-settings-provider";
+import { usePageCopy, useSiteSettings } from "@/components/site-settings-provider";
 
 export function StickyBottomCta() {
-  const t = useTranslations("sticky");
+  const copy = usePageCopy();
   const settings = useSiteSettings();
 
   return (
@@ -17,14 +16,14 @@ export function StickyBottomCta() {
           className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 text-sm font-semibold text-foreground transition-colors active:scale-[0.98]"
         >
           <Phone className="size-4" />
-          {t("call")}
+          {copy.sticky.call}
         </a>
         <Link
           href="/#kontakt"
           className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-accent text-sm font-semibold text-accent-foreground shadow-lg shadow-accent/25 transition-colors active:scale-[0.98]"
         >
           <CalendarCheck className="size-4" />
-          {t("book")}
+          {copy.sticky.book}
         </Link>
       </div>
     </div>

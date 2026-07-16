@@ -1,6 +1,6 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import {
   Accordion,
   AccordionContent,
@@ -8,6 +8,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Reveal } from "@/components/ui/reveal";
+import { usePageCopy } from "@/components/site-settings-provider";
 import type { CmsFaq } from "@/lib/cms-content";
 
 type Props = {
@@ -15,16 +16,16 @@ type Props = {
 };
 
 export function FaqSection({ items }: Props) {
-  const t = useTranslations("faq");
+  const copy = usePageCopy();
   const locale = useLocale() as "no" | "en";
 
   return (
     <section id="faq" className="section-pad">
       <div className="container-narrow max-w-3xl">
         <Reveal>
-          <p className="eyebrow">{t("eyebrow")}</p>
-          <h2 className="heading-display mt-3 text-balance">{t("title")}</h2>
-          <p className="mt-4 text-muted-foreground">{t("subtitle")}</p>
+          <p className="eyebrow">{copy.faq.eyebrow}</p>
+          <h2 className="heading-display mt-3 text-balance">{copy.faq.title}</h2>
+          <p className="mt-4 text-muted-foreground">{copy.faq.subtitle}</p>
         </Reveal>
 
         <Reveal delay={0.1}>

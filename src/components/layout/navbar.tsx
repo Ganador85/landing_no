@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { Menu, Phone, X } from "lucide-react";
-import { useTranslations, useLocale } from "next-intl";
+import { useLocale } from "next-intl";
 import { Link, usePathname } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useSiteSettings } from "@/components/site-settings-provider";
+import { usePageCopy, useSiteSettings } from "@/components/site-settings-provider";
 
 const links = [
   { href: "/#tjenester", key: "services" as const },
@@ -17,7 +17,7 @@ const links = [
 ];
 
 export function Navbar() {
-  const t = useTranslations("nav");
+  const copy = usePageCopy();
   const locale = useLocale();
   const pathname = usePathname();
   const settings = useSiteSettings();
@@ -43,7 +43,7 @@ export function Navbar() {
               href={link.href}
               className="rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
             >
-              {t(link.key)}
+              {copy.nav[link.key]}
             </Link>
           ))}
         </nav>
@@ -61,18 +61,18 @@ export function Navbar() {
           <Button asChild size="sm" variant="secondary" className="hidden sm:inline-flex">
             <a href={settings.phoneHref}>
               <Phone className="size-3.5" />
-              {t("call")}
+              {copy.nav.call}
             </a>
           </Button>
 
           <Button asChild size="sm" className="hidden md:inline-flex">
-            <Link href="/#kontakt">{t("contactUs")}</Link>
+            <Link href="/#kontakt">{copy.nav.contactUs}</Link>
           </Button>
 
           <button
             type="button"
             className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-foreground hover:bg-white/10 lg:hidden"
-            aria-label={open ? t("close") : t("menu")}
+            aria-label={open ? copy.nav.close : copy.nav.menu}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
           >
@@ -95,19 +95,19 @@ export function Navbar() {
               className="rounded-xl px-4 py-3 text-base font-medium hover:bg-white/5"
               onClick={() => setOpen(false)}
             >
-              {t(link.key)}
+              {copy.nav[link.key]}
             </Link>
           ))}
           <div className="mt-2 flex gap-2 border-t border-white/10 pt-4">
             <Button asChild className="flex-1" variant="secondary">
               <a href={settings.phoneHref}>
                 <Phone className="size-4" />
-                {t("call")}
+                {copy.nav.call}
               </a>
             </Button>
             <Button asChild className="flex-1">
               <Link href="/#kontakt" onClick={() => setOpen(false)}>
-                {t("contactUs")}
+                {copy.nav.contactUs}
               </Link>
             </Button>
           </div>

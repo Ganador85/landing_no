@@ -1,11 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
 import { CountUp } from "@/components/ui/count-up";
+import { usePageCopy } from "@/components/site-settings-provider";
 import type { CmsSettings } from "@/lib/cms-content";
 import { siteConfig } from "@/lib/site";
 import { formatNok } from "@/lib/utils";
@@ -17,7 +18,7 @@ type Props = {
 export function CalculatorSection({
   calculator = siteConfig.calculator,
 }: Props) {
-  const t = useTranslations("calculator");
+  const copy = usePageCopy();
   const locale = useLocale();
   const { minSqm, maxSqm, defaultSqm, newRoofPerSqm, renewalPerSqm } = calculator;
   const [sqm, setSqm] = useState(defaultSqm);
@@ -39,19 +40,19 @@ export function CalculatorSection({
     <section id="kalkulator" className="section-pad bg-background-elevated/50">
       <div className="container-narrow">
         <Reveal>
-          <p className="eyebrow">{t("eyebrow")}</p>
-          <h2 className="heading-display mt-3 text-balance">{t("title")}</h2>
-          <p className="mt-4 max-w-2xl text-muted-foreground">{t("subtitle")}</p>
+          <p className="eyebrow">{copy.calculator.eyebrow}</p>
+          <h2 className="heading-display mt-3 text-balance">{copy.calculator.title}</h2>
+          <p className="mt-4 max-w-2xl text-muted-foreground">{copy.calculator.subtitle}</p>
         </Reveal>
 
         <Reveal delay={0.1}>
           <div className="surface-card mt-10 overflow-hidden p-5 sm:p-8 lg:p-10">
-            <p className="text-sm text-muted-foreground">{t("hint")}</p>
+            <p className="text-sm text-muted-foreground">{copy.calculator.hint}</p>
 
             <div className="mt-6">
               <div className="mb-3 flex items-end justify-between gap-4">
                 <label htmlFor="roof-size" className="text-sm font-medium">
-                  {t("sizeLabel")}
+                  {copy.calculator.sizeLabel}
                 </label>
                 <span className="text-2xl font-bold tabular-nums text-accent sm:text-3xl">
                   {sqm} m²
@@ -75,7 +76,7 @@ export function CalculatorSection({
 
             <div className="mt-8 grid gap-4 sm:grid-cols-3">
               <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
-                <p className="text-sm text-muted-foreground">{t("newRoof")}</p>
+                <p className="text-sm text-muted-foreground">{copy.calculator.newRoof}</p>
                 <p className="mt-2 text-xl font-bold tabular-nums line-through decoration-white/30 sm:text-2xl">
                   <CountUp
                     value={newRoof}
@@ -84,7 +85,7 @@ export function CalculatorSection({
                 </p>
               </div>
               <div className="rounded-2xl border border-accent/30 bg-accent-soft p-5">
-                <p className="text-sm text-accent">{t("renewal")}</p>
+                <p className="text-sm text-accent">{copy.calculator.renewal}</p>
                 <p className="mt-2 text-xl font-bold tabular-nums text-accent sm:text-2xl">
                   <CountUp
                     value={renewal}
@@ -93,7 +94,7 @@ export function CalculatorSection({
                 </p>
               </div>
               <div className="rounded-2xl border border-success/30 bg-success/10 p-5">
-                <p className="text-sm text-success">{t("youSave")}</p>
+                <p className="text-sm text-success">{copy.calculator.youSave}</p>
                 <p className="mt-2 text-xl font-bold tabular-nums text-success sm:text-2xl">
                   <CountUp
                     value={save}
@@ -104,15 +105,15 @@ export function CalculatorSection({
             </div>
 
             <p className="mt-6 text-center text-lg font-semibold text-foreground">
-              {t("cheaper", { percent })}
+              {copy.calculator.cheaper.replace("{percent}", String(percent))}
             </p>
             <p className="mt-3 text-center text-xs leading-relaxed text-muted-foreground">
-              {t("disclaimer")}
+              {copy.calculator.disclaimer}
             </p>
 
             <div className="mt-8 flex justify-center">
               <Button asChild size="lg">
-                <Link href="/#kontakt">{t("cta")}</Link>
+                <Link href="/#kontakt">{copy.calculator.cta}</Link>
               </Button>
             </div>
           </div>

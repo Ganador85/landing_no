@@ -1,0 +1,271 @@
+import type { Field, Tab } from "payload";
+
+/** Pair of NO/EN text fields */
+export function biText(
+  base: string,
+  label: string,
+  opts?: { textarea?: boolean; required?: boolean },
+): Field[] {
+  if (opts?.textarea) {
+    return [
+      {
+        name: `${base}No`,
+        type: "textarea",
+        label: `${label} (NO)`,
+        required: opts?.required,
+      },
+      {
+        name: `${base}En`,
+        type: "textarea",
+        label: `${label} (EN)`,
+        required: opts?.required,
+      },
+    ];
+  }
+  return [
+    {
+      name: `${base}No`,
+      type: "text",
+      label: `${label} (NO)`,
+      required: opts?.required,
+    },
+    {
+      name: `${base}En`,
+      type: "text",
+      label: `${label} (EN)`,
+      required: opts?.required,
+    },
+  ];
+}
+
+export const pageCopyTabs: Tab[] = [
+  {
+    label: "Meta & Nav",
+    description: "Browser tab title/description and menu labels",
+    fields: [
+      {
+        name: "copyMeta",
+        type: "group",
+        label: "SEO Meta",
+        fields: [...biText("title", "Title"), ...biText("description", "Description", { textarea: true })],
+      },
+      {
+        name: "copyNav",
+        type: "group",
+        label: "Navigation",
+        fields: [
+          ...biText("home", "Home"),
+          ...biText("services", "Services"),
+          ...biText("references", "References"),
+          ...biText("about", "About"),
+          ...biText("products", "Products"),
+          ...biText("contact", "Contact"),
+          ...biText("contactUs", "Contact us"),
+          ...biText("call", "Call"),
+          ...biText("menu", "Menu"),
+          ...biText("close", "Close"),
+        ],
+      },
+    ],
+  },
+  {
+    label: "Hero & Sticky",
+    fields: [
+      {
+        name: "copyHero",
+        type: "group",
+        label: "Hero",
+        fields: [
+          ...biText("badge", "Badge"),
+          ...biText("title", "Title"),
+          ...biText("titleAccent", "Title accent"),
+          ...biText("subtitle", "Subtitle", { textarea: true }),
+          ...biText("cta", "Primary CTA"),
+          ...biText("ctaSecondary", "Secondary CTA"),
+          ...biText("trustWarranty", "Trust – warranty"),
+          ...biText("trustCustomers", "Trust – customers"),
+          ...biText("trustRating", "Trust – rating"),
+        ],
+      },
+      {
+        name: "copySticky",
+        type: "group",
+        label: "Mobile sticky bar",
+        fields: [...biText("call", "Call"), ...biText("book", "Book")],
+      },
+    ],
+  },
+  {
+    label: "Sections",
+    description: "Headings for services, calculator, references, products, FAQ",
+    fields: [
+      {
+        name: "copyServices",
+        type: "group",
+        label: "Services section",
+        fields: [
+          ...biText("eyebrow", "Eyebrow"),
+          ...biText("title", "Title"),
+          ...biText("subtitle", "Subtitle", { textarea: true }),
+          ...biText("showMore", "Show more"),
+          ...biText("showLess", "Show less"),
+        ],
+      },
+      {
+        name: "copyCalculator",
+        type: "group",
+        label: "Calculator section",
+        fields: [
+          ...biText("eyebrow", "Eyebrow"),
+          ...biText("title", "Title"),
+          ...biText("subtitle", "Subtitle", { textarea: true }),
+          ...biText("hint", "Hint"),
+          ...biText("sizeLabel", "Size label"),
+          ...biText("newRoof", "New roof label"),
+          ...biText("renewal", "Renewal label"),
+          ...biText("youSave", "You save"),
+          ...biText("cheaper", "Cheaper text ({percent})"),
+          ...biText("disclaimer", "Disclaimer", { textarea: true }),
+          ...biText("cta", "CTA"),
+        ],
+      },
+      {
+        name: "copyReferences",
+        type: "group",
+        label: "References section",
+        fields: [
+          ...biText("eyebrow", "Eyebrow"),
+          ...biText("title", "Title"),
+          ...biText("subtitle", "Subtitle", { textarea: true }),
+          ...biText("note", "Note", { textarea: true }),
+          ...biText("before", "Before label"),
+          ...biText("during", "During label"),
+          ...biText("after", "After label"),
+          ...biText("swipe", "Swipe hint"),
+        ],
+      },
+      {
+        name: "copyProducts",
+        type: "group",
+        label: "Products section",
+        fields: [
+          ...biText("eyebrow", "Eyebrow"),
+          ...biText("title", "Title"),
+          ...biText("subtitle", "Subtitle", { textarea: true }),
+          ...biText("footer", "Footer", { textarea: true }),
+        ],
+      },
+      {
+        name: "copyFaq",
+        type: "group",
+        label: "FAQ section",
+        fields: [
+          ...biText("eyebrow", "Eyebrow"),
+          ...biText("title", "Title"),
+          ...biText("subtitle", "Subtitle", { textarea: true }),
+        ],
+      },
+    ],
+  },
+  {
+    label: "New roof & About",
+    fields: [
+      {
+        name: "copyNewRoof",
+        type: "group",
+        label: "New roof section",
+        fields: [
+          ...biText("eyebrow", "Eyebrow"),
+          ...biText("title", "Title"),
+          ...biText("subtitle", "Subtitle", { textarea: true }),
+          ...biText("body", "Body", { textarea: true }),
+          ...biText("typesTitle", "Types title"),
+          ...biText("types", "Roof types (one per line)", { textarea: true }),
+          ...biText("note", "Note", { textarea: true }),
+          ...biText("cta", "CTA"),
+        ],
+      },
+      {
+        name: "copyAbout",
+        type: "group",
+        label: "About section",
+        fields: [
+          ...biText("eyebrow", "Eyebrow"),
+          ...biText("title", "Title"),
+          ...biText("subtitle", "Subtitle", { textarea: true }),
+          ...biText("p1", "Paragraph 1", { textarea: true }),
+          ...biText("p2", "Paragraph 2", { textarea: true }),
+          ...biText("p3", "Paragraph 3", { textarea: true }),
+          ...biText("parent", "Parent org line", { textarea: true }),
+          ...biText("cta", "CTA"),
+          ...biText("stat1Title", "Stat 1 title"),
+          ...biText("stat1Desc", "Stat 1 description"),
+          ...biText("stat2Title", "Stat 2 title"),
+          ...biText("stat2Desc", "Stat 2 description"),
+          ...biText("stat3Title", "Stat 3 title"),
+          ...biText("stat3Desc", "Stat 3 description"),
+          ...biText("stat4Title", "Stat 4 title"),
+          ...biText("stat4Desc", "Stat 4 description"),
+          ...biText("companyTitle", "Company block title"),
+          ...biText("companyOrg", "Org label"),
+          ...biText("companyPhone", "Phone label"),
+          ...biText("companyEmail", "Email label"),
+          ...biText("companyAddress", "Address label"),
+        ],
+      },
+    ],
+  },
+  {
+    label: "Contact & Footer",
+    fields: [
+      {
+        name: "copyContact",
+        type: "group",
+        label: "Contact section",
+        fields: [
+          ...biText("eyebrow", "Eyebrow"),
+          ...biText("title", "Title"),
+          ...biText("subtitle", "Subtitle", { textarea: true }),
+          ...biText("phone", "Phone label"),
+          ...biText("hours", "Hours"),
+          ...biText("email", "Email label"),
+          ...biText("reply", "Reply note"),
+          ...biText("office", "Office label"),
+          ...biText("formName", "Form: name"),
+          ...biText("formEmail", "Form: email"),
+          ...biText("formPhone", "Form: phone"),
+          ...biText("formAddress", "Form: address"),
+          ...biText("formHouseNumber", "Form: house number"),
+          ...biText("formPostal", "Form: postal"),
+          ...biText("formCity", "Form: city"),
+          ...biText("formType", "Form: type"),
+          ...biText("formTypeRenewal", "Form: type renewal"),
+          ...biText("formTypeNew", "Form: type new roof"),
+          ...biText("formTypeCladding", "Form: type cladding"),
+          ...biText("formMessage", "Form: message"),
+          ...biText("formSubmit", "Form: submit"),
+          ...biText("formSending", "Form: sending"),
+          ...biText("formSuccess", "Form: success"),
+          ...biText("formError", "Form: error"),
+          ...biText("formRequired", "Form: required"),
+          ...biText("formInvalidEmail", "Form: invalid email"),
+          ...biText("formMessageTooShort", "Form: message too short"),
+          ...biText("formMessageHint", "Form: message hint"),
+        ],
+      },
+      {
+        name: "copyFooter",
+        type: "group",
+        label: "Footer",
+        fields: [
+          ...biText("tagline", "Tagline", { textarea: true }),
+          ...biText("partOf", "Part of"),
+          ...biText("quickLinks", "Quick links"),
+          ...biText("contact", "Contact"),
+          ...biText("warrantyNote", "Warranty note", { textarea: true }),
+          ...biText("rights", "Rights"),
+        ],
+      },
+    ],
+  },
+];

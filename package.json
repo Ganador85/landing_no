@@ -12,7 +12,9 @@
     "generate:importmap": "payload generate:importmap",
     "db:push": "node --env-file=.env --import tsx scripts/push-schema.mjs",
     "db:seed": "node --env-file=.env scripts/seed-cms-sql.mjs",
+    "db:seed-copy": "node --env-file=.env scripts/seed-page-copy.mjs",
     "db:ensure": "node --env-file=.env scripts/ensure-cms-schema.mjs",
+    "db:ensure-copy": "node --env-file=.env scripts/ensure-page-copy-schema.mjs",
     "db:migrate": "payload migrate"
   },
   "dependencies": {

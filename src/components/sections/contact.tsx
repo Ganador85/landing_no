@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Clock, Mail, MapPin, Phone } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Reveal } from "@/components/ui/reveal";
-import { useSiteSettings } from "@/components/site-settings-provider";
+import { usePageCopy, useSiteSettings } from "@/components/site-settings-provider";
 
 const step1Schema = z.object({
   name: z.string().trim().min(2),
@@ -54,7 +54,7 @@ const initial: FormState = {
 };
 
 export function ContactSection() {
-  const t = useTranslations("contact");
+  const copy = usePageCopy();
   const locale = useLocale();
   const settings = useSiteSettings();
   const [loading, setLoading] = useState(false);
@@ -77,9 +77,9 @@ export function ContactSection() {
     if (!parsed.success) {
       const issue = parsed.error.issues[0];
       if (issue?.path[0] === "email") {
-        toast.error(t("form.invalidEmail"));
+        toast.error(copy.contact.form.invalidEmail);
       } else {
-        toast.error(t("form.required"));
+        toast.error(copy.contact.form.required);
       }
       return;
     }
@@ -102,7 +102,7 @@ export function ContactSection() {
       setStep(1);
       const issue = step1.error.issues[0];
       toast.error(
-        issue?.path[0] === "email" ? t("form.invalidEmail") : t("form.required"),
+        issue?.path[0] === "email" ? copy.contact.form.invalidEmail : copy.contact.form.required,
       );
       return;
     }
@@ -117,9 +117,9 @@ export function ContactSection() {
     if (!step2.success) {
       const issue = step2.error.issues[0];
       if (issue?.path[0] === "message") {
-        toast.error(t("form.messageTooShort"));
+        toast.error(copy.contact.form.messageTooShort);
       } else {
-        toast.error(t("form.required"));
+        toast.error(copy.contact.form.required);
       }
       return;
     }
@@ -130,7 +130,7 @@ export function ContactSection() {
     });
 
     if (!parsed.success) {
-      toast.error(t("form.required"));
+      toast.error(copy.contact.form.required);
       return;
     }
 
@@ -150,11 +150,11 @@ export function ContactSection() {
         throw new Error(data?.error || "Failed");
       }
 
-      toast.success(t("form.success"));
+      toast.success(copy.contact.form.success);
       setForm(initial);
       setStep(1);
     } catch {
-      toast.error(t("form.error"));
+      toast.error(copy.contact.form.error);
     } finally {
       setLoading(false);
     }
@@ -164,9 +164,9 @@ export function ContactSection() {
     <section id="kontakt" className="section-pad bg-background-elevated/50">
       <div className="container-narrow grid gap-10 lg:grid-cols-2 lg:gap-16">
         <Reveal>
-          <p className="eyebrow">{t("eyebrow")}</p>
-          <h2 className="heading-display mt-3 text-balance">{t("title")}</h2>
-          <p className="mt-4 text-muted-foreground">{t("subtitle")}</p>
+          <p className="eyebrow">{copy.contact.eyebrow}</p>
+          <h2 className="heading-display mt-3 text-balance">{copy.contact.title}</h2>
+          <p className="mt-4 text-muted-foreground">{copy.contact.subtitle}</p>
 
           <ul className="mt-8 space-y-5">
             <li className="flex gap-4">
@@ -174,11 +174,11 @@ export function ContactSection() {
                 <Phone className="size-5" />
               </span>
               <div>
-                <p className="text-sm text-muted-foreground">{t("phone")}</p>
+                <p className="text-sm text-muted-foreground">{copy.contact.phone}</p>
                 <a href={settings.phoneHref} className="text-lg font-semibold hover:text-accent">
                   {settings.phone}
                 </a>
-                <p className="text-xs text-muted-foreground">{t("hours")}</p>
+                <p className="text-xs text-muted-foreground">{copy.contact.hours}</p>
               </div>
             </li>
             <li className="flex gap-4">
@@ -186,7 +186,7 @@ export function ContactSection() {
                 <Mail className="size-5" />
               </span>
               <div>
-                <p className="text-sm text-muted-foreground">{t("email")}</p>
+                <p className="text-sm text-muted-foreground">{copy.contact.email}</p>
                 <a
                   href={`mailto:${settings.email}`}
                   className="text-lg font-semibold hover:text-accent"
@@ -195,7 +195,7 @@ export function ContactSection() {
                 </a>
                 <p className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Clock className="size-3" />
-                  {t("reply")}
+                  {copy.contact.reply}
                 </p>
               </div>
             </li>
@@ -204,7 +204,7 @@ export function ContactSection() {
                 <MapPin className="size-5" />
               </span>
               <div>
-                <p className="text-sm text-muted-foreground">{t("office")}</p>
+                <p className="text-sm text-muted-foreground">{copy.contact.office}</p>
                 <p className="font-semibold">
                   {settings.address.street}
                   <br />
@@ -224,29 +224,29 @@ export function ContactSection() {
             {step === 1 ? (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="name">{t("form.name")} *</Label>
+                  <Label htmlFor="name">{copy.contact.form.name} *</Label>
                   <Input
                     id="name"
                     value={form.name}
                     onChange={(e) => update("name", e.target.value)}
-                    placeholder={t("form.name")}
+                    placeholder={copy.contact.form.name}
                     autoComplete="name"
                   />
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="phone">{t("form.phone")}</Label>
+                    <Label htmlFor="phone">{copy.contact.form.phone}</Label>
                     <Input
                       id="phone"
                       type="tel"
                       value={form.phone}
                       onChange={(e) => update("phone", e.target.value)}
-                      placeholder={t("form.phone")}
+                      placeholder={copy.contact.form.phone}
                       autoComplete="tel"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email">{t("form.email")} *</Label>
+                    <Label htmlFor="email">{copy.contact.form.email} *</Label>
                     <Input
                       id="email"
                       type="email"
@@ -259,17 +259,17 @@ export function ContactSection() {
                 </div>
                 <div className="grid gap-4 sm:grid-cols-[1fr_100px]">
                   <div className="space-y-2">
-                    <Label htmlFor="address">{t("form.address")} *</Label>
+                    <Label htmlFor="address">{copy.contact.form.address} *</Label>
                     <Input
                       id="address"
                       value={form.address}
                       onChange={(e) => update("address", e.target.value)}
-                      placeholder={t("form.address")}
+                      placeholder={copy.contact.form.address}
                       autoComplete="street-address"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="houseNumber">{t("form.houseNumber")} *</Label>
+                    <Label htmlFor="houseNumber">{copy.contact.form.houseNumber} *</Label>
                     <Input
                       id="houseNumber"
                       value={form.houseNumber}
@@ -286,7 +286,7 @@ export function ContactSection() {
               <>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="postal">{t("form.postal")} *</Label>
+                    <Label htmlFor="postal">{copy.contact.form.postal} *</Label>
                     <Input
                       id="postal"
                       value={form.postal}
@@ -296,18 +296,18 @@ export function ContactSection() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="city">{t("form.city")} *</Label>
+                    <Label htmlFor="city">{copy.contact.form.city} *</Label>
                     <Input
                       id="city"
                       value={form.city}
                       onChange={(e) => update("city", e.target.value)}
-                      placeholder={t("form.city")}
+                      placeholder={copy.contact.form.city}
                       autoComplete="address-level2"
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="type">{t("form.type")}</Label>
+                  <Label htmlFor="type">{copy.contact.form.type}</Label>
                   <select
                     id="type"
                     value={form.type}
@@ -316,20 +316,20 @@ export function ContactSection() {
                     }
                     className="flex h-12 w-full rounded-xl border border-white/10 bg-white/5 px-4 text-base text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                   >
-                    <option value="vedlikehold">{t("form.typeRenewal")}</option>
-                    <option value="nytt_tak">{t("form.typeNew")}</option>
-                    <option value="kledning">{t("form.typeCladding")}</option>
+                    <option value="vedlikehold">{copy.contact.form.typeRenewal}</option>
+                    <option value="nytt_tak">{copy.contact.form.typeNew}</option>
+                    <option value="kledning">{copy.contact.form.typeCladding}</option>
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="message">{t("form.message")} *</Label>
+                  <Label htmlFor="message">{copy.contact.form.message} *</Label>
                   <Textarea
                     id="message"
                     value={form.message}
                     onChange={(e) => update("message", e.target.value)}
-                    placeholder={t("form.message")}
+                    placeholder={copy.contact.form.message}
                   />
-                  <p className="text-xs text-muted-foreground">{t("form.messageHint")}</p>
+                  <p className="text-xs text-muted-foreground">{copy.contact.form.messageHint}</p>
                 </div>
                 <div className="flex gap-2">
                   <Button
@@ -341,7 +341,7 @@ export function ContactSection() {
                     {locale === "no" ? "Tilbake" : "Back"}
                   </Button>
                   <Button type="submit" className="flex-1" size="lg" disabled={loading}>
-                    {loading ? t("form.sending") : t("form.submit")}
+                    {loading ? copy.contact.form.sending : copy.contact.form.submit}
                   </Button>
                 </div>
               </>

@@ -29,7 +29,12 @@ export default async function HomePage({ params }: Props) {
 
   return (
     <>
-      <JsonLd locale={locale as "no" | "en"} settings={content.settings} faq={content.faq} />
+      <JsonLd
+        locale={locale as "no" | "en"}
+        settings={content.settings}
+        faq={content.faq}
+        description={content.copy.meta.description[locale as "no" | "en"]}
+      />
       <HeroSection heroImage={content.settings.images.hero} />
       <ServicesSection items={content.services} />
       <CalculatorSection calculator={content.settings.calculator} />

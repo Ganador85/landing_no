@@ -1,8 +1,13 @@
 import type { GlobalConfig } from "payload";
+import { pageCopyTabs } from "../fields/page-copy-fields";
 
 export const SiteSettings: GlobalConfig = {
   slug: "site-settings",
   label: "Site Settings",
+  admin: {
+    description:
+      "Edit website contact info, images, prices, and all page texts (NO/EN). Upload photos in Media first, then select them under Images.",
+  },
   access: {
     read: () => true,
   },
@@ -25,15 +30,13 @@ export const SiteSettings: GlobalConfig = {
         },
         {
           label: "Images",
+          description: "Upload in Media, then select here. URL fields are fallback only.",
           fields: [
             {
               name: "heroImage",
               type: "upload",
               relationTo: "media",
               label: "Hero image",
-              admin: {
-                description: "Upload in Media, then select here. Preferred over URL.",
-              },
             },
             {
               name: "aboutImage",
@@ -51,9 +54,6 @@ export const SiteSettings: GlobalConfig = {
               name: "heroImageUrl",
               type: "text",
               label: "Hero image URL (fallback)",
-              admin: {
-                description: "Optional if no upload — paste a full image URL",
-              },
             },
             {
               name: "aboutImageUrl",
@@ -93,6 +93,7 @@ export const SiteSettings: GlobalConfig = {
             },
           ],
         },
+        ...pageCopyTabs,
       ],
     },
   ],

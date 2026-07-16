@@ -1,22 +1,21 @@
 "use client";
 
-import { useTranslations, useLocale } from "next-intl";
+import { useLocale } from "next-intl";
 import { Link } from "@/i18n/routing";
-import { useSiteSettings } from "@/components/site-settings-provider";
+import { usePageCopy, useSiteSettings } from "@/components/site-settings-provider";
 
 export function Footer() {
-  const t = useTranslations("footer");
-  const tNav = useTranslations("nav");
+  const copy = usePageCopy();
   const locale = useLocale();
   const settings = useSiteSettings();
   const year = new Date().getFullYear();
 
   const quick = [
-    { href: "/", label: tNav("home") },
-    { href: "/#tjenester", label: tNav("services") },
-    { href: "/#referanser", label: tNav("references") },
-    { href: "/#om-oss", label: tNav("about") },
-    { href: "/#kontakt", label: tNav("contact") },
+    { href: "/", label: copy.nav.home },
+    { href: "/#tjenester", label: copy.nav.services },
+    { href: "/#referanser", label: copy.nav.references },
+    { href: "/#om-oss", label: copy.nav.about },
+    { href: "/#kontakt", label: copy.nav.contact },
   ] as const;
 
   return (
@@ -30,17 +29,17 @@ export function Footer() {
             <span className="font-bold tracking-wide uppercase">{settings.brandName}</span>
           </div>
           <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
-            {t("tagline")}
+            {copy.footer.tagline}
           </p>
           <p className="text-sm text-muted-foreground">
-            {t("partOf")}{" "}
+            {copy.footer.partOf}{" "}
             <span className="text-foreground">{settings.parentOrg}</span>
           </p>
         </div>
 
         <div>
           <h4 className="mb-4 text-sm font-semibold uppercase tracking-wider">
-            {t("quickLinks")}
+            {copy.footer.quickLinks}
           </h4>
           <ul className="space-y-2">
             {quick.map((item) => (
@@ -58,7 +57,7 @@ export function Footer() {
 
         <div>
           <h4 className="mb-4 text-sm font-semibold uppercase tracking-wider">
-            {t("contact")}
+            {copy.footer.contact}
           </h4>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li>
@@ -83,9 +82,9 @@ export function Footer() {
       <div className="border-t border-white/5">
         <div className="container-narrow flex flex-col gap-2 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
           <p>
-            © {year} {settings.brandName}. {t("rights")}
+            © {year} {settings.brandName}. {copy.footer.rights}
           </p>
-          <p>{t("warrantyNote")}</p>
+          <p>{copy.footer.warrantyNote}</p>
           <p className="uppercase tracking-wider">{locale}</p>
         </div>
       </div>

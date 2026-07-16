@@ -10,6 +10,11 @@ import {
 } from "@/content/site-content";
 import noMessages from "@/i18n/messages/no.json";
 import enMessages from "@/i18n/messages/en.json";
+import {
+  pageCopyFromMessages,
+  pageCopyFromSettingsDoc,
+  type PageCopy,
+} from "@/lib/page-copy";
 
 export type CmsService = {
   id: string;
@@ -67,6 +72,7 @@ export type CmsSettings = {
 
 export type SiteContent = {
   settings: CmsSettings;
+  copy: PageCopy;
   services: CmsService[];
   projects: CmsProject[];
   products: CmsProduct[];
@@ -104,8 +110,10 @@ function fallbackServices(): CmsService[] {
 }
 
 function fallbackContent(): SiteContent {
+  const copy = pageCopyFromMessages(noMessages, enMessages);
   return {
     source: "fallback",
+    copy,
     settings: {
       brandName: siteConfig.name,
       phone: siteConfig.phone,
@@ -234,6 +242,10 @@ export const getSiteContent = cache(async (): Promise<SiteContent> => {
       productsRes.docs.length > 0 ||
       faqRes.docs.length > 0;
 
+    const copyFallback = pageCopyFromMessages(noMessages, enMessages);
+    const copy = pageCopyFromSettingsDoc(settingsDoc, copyFallback);
+    const hasCmsCopy = Boolean(settingsDoc.copyMeta?.titleNo?.trim());
+
     const settings: CmsSettings = {
       brandName: settingsDoc.brandName || fallback.settings.brandName,
       phone: settingsDoc.phone || fallback.settings.phone,
@@ -350,8 +362,9 @@ export const getSiteContent = cache(async (): Promise<SiteContent> => {
         : fallback.faq;
 
     return {
-      source: hasCmsRows ? "cms" : "fallback",
+      source: hasCmsRows || hasCmsCopy ? "cms" : "fallback",
       settings,
+      copy,
       services,
       projects,
       products,

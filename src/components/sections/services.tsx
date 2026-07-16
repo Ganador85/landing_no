@@ -10,9 +10,10 @@ import {
   Sparkles,
   Wrench,
 } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import { Reveal } from "@/components/ui/reveal";
 import { Button } from "@/components/ui/button";
+import { usePageCopy } from "@/components/site-settings-provider";
 import type { CmsService } from "@/lib/cms-content";
 import { cn } from "@/lib/utils";
 
@@ -40,7 +41,7 @@ type Props = {
 };
 
 export function ServicesSection({ items }: Props) {
-  const t = useTranslations("services");
+  const copy = usePageCopy();
   const locale = useLocale() as "no" | "en";
   const [expanded, setExpanded] = useState(false);
 
@@ -56,10 +57,10 @@ export function ServicesSection({ items }: Props) {
       <div className="absolute inset-0 bg-[var(--surface-glow)]" aria-hidden />
       <div className="container-narrow relative">
         <Reveal>
-          <p className="eyebrow">{t("eyebrow")}</p>
-          <h2 className="heading-display mt-3 max-w-2xl text-balance">{t("title")}</h2>
+          <p className="eyebrow">{copy.services.eyebrow}</p>
+          <h2 className="heading-display mt-3 max-w-2xl text-balance">{copy.services.title}</h2>
           <p className="mt-4 max-w-2xl text-muted-foreground leading-relaxed">
-            {t("subtitle")}
+            {copy.services.subtitle}
           </p>
         </Reveal>
 
@@ -90,7 +91,7 @@ export function ServicesSection({ items }: Props) {
               onClick={() => setExpanded((v) => !v)}
               className={cn(expanded && "opacity-90")}
             >
-              {expanded ? t("showLess") : t("showMore")}
+              {expanded ? copy.services.showLess : copy.services.showMore}
             </Button>
           </div>
         ) : null}

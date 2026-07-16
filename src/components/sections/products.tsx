@@ -1,7 +1,8 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import { Reveal } from "@/components/ui/reveal";
+import { usePageCopy } from "@/components/site-settings-provider";
 import type { CmsProduct } from "@/lib/cms-content";
 
 type Props = {
@@ -9,16 +10,16 @@ type Props = {
 };
 
 export function ProductsSection({ products }: Props) {
-  const t = useTranslations("products");
+  const copy = usePageCopy();
   const locale = useLocale() as "no" | "en";
 
   return (
     <section id="produkter" className="section-pad bg-background-elevated/40">
       <div className="container-narrow">
         <Reveal>
-          <p className="eyebrow">{t("eyebrow")}</p>
-          <h2 className="heading-display mt-3 max-w-2xl text-balance">{t("title")}</h2>
-          <p className="mt-4 max-w-2xl text-muted-foreground">{t("subtitle")}</p>
+          <p className="eyebrow">{copy.products.eyebrow}</p>
+          <h2 className="heading-display mt-3 max-w-2xl text-balance">{copy.products.title}</h2>
+          <p className="mt-4 max-w-2xl text-muted-foreground">{copy.products.subtitle}</p>
         </Reveal>
 
         <div className="mt-10 grid gap-4 sm:grid-cols-2">
@@ -47,7 +48,7 @@ export function ProductsSection({ products }: Props) {
           ))}
         </div>
 
-        <p className="mt-8 text-center text-sm text-muted-foreground">{t("footer")}</p>
+        <p className="mt-8 text-center text-sm text-muted-foreground">{copy.products.footer}</p>
       </div>
     </section>
   );

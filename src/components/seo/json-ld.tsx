@@ -5,17 +5,15 @@ type Props = {
   locale: "no" | "en";
   settings: CmsSettings;
   faq: CmsFaq[];
+  description: string;
 };
 
-export function JsonLd({ locale, settings, faq }: Props) {
+export function JsonLd({ locale, settings, faq, description }: Props) {
   const business = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     name: settings.brandName,
-    description:
-      locale === "no"
-        ? "Spesialist på takfornying: vask, impregnering og maling – eller nytt tak."
-        : "Specialist in roof renewal: washing, impregnation and painting – or new roofs.",
+    description,
     url: `${siteConfig.url}/${locale}`,
     telephone: settings.phoneHref.replace("tel:", ""),
     email: settings.email,
