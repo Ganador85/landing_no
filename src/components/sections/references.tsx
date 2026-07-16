@@ -47,7 +47,9 @@ export function ReferencesSection({ projects }: Props) {
               <p className="eyebrow">{copy.references.eyebrow}</p>
               <h2 className="heading-display mt-3 text-balance">{copy.references.title}</h2>
               <p className="mt-4 max-w-xl text-muted-foreground">{copy.references.subtitle}</p>
-              <p className="mt-2 max-w-xl text-xs text-muted-foreground/80">{copy.references.note}</p>
+              {copy.references.note ? (
+                <p className="mt-2 max-w-xl text-xs text-muted-foreground/80">{copy.references.note}</p>
+              ) : null}
             </div>
             <div className="flex gap-2">
               <button

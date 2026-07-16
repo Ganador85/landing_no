@@ -121,113 +121,188 @@ export const faqItems = [
 
 export const projects = [
   {
-    id: "stabekk",
-    title: { no: "Prosjekt – Stabekk", en: "Project – Stabekk" },
+    id: "oslo-fornyes",
+    title: { no: "Prosjekt – Oslo fornyes", en: "Project – Oslo renews" },
     stages: [
       {
         label: "before" as const,
-        image: "https://images.unsplash.com/photo-1572120360610-d971b9d7767c?auto=format&fit=crop&w=900&q=80",
-        caption: {
-          no: "Slitt og mosegrodd takstein",
-          en: "Worn and moss-covered tiles",
-        },
+        image: "/references/oslo-fornyes/before-1.webp",
+        caption: { no: "Mosegrodde tak før fornying", en: "Mossy roofs before renewal" },
       },
       {
         label: "during" as const,
-        image: "https://images.unsplash.com/photo-1628624747186-a941c476b7ef?auto=format&fit=crop&w=900&q=80",
-        caption: {
-          no: "Taket er vasket og impregnert",
-          en: "Washed and impregnated",
-        },
+        image: "/references/oslo-fornyes/during-1.webp",
+        caption: { no: "Takvask underveis", en: "Roof washing in progress" },
       },
       {
         label: "after" as const,
-        image: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=900&q=80",
-        caption: {
-          no: "Vasket, impregnert og malt – som nytt",
-          en: "Washed, impregnated and painted – like new",
-        },
+        image: "/references/oslo-fornyes/after-1.webp",
+        caption: { no: "Taket fornyet – luftfoto", en: "Roof renewed – aerial view" },
+      },
+      {
+        label: "after" as const,
+        image: "/references/oslo-fornyes/after-2.webp",
+        caption: { no: "Tydelig forskjell etter fornying", en: "Clear difference after renewal" },
       },
     ],
   },
   {
-    id: "borettslag",
-    title: { no: "Prosjekt – Borettslag", en: "Project – Housing association" },
-    stages: [
-      {
-        label: "during" as const,
-        image: "https://images.unsplash.com/photo-1605146768851-eda79da39897?auto=format&fit=crop&w=900&q=80",
-        caption: { no: "Under arbeid", en: "In progress" },
-      },
-      {
-        label: "during" as const,
-        image: "https://images.unsplash.com/photo-1430285561322-7808604715df?auto=format&fit=crop&w=900&q=80",
-        caption: { no: "Under arbeid", en: "In progress" },
-      },
-      {
-        label: "after" as const,
-        image: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=900&q=80",
-        caption: { no: "Ferdig fornyet", en: "Fully renewed" },
-      },
-    ],
-  },
-  {
-    id: "enebolig-1",
-    title: { no: "Prosjekt – Enebolig", en: "Project – Detached house" },
-    stages: [
-      {
-        label: "before" as const,
-        image: "https://images.unsplash.com/photo-1572120360610-d971b9d7767c?auto=format&fit=crop&w=900&q=80",
-        caption: { no: "Slitt tak med mose", en: "Worn roof with moss" },
-      },
-      {
-        label: "after" as const,
-        image: "https://images.unsplash.com/photo-1475855581690-80accde3ae2b?auto=format&fit=crop&w=900&q=80",
-        caption: {
-          no: "Vasket, impregnert og malt",
-          en: "Washed, impregnated and painted",
-        },
-      },
-    ],
-  },
-  {
-    id: "bergen",
+    id: "maling",
     title: {
-      no: "Prosjekt – Master Apartments, Bergen",
-      en: "Project – Master Apartments, Bergen",
+      no: "Prosjekt – Før og etter maling",
+      en: "Project – Before and after painting",
     },
     stages: [
       {
-        label: "during" as const,
-        image: "https://images.unsplash.com/photo-1605146768851-eda79da39897?auto=format&fit=crop&w=900&q=80",
+        label: "before" as const,
+        image: "/references/maling/before-1.webp",
         caption: {
-          no: "Taket klargjøres for maling",
-          en: "Roof prepared for painting",
+          no: "Mosegrodd takstein før maling",
+          en: "Moss-covered tiles before painting",
         },
       },
       {
+        label: "during" as const,
+        image: "/references/maling/during-1.webp",
+        caption: { no: "Taket males", en: "Roof being painted" },
+      },
+      {
         label: "after" as const,
-        image: "https://images.unsplash.com/photo-1464146072230-91cabc968266?auto=format&fit=crop&w=900&q=80",
-        caption: { no: "Ferdig malt og fornyet", en: "Painted and renewed" },
+        image: "/references/maling/after-1.webp",
+        caption: { no: "Nymalt takstein", en: "Freshly painted tiles" },
+      },
+      {
+        label: "after" as const,
+        image: "/references/maling/compare-1.webp",
+        caption: { no: "Før og etter maling", en: "Before and after painting" },
       },
     ],
   },
   {
-    id: "enebolig-2",
-    title: { no: "Prosjekt – Enebolig", en: "Project – Detached house" },
+    id: "oslo-borettslag",
+    title: {
+      no: "Prosjekt – Oslo borettslag",
+      en: "Project – Oslo housing association",
+    },
     stages: [
       {
-        label: "during" as const,
-        image: "https://images.unsplash.com/photo-1628624747186-a941c476b7ef?auto=format&fit=crop&w=900&q=80",
+        label: "after" as const,
+        image: "/references/oslo-borettslag/after-1.webp",
         caption: {
-          no: "Taket klargjøres for maling",
-          en: "Roof prepared for painting",
+          no: "Fullført takfornying – rekkehus",
+          en: "Completed roof renewal – townhouses",
         },
       },
       {
         label: "after" as const,
-        image: "https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=900&q=80",
-        caption: { no: "Ferdig malt og fornyet", en: "Painted and renewed" },
+        image: "/references/oslo-borettslag/after-2.webp",
+        caption: {
+          no: "Luftfoto av ferdig borettslag",
+          en: "Aerial view of completed housing association",
+        },
+      },
+      {
+        label: "after" as const,
+        image: "/references/oslo-borettslag/after-3.webp",
+        caption: { no: "Store takflater fornyet", en: "Large roof areas renewed" },
+      },
+      {
+        label: "after" as const,
+        image: "/references/oslo-borettslag/after-4.webp",
+        caption: {
+          no: "Fornøyde kunder – Oslo borettslag",
+          en: "Happy customers – Oslo housing association",
+        },
+      },
+    ],
+  },
+  {
+    id: "vakkert-tak",
+    title: { no: "Prosjekt – Et vakkert tak", en: "Project – A beautiful roof" },
+    stages: [
+      {
+        label: "before" as const,
+        image: "/references/vakkert-tak/before-1.webp",
+        caption: { no: "Slitt tak før fornying", en: "Worn roof before renewal" },
+      },
+      {
+        label: "before" as const,
+        image: "/references/vakkert-tak/before-2.webp",
+        caption: { no: "Taket klargjøres for vask", en: "Roof prepared for washing" },
+      },
+      {
+        label: "before" as const,
+        image: "/references/vakkert-tak/before-3.webp",
+        caption: { no: "Mosegrodd takstein", en: "Moss-covered tiles" },
+      },
+      {
+        label: "before" as const,
+        image: "/references/vakkert-tak/before-4.webp",
+        caption: { no: "Skitten takflate med mose", en: "Dirty roof surface with moss" },
+      },
+      {
+        label: "before" as const,
+        image: "/references/vakkert-tak/before-5.webp",
+        caption: { no: "Takstein før rengjøring", en: "Tiles before cleaning" },
+      },
+      {
+        label: "during" as const,
+        image: "/references/vakkert-tak/during-1.webp",
+        caption: { no: "Kontroll av mønet", en: "Ridge inspection" },
+      },
+      {
+        label: "after" as const,
+        image: "/references/vakkert-tak/after-1.webp",
+        caption: { no: "Rent tak etter fornying", en: "Clean roof after renewal" },
+      },
+      {
+        label: "after" as const,
+        image: "/references/vakkert-tak/after-2.webp",
+        caption: { no: "Nyvasket takstein", en: "Freshly washed tiles" },
+      },
+      {
+        label: "after" as const,
+        image: "/references/vakkert-tak/after-3.webp",
+        caption: { no: "Ferdig fornyet takflate", en: "Fully renewed roof surface" },
+      },
+    ],
+  },
+  {
+    id: "takvask",
+    title: {
+      no: "Prosjekt – Takvask (enebolig)",
+      en: "Project – Roof wash (detached house)",
+    },
+    stages: [
+      {
+        label: "before" as const,
+        image: "/references/takvask/before-1.webp",
+        caption: { no: "Mosegrodd takstein – nærbilde", en: "Moss-covered tiles – close-up" },
+      },
+      {
+        label: "before" as const,
+        image: "/references/takvask/before-2.webp",
+        caption: { no: "Slitt tak før vask", en: "Worn roof before washing" },
+      },
+      {
+        label: "before" as const,
+        image: "/references/takvask/before-3.webp",
+        caption: { no: "Kraftig mosevekst på taket", en: "Heavy moss growth on the roof" },
+      },
+      {
+        label: "after" as const,
+        image: "/references/takvask/after-1.webp",
+        caption: { no: "Taket etter vask", en: "Roof after washing" },
+      },
+      {
+        label: "after" as const,
+        image: "/references/takvask/after-2.webp",
+        caption: { no: "Ren takflate etter vask", en: "Clean roof surface after washing" },
+      },
+      {
+        label: "after" as const,
+        image: "/references/takvask/after-3.webp",
+        caption: { no: "Takstein etter rengjøring", en: "Tiles after cleaning" },
       },
     ],
   },
