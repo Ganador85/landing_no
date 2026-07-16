@@ -15,9 +15,6 @@ const leadSchema = z.object({
   type: z.enum(["vedlikehold", "nytt_tak", "kledning"]),
   message: z.string().min(10).max(5000),
   locale: z.enum(["no", "en"]),
-  // Keep accepting legacy honeypot key during deploy overlap
-  website: z.string().optional(),
-  company_url_hp: z.string().optional(),
 });
 
 const rateMap = new Map<string, { count: number; reset: number }>();
@@ -46,28 +43,28 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const parsed = leadSchema.safeParse(body);
-
-    if (!parsed.success) {
-      return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
-    }
-
-    // Only the obscure honeypot blocks saves. Ignore legacy "website" autofill.
-    if (parsed.data.company_url_hp) {
-      return NextResponse.json({ ok: true });
-    }
-
+    // Strip unknown honeypot leftovers from older clients
     const {
       website: _website,
-      company_url_hp: _honeypot,
-      phone,
-      ...rest
-    } = parsed.data;
+      company_url_hp: _hp,
+      ...safeBody
+    } = body as Record<string, unknown>;
     void _website;
-    void _honeypot;
+    void _hp;
+
+    const parsed = leadSchema.safeParse(safeBody);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Invalid payload", details: parsed.error.flatten() },
+        { status: 400 },
+      );
+    }
+
+    const { phone, ...rest } = parsed.data;
 
     const payload = await getPayload();
-    await payload.create({
+    const created = await payload.create({
       collection: "leads",
       data: {
         ...rest,
@@ -96,14 +93,11 @@ export async function POST(request: Request) {
           ].join("\n"),
         });
       } catch (err) {
-        // Lead is already saved — don't fail the request on email issues
         console.error("Lead email failed:", err);
       }
-    } else {
-      console.info("[lead]", { ...rest, phone });
     }
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, id: created.id });
   } catch (err) {
     console.error("Lead create failed:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });

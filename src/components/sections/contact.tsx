@@ -27,10 +27,7 @@ const step2Schema = z.object({
   message: z.string().trim().min(10),
 });
 
-const leadSchema = step1Schema.merge(step2Schema).extend({
-  // Intentionally obscure name so browsers/password managers do not autofill it.
-  company_url_hp: z.string().optional(),
-});
+const leadSchema = step1Schema.merge(step2Schema);
 
 type FormState = {
   name: string;
@@ -42,7 +39,6 @@ type FormState = {
   city: string;
   type: "vedlikehold" | "nytt_tak" | "kledning";
   message: string;
-  company_url_hp: string;
 };
 
 const initial: FormState = {
@@ -55,7 +51,6 @@ const initial: FormState = {
   city: "",
   type: "vedlikehold",
   message: "",
-  company_url_hp: "",
 };
 
 export function ContactSection() {
@@ -131,7 +126,6 @@ export function ContactSection() {
     const parsed = leadSchema.safeParse({
       ...step1.data,
       ...step2.data,
-      company_url_hp: form.company_url_hp || undefined,
     });
 
     if (!parsed.success) {
@@ -139,25 +133,21 @@ export function ContactSection() {
       return;
     }
 
-    // Honeypot: pretend success for bots
-    if (parsed.data.company_url_hp) {
-      toast.success(t("form.success"));
-      setForm(initial);
-      setStep(1);
-      return;
-    }
-
     setLoading(true);
     try {
-      const { company_url_hp: _hp, ...leadData } = parsed.data;
-      void _hp;
       const res = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...leadData, locale }),
+        body: JSON.stringify({ ...parsed.data, locale }),
       });
 
-      if (!res.ok) throw new Error("Failed");
+      const data = (await res.json().catch(() => null)) as
+        | { ok?: boolean; error?: string }
+        | null;
+
+      if (!res.ok || !data?.ok) {
+        throw new Error(data?.error || "Failed");
+      }
 
       toast.success(t("form.success"));
       setForm(initial);
@@ -226,17 +216,6 @@ export function ContactSection() {
 
         <Reveal delay={0.1}>
           <form onSubmit={onSubmit} className="surface-card space-y-4 p-5 sm:p-8" noValidate>
-            <input
-              type="text"
-              name="company_url_hp"
-              value={form.company_url_hp}
-              onChange={(e) => update("company_url_hp", e.target.value)}
-              tabIndex={-1}
-              autoComplete="new-password"
-              className="absolute left-[-9999px] h-0 w-0 opacity-0"
-              aria-hidden
-            />
-
             <p className="text-xs text-muted-foreground">
               {locale === "no" ? `Steg ${step} av 2` : `Step ${step} of 2`}
             </p>
