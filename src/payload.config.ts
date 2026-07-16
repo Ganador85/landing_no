@@ -18,10 +18,19 @@ import { SiteSettings } from "./payload/collections/SiteSettings";
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
-const databaseUrl = process.env.DATABASE_URL || "file:./takfornying.db";
+const rawDatabaseUrl = process.env.DATABASE_URL || "file:./takfornying.db";
+// Neon sometimes adds channel_binding=require which breaks node-pg on Vercel
+const databaseUrl = rawDatabaseUrl.replace(/[&?]channel_binding=require/g, "");
 const usePostgres = databaseUrl.startsWith("postgres");
 
+const serverURL =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : "http://localhost:3000");
+
 export default buildConfig({
+  serverURL,
   admin: {
     user: Users.slug,
     importMap: {
@@ -39,7 +48,9 @@ export default buildConfig({
     ? postgresAdapter({
         pool: {
           connectionString: databaseUrl,
+          max: 1,
         },
+        push: true,
       })
     : sqliteAdapter({
         client: {
