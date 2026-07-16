@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
@@ -22,17 +22,76 @@ type LightboxState = {
   label: string;
 } | null;
 
+function useClickWithoutDrag(onActivate: () => void) {
+  const origin = useRef<{ x: number; y: number } | null>(null);
+
+  return {
+    onPointerDown: (e: React.PointerEvent) => {
+      origin.current = { x: e.clientX, y: e.clientY };
+    },
+    onPointerUp: (e: React.PointerEvent) => {
+      if (!origin.current) return;
+      const dx = Math.abs(e.clientX - origin.current.x);
+      const dy = Math.abs(e.clientY - origin.current.y);
+      origin.current = null;
+      if (dx < 10 && dy < 10) onActivate();
+    },
+    onPointerCancel: () => {
+      origin.current = null;
+    },
+  };
+}
+
+function useCarouselWheel(
+  emblaApi: ReturnType<typeof useEmblaCarousel>[1],
+  targetRef?: React.RefObject<HTMLElement | null>,
+) {
+  useEffect(() => {
+    if (!emblaApi) return;
+    const root = targetRef?.current ?? emblaApi.rootNode();
+    if (!root) return;
+
+    let lockedUntil = 0;
+
+    const onWheel = (event: WheelEvent) => {
+      const dominantX = Math.abs(event.deltaX) > Math.abs(event.deltaY);
+      const delta = dominantX ? event.deltaX : event.deltaY;
+      if (Math.abs(delta) < 6) return;
+
+      const goingNext = delta > 0;
+      if (goingNext && !emblaApi.canScrollNext()) return;
+      if (!goingNext && !emblaApi.canScrollPrev()) return;
+
+      event.preventDefault();
+
+      const now = Date.now();
+      if (now < lockedUntil) return;
+      lockedUntil = now + 280;
+
+      if (goingNext) emblaApi.scrollNext();
+      else emblaApi.scrollPrev();
+    };
+
+    root.addEventListener("wheel", onWheel, { passive: false });
+    return () => root.removeEventListener("wheel", onWheel);
+  }, [emblaApi, targetRef]);
+}
+
 export function ReferencesSection({ projects }: Props) {
   const copy = usePageCopy();
   const locale = useLocale() as "no" | "en";
+  const sectionRef = useRef<HTMLElement>(null);
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "start",
     containScroll: "trimSnaps",
     dragFree: false,
+    watchDrag: true,
   });
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(false);
   const [lightbox, setLightbox] = useState<LightboxState>(null);
+
+  useCarouselWheel(emblaApi, sectionRef);
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
@@ -62,7 +121,11 @@ export function ReferencesSection({ projects }: Props) {
   }, [lightbox]);
 
   return (
-    <section id="referanser" className="section-pad bg-background-elevated/40">
+    <section
+      id="referanser"
+      ref={sectionRef}
+      className="section-pad bg-background-elevated/40"
+    >
       <div className="container-narrow">
         <Reveal>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -97,10 +160,14 @@ export function ReferencesSection({ projects }: Props) {
           </div>
         </Reveal>
 
-        <p className="mt-4 text-xs text-muted-foreground md:hidden">{copy.references.swipe}</p>
+        <p className="mt-4 text-xs text-muted-foreground">
+          {locale === "no"
+            ? "Dra med musen eller bruk hjulet for å bla · på mobil: sveip"
+            : "Drag with the mouse or use the scroll wheel · on mobile: swipe"}
+        </p>
 
-        <div className="mt-8 overflow-hidden" ref={emblaRef}>
-          <div className="flex touch-pan-y gap-4">
+        <div className="mt-8 cursor-grab overflow-hidden active:cursor-grabbing" ref={emblaRef}>
+          <div className="flex gap-4">
             {projects.map((project) => (
               <ProjectCard
                 key={project.id}
@@ -177,6 +244,7 @@ function ProjectCard({
     align: "start",
     containScroll: "trimSnaps",
     dragFree: true,
+    watchDrag: true,
   });
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(false);
@@ -198,43 +266,17 @@ function ProjectCard({
     <article className="min-w-0 shrink-0 grow-0 basis-[85%] sm:basis-[60%] lg:basis-[42%]">
       <div className="surface-card overflow-hidden">
         <div className="relative">
-          <div className="overflow-hidden" ref={emblaRef}>
-            <div className="flex touch-pan-y">
-              {project.stages.map((stage, idx) => {
-                const src = optimizeRemoteImageUrl(stage.image, {
-                  width: 900,
-                  quality: 72,
-                });
-                return (
-                  <button
-                    key={`${project.id}-${idx}`}
-                    type="button"
-                    className="group relative aspect-[4/3] min-w-0 shrink-0 grow-0 basis-[88%] overflow-hidden bg-black/40 sm:basis-[72%]"
-                    onClick={() => onOpen(stage)}
-                    aria-label={stage.caption[locale]}
-                  >
-                    <Image
-                      src={src}
-                      alt={stage.caption[locale]}
-                      width={900}
-                      height={675}
-                      sizes="(max-width: 640px) 75vw, (max-width: 1024px) 40vw, 320px"
-                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
-                      loading="lazy"
-                    />
-                    <div
-                      className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent"
-                      aria-hidden
-                    />
-                    <span className="absolute left-3 top-3 inline-flex rounded-full bg-black/45 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white/90 backdrop-blur-sm">
-                      {labelFor(stage.label)}
-                    </span>
-                    <p className="absolute inset-x-3 bottom-3 text-left text-sm font-medium text-white/95">
-                      {stage.caption[locale]}
-                    </p>
-                  </button>
-                );
-              })}
+          <div className="cursor-grab overflow-hidden active:cursor-grabbing" ref={emblaRef}>
+            <div className="flex">
+              {project.stages.map((stage, idx) => (
+                <StageSlide
+                  key={`${project.id}-${idx}`}
+                  stage={stage}
+                  locale={locale}
+                  label={labelFor(stage.label)}
+                  onOpen={() => onOpen(stage)}
+                />
+              ))}
             </div>
           </div>
 
@@ -245,7 +287,7 @@ function ProjectCard({
                 aria-label="Previous photos"
                 disabled={!canPrev}
                 onClick={() => emblaApi?.scrollPrev()}
-                className="absolute left-2 top-1/2 z-10 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/45 text-white backdrop-blur-sm disabled:opacity-0"
+                className="absolute left-2 top-1/2 z-10 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/45 text-white backdrop-blur-sm disabled:pointer-events-none disabled:opacity-0"
               >
                 <ChevronLeft className="size-4" />
               </button>
@@ -254,7 +296,7 @@ function ProjectCard({
                 aria-label="Next photos"
                 disabled={!canNext}
                 onClick={() => emblaApi?.scrollNext()}
-                className="absolute right-2 top-1/2 z-10 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/45 text-white backdrop-blur-sm disabled:opacity-0"
+                className="absolute right-2 top-1/2 z-10 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/45 text-white backdrop-blur-sm disabled:pointer-events-none disabled:opacity-0"
               >
                 <ChevronRight className="size-4" />
               </button>
@@ -271,5 +313,60 @@ function ProjectCard({
         </div>
       </div>
     </article>
+  );
+}
+
+function StageSlide({
+  stage,
+  locale,
+  label,
+  onOpen,
+}: {
+  stage: Stage;
+  locale: "no" | "en";
+  label: string;
+  onOpen: () => void;
+}) {
+  const clickHandlers = useClickWithoutDrag(onOpen);
+  const src = optimizeRemoteImageUrl(stage.image, {
+    width: 900,
+    quality: 72,
+  });
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      className="group relative aspect-[4/3] min-w-0 shrink-0 grow-0 basis-[88%] cursor-grab overflow-hidden bg-black/40 active:cursor-grabbing sm:basis-[72%]"
+      aria-label={stage.caption[locale]}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onOpen();
+        }
+      }}
+      {...clickHandlers}
+    >
+      <Image
+        src={src}
+        alt={stage.caption[locale]}
+        width={900}
+        height={675}
+        sizes="(max-width: 640px) 75vw, (max-width: 1024px) 40vw, 320px"
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+        loading="lazy"
+        draggable={false}
+      />
+      <div
+        className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent"
+        aria-hidden
+      />
+      <span className="pointer-events-none absolute left-3 top-3 inline-flex rounded-full bg-black/45 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white/90 backdrop-blur-sm">
+        {label}
+      </span>
+      <p className="pointer-events-none absolute inset-x-3 bottom-3 text-left text-sm font-medium text-white/95">
+        {stage.caption[locale]}
+      </p>
+    </div>
   );
 }
