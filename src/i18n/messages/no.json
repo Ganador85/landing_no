@@ -1,0 +1,199 @@
+{
+  "meta": {
+    "title": "Takfornying – takvask, impregnering og maling av takstein",
+    "description": "Vi fornyer norske tak med vask, impregnering og maling – eller legger helt nytt. Fast pris, gratis befaring og 10 års garanti."
+  },
+  "nav": {
+    "home": "Hjem",
+    "services": "Tjenester",
+    "references": "Referanser",
+    "about": "Om oss",
+    "products": "Produkter",
+    "contact": "Kontakt",
+    "contactUs": "Kontakt oss",
+    "call": "Ring",
+    "menu": "Meny",
+    "close": "Lukk"
+  },
+  "hero": {
+    "badge": "Over 2.000.000 m² norske tak fornyet",
+    "title": "Vi gir taket ditt",
+    "titleAccent": "nytt liv",
+    "subtitle": "Vedlikehold eller nytt tak – vi tar hele jobben fra befaring til ferdig resultat.",
+    "cta": "Få gratis befaring",
+    "ctaSecondary": "Se tjenester",
+    "trustWarranty": "10 års garanti",
+    "trustCustomers": "500+ fornøyde kunder",
+    "trustRating": "4.9/5 vurdering"
+  },
+  "sticky": {
+    "call": "Ring",
+    "book": "Bestill befaring"
+  },
+  "services": {
+    "eyebrow": "Tjenester",
+    "title": "Alt du trenger for et friskt tak",
+    "subtitle": "Fra takvask og mosefjerning til impregnering, maling og nytt tak – med fast pris og tydelig plan.",
+    "showMore": "Vis flere tjenester",
+    "showLess": "Vis færre",
+    "items": {
+      "inspection": {
+        "title": "Grundig taksjekk",
+        "description": "Før vi starter, sjekker vi undertak, konstruksjon, mønebånd og beslag – så du vet at taket tåler fornying.",
+        "featured": true
+      },
+      "tiles": {
+        "title": "Bytte av skadet takstein",
+        "description": "Knekte eller manglende stein byttes som en del av jobben når du har egen stein tilgjengelig.",
+        "featured": true
+      },
+      "wash": {
+        "title": "Takvask og mosefjerning",
+        "description": "Skånsom høytrykksvask som fjerner mose, alger og smuss uten å skade taksteinen.",
+        "featured": true
+      },
+      "impregnation": {
+        "title": "Impregnering av takstein",
+        "description": "Etter vask beskytter vi steinen med NowoCoat/Surfatech – mot fukt og ny mosevekst i mange år.",
+        "featured": true
+      },
+      "paint": {
+        "title": "Maling av takstein",
+        "description": "Spesialmaling i ønsket farge gir varig beskyttelse og et tak som ser nytt ut.",
+        "featured": true
+      },
+      "maintenance": {
+        "title": "Vedlikehold og inspeksjon",
+        "description": "Årlige sjekker holder taket i topp stand – før små problemer blir dyre.",
+        "featured": false
+      },
+      "warranty": {
+        "title": "10 års garanti",
+        "description": "Vi står bak fargetap og tett tak i ti år – din trygghet er en del av tilbudet.",
+        "featured": false
+      },
+      "newRoof": {
+        "title": "Nytt tak",
+        "description": "Noen tak kan ikke fornyes. Da legger vi helt nytt tak til konkurransedyktig pris.",
+        "featured": false
+      },
+      "softwash": {
+        "title": "Softwash",
+        "description": "Lavtrykksbehandling fra bakken med biologisk nedbrytbar såpe. Mose og alger løsner gradvis med naturlig nedbør.",
+        "featured": false
+      }
+    }
+  },
+  "calculator": {
+    "eyebrow": "Kalkulator",
+    "title": "Se hva du kan spare",
+    "subtitle": "Sammenlign estimert pris for takfornying med å legge helt nytt tak.",
+    "hint": "Dra for å justere takets størrelse",
+    "sizeLabel": "Takets størrelse",
+    "newRoof": "Nytt tak",
+    "renewal": "Takfornying",
+    "youSave": "Du sparer",
+    "cheaper": "Det er {percent}% billigere med takfornying",
+    "disclaimer": "Estimat. Du får nøyaktig tilbud etter gratis befaring. Gjelder full takfornying; vedlikehold har ofte lavere pris.",
+    "cta": "Få gratis befaring og tilbud"
+  },
+  "newRoof": {
+    "eyebrow": "Nytt tak",
+    "title": "Er taket for slitt til å fornyes?",
+    "subtitle": "Vi legger også helt nytt tak – fra riving til ferdig tekking med god isolasjon og ventilasjon.",
+    "body": "Med lang erfaring og hundrevis av prosjekter kan du stole på at jobben blir gjort skikkelig, til konkurransedyktig pris.",
+    "typesTitle": "Vi tekker alle typer tak",
+    "types": [
+      "Takstein (betong og tegl)",
+      "Platetak (stål og aluminium)",
+      "Papptak og membrantak",
+      "Shingel"
+    ],
+    "note": "Gratis befaring: Vi kommer hjem til deg, vurderer tilstanden og gir uforpliktende tilbud – fornying eller nytt tak.",
+    "cta": "Be om tilbud på nytt tak"
+  },
+  "references": {
+    "eyebrow": "Referanser",
+    "title": "Resultater du kan se",
+    "subtitle": "Slik har vi fornyet tak for boliger og borettslag over hele landet.",
+    "before": "Før",
+    "during": "Under arbeid",
+    "after": "Etter",
+    "swipe": "Sveip for å se flere prosjekter"
+  },
+  "about": {
+    "eyebrow": "Om oss",
+    "title": "Taket ditt fortjener det beste",
+    "subtitle": "Trygghet, kvalitet og et resultat som varer i årevis.",
+    "p1": "Vi er spesialister på takfornying: vask, impregnering og maling – slik at taket ser ut som nytt, uten full omlegging når det ikke trengs.",
+    "p2": "Med dedikerte team over Sør- og Midt-Norge, egen administrasjon og tett oppfølging får du én kontaktperson og null bekymringer – fra befaring til ferdig jobb.",
+    "p3": "Tusenvis av tak behandlet er ikke tilfeldig. Det er håndverkere som bryr seg, materialer av høy kvalitet, og garantier som betyr noe.",
+    "parent": "En del av Fornyingsgruppen AS – ledende innen utvendig boligfornyelse.",
+    "cta": "Få gratis befaring i dag",
+    "stats": {
+      "roofs": "Tusenvis av tak",
+      "roofsDesc": "vasket, impregnert og malt",
+      "warranty": "10 års garanti",
+      "warrantyDesc": "på fargetap og tett tak",
+      "area": "Sør- og Midt-Norge",
+      "areaDesc": "Ålesund til svenskegrensa",
+      "teams": "Lokale team",
+      "teamsDesc": "alltid nær deg"
+    },
+    "company": {
+      "title": "Firmainformasjon",
+      "org": "Org.nr",
+      "phone": "Telefon",
+      "email": "E-post",
+      "address": "Adresse"
+    }
+  },
+  "products": {
+    "eyebrow": "Produkter",
+    "title": "Produktene vi stoler på",
+    "subtitle": "Markedsledende løsninger fra NowoCoat og Surfatech – utviklet for profesjonell takbehandling i Skandinavia.",
+    "footer": "Alle produkter er laget for langvarig beskyttelse og et resultat du kan stole på i mange år."
+  },
+  "faq": {
+    "eyebrow": "Spørsmål",
+    "title": "Ofte stilte spørsmål",
+    "subtitle": "Pris, impregnering, mosefjerning og forskjellen på fornying og omlegging – kort forklart."
+  },
+  "contact": {
+    "eyebrow": "Kontakt",
+    "title": "Få en gratis befaring",
+    "subtitle": "Uforpliktende befaring og tilbud. Vi svarer vanligvis innen 24 timer.",
+    "phone": "Telefon",
+    "hours": "Man–fre 08:00–16:00",
+    "email": "E-post",
+    "reply": "Vi svarer innen 24 timer",
+    "office": "Kontor",
+    "form": {
+      "name": "Navn",
+      "email": "E-post",
+      "phone": "Telefon",
+      "address": "Adresse",
+      "houseNumber": "Husnummer",
+      "postal": "Postnummer",
+      "city": "Sted",
+      "type": "Hva gjelder henvendelsen?",
+      "typeRenewal": "Vedlikehold / takfornying",
+      "typeNew": "Legging av nytt tak",
+      "typeCladding": "Bytting av kledning",
+      "message": "Beskriv hva du trenger hjelp med",
+      "submit": "Send henvendelse",
+      "sending": "Sender…",
+      "success": "Takk! Vi tar kontakt snart.",
+      "error": "Noe gikk galt. Prøv igjen eller ring oss.",
+      "required": "Påkrevd felt"
+    }
+  },
+  "footer": {
+    "tagline": "Spesialister på takfornying. Vi vasker, impregnerer og maler – eller legger nytt tak.",
+    "partOf": "En del av",
+    "quickLinks": "Hurtiglenker",
+    "contact": "Kontakt",
+    "warrantyNote": "Garantivilkår gjelder iht. avtale. Ta kontakt for fullstendige vilkår.",
+    "rights": "Alle rettigheter reservert."
+  }
+}

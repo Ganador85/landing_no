@@ -1,0 +1,199 @@
+{
+  "meta": {
+    "title": "Roof renewal – washing, impregnation and painting of roof tiles",
+    "description": "We renew Norwegian roofs with washing, impregnation and painting – or install a brand-new roof. Fixed price, free inspection and 10-year warranty."
+  },
+  "nav": {
+    "home": "Home",
+    "services": "Services",
+    "references": "References",
+    "about": "About",
+    "products": "Products",
+    "contact": "Contact",
+    "contactUs": "Contact us",
+    "call": "Call",
+    "menu": "Menu",
+    "close": "Close"
+  },
+  "hero": {
+    "badge": "Over 2,000,000 m² of Norwegian roofs renewed",
+    "title": "We give your roof",
+    "titleAccent": "new life",
+    "subtitle": "Maintenance or a new roof – we handle the full job from inspection to finished result.",
+    "cta": "Get a free inspection",
+    "ctaSecondary": "View services",
+    "trustWarranty": "10-year warranty",
+    "trustCustomers": "500+ happy customers",
+    "trustRating": "4.9/5 rating"
+  },
+  "sticky": {
+    "call": "Call",
+    "book": "Book inspection"
+  },
+  "services": {
+    "eyebrow": "Services",
+    "title": "Everything your roof needs",
+    "subtitle": "From washing and moss removal to impregnation, painting and a new roof – fixed pricing and a clear plan.",
+    "showMore": "Show more services",
+    "showLess": "Show less",
+    "items": {
+      "inspection": {
+        "title": "Thorough roof inspection",
+        "description": "Before we start, we check underlay, structure, ridge tape and flashings – so you know the roof is ready for renewal.",
+        "featured": true
+      },
+      "tiles": {
+        "title": "Replacement of damaged tiles",
+        "description": "Broken or missing tiles are replaced as part of the job when you have matching tiles available.",
+        "featured": true
+      },
+      "wash": {
+        "title": "Roof washing & moss removal",
+        "description": "Gentle high-pressure washing that removes moss, algae and dirt without damaging the tiles.",
+        "featured": true
+      },
+      "impregnation": {
+        "title": "Tile impregnation",
+        "description": "After washing we protect the tiles with NowoCoat/Surfatech – against moisture and new moss for years.",
+        "featured": true
+      },
+      "paint": {
+        "title": "Tile painting",
+        "description": "Specialist coating in your chosen colour gives lasting protection and a roof that looks new.",
+        "featured": true
+      },
+      "maintenance": {
+        "title": "Maintenance & inspection",
+        "description": "Annual checks keep the roof in top condition – before small issues become expensive.",
+        "featured": false
+      },
+      "warranty": {
+        "title": "10-year warranty",
+        "description": "We stand behind colour retention and a weathertight roof for ten years – peace of mind built in.",
+        "featured": false
+      },
+      "newRoof": {
+        "title": "New roof",
+        "description": "Some roofs cannot be renewed. Then we install a brand-new roof at a competitive price.",
+        "featured": false
+      },
+      "softwash": {
+        "title": "Softwash",
+        "description": "Low-pressure treatment from the ground with biodegradable soap. Moss and algae loosen gradually with natural rain.",
+        "featured": false
+      }
+    }
+  },
+  "calculator": {
+    "eyebrow": "Calculator",
+    "title": "See what you can save",
+    "subtitle": "Compare an estimated price for roof renewal with installing a completely new roof.",
+    "hint": "Drag to adjust roof size",
+    "sizeLabel": "Roof size",
+    "newRoof": "New roof",
+    "renewal": "Roof renewal",
+    "youSave": "You save",
+    "cheaper": "That is {percent}% cheaper with roof renewal",
+    "disclaimer": "Estimate only. You get an exact quote after a free inspection. Applies to full renewal; maintenance is often lower priced.",
+    "cta": "Get a free inspection and quote"
+  },
+  "newRoof": {
+    "eyebrow": "New roof",
+    "title": "Is the roof too worn to renew?",
+    "subtitle": "We also install brand-new roofs – from strip-out to finished covering with solid insulation and ventilation.",
+    "body": "With years of experience and hundreds of projects, you can trust the job is done properly – at a competitive price.",
+    "typesTitle": "We cover all roof types",
+    "types": [
+      "Concrete and clay tiles",
+      "Metal roofs (steel and aluminium)",
+      "Felt and membrane roofs",
+      "Shingles"
+    ],
+    "note": "Free inspection: We visit your home, assess the condition and give a no-obligation quote – renewal or new roof.",
+    "cta": "Request a new-roof quote"
+  },
+  "references": {
+    "eyebrow": "References",
+    "title": "Results you can see",
+    "subtitle": "How we have renewed roofs for homes and housing associations across the country.",
+    "before": "Before",
+    "during": "In progress",
+    "after": "After",
+    "swipe": "Swipe to see more projects"
+  },
+  "about": {
+    "eyebrow": "About us",
+    "title": "Your roof deserves the best",
+    "subtitle": "Confidence, quality and a result that lasts for years.",
+    "p1": "We specialise in roof renewal: washing, impregnation and painting – so the roof looks new without a full replacement when it is not needed.",
+    "p2": "With dedicated teams across Southern and Central Norway, our own admin and close follow-up, you get one contact and zero worry – from inspection to finished work.",
+    "p3": "Thousands of treated roofs are no accident. It is craftspeople who care, high-quality materials, and warranties that mean something.",
+    "parent": "Part of Fornyingsgruppen AS – a leader in exterior home renewal.",
+    "cta": "Get a free inspection today",
+    "stats": {
+      "roofs": "Thousands of roofs",
+      "roofsDesc": "washed, impregnated and painted",
+      "warranty": "10-year warranty",
+      "warrantyDesc": "on colour retention and weathertightness",
+      "area": "Southern & Central Norway",
+      "areaDesc": "Ålesund to the Swedish border",
+      "teams": "Local teams",
+      "teamsDesc": "always nearby"
+    },
+    "company": {
+      "title": "Company details",
+      "org": "Org. no.",
+      "phone": "Phone",
+      "email": "Email",
+      "address": "Address"
+    }
+  },
+  "products": {
+    "eyebrow": "Products",
+    "title": "Products we trust",
+    "subtitle": "Market-leading solutions from NowoCoat and Surfatech – built for professional roof treatment in Scandinavia.",
+    "footer": "Every product is made for lasting protection and a result you can rely on for years."
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "title": "Frequently asked questions",
+    "subtitle": "Price, impregnation, moss removal and renewal vs replacement – explained briefly."
+  },
+  "contact": {
+    "eyebrow": "Contact",
+    "title": "Book a free inspection",
+    "subtitle": "No-obligation inspection and quote. We usually reply within 24 hours.",
+    "phone": "Phone",
+    "hours": "Mon–Fri 08:00–16:00",
+    "email": "Email",
+    "reply": "We reply within 24 hours",
+    "office": "Office",
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address",
+      "houseNumber": "House number",
+      "postal": "Postal code",
+      "city": "City",
+      "type": "What is this about?",
+      "typeRenewal": "Maintenance / roof renewal",
+      "typeNew": "New roof installation",
+      "typeCladding": "Cladding replacement",
+      "message": "Describe what you need help with",
+      "submit": "Send enquiry",
+      "sending": "Sending…",
+      "success": "Thank you! We will be in touch soon.",
+      "error": "Something went wrong. Try again or call us.",
+      "required": "Required field"
+    }
+  },
+  "footer": {
+    "tagline": "Specialists in roof renewal. We wash, impregnate and paint – or install a new roof.",
+    "partOf": "Part of",
+    "quickLinks": "Quick links",
+    "contact": "Contact",
+    "warrantyNote": "Warranty terms apply as agreed. Contact us for full terms.",
+    "rights": "All rights reserved."
+  }
+}
