@@ -246,6 +246,14 @@ export const projects = [
         caption: { no: "Takstein før rengjøring", en: "Tiles before cleaning" },
       },
       {
+        label: "before" as const,
+        image: "/references/vakkert-tak/before-6.webp",
+        caption: {
+          no: "Skitten takstein før behandling",
+          en: "Dirty tiles before treatment",
+        },
+      },
+      {
         label: "during" as const,
         image: "/references/vakkert-tak/during-1.webp",
         caption: { no: "Kontroll av mønet", en: "Ridge inspection" },
@@ -259,11 +267,6 @@ export const projects = [
         label: "after" as const,
         image: "/references/vakkert-tak/after-2.webp",
         caption: { no: "Nyvasket takstein", en: "Freshly washed tiles" },
-      },
-      {
-        label: "after" as const,
-        image: "/references/vakkert-tak/after-3.webp",
-        caption: { no: "Ferdig fornyet takflate", en: "Fully renewed roof surface" },
       },
     ],
   },
