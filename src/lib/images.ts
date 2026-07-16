@@ -4,6 +4,8 @@ export function optimizeRemoteImageUrl(
   opts?: { width?: number; quality?: number },
 ): string {
   if (!url) return url;
+  if (url.startsWith("/")) return url;
+
   const width = opts?.width ?? 1600;
   const quality = opts?.quality ?? 75;
 
