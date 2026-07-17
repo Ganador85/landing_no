@@ -30,15 +30,15 @@ export function Navbar() {
       <div className="container-narrow flex h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link
           href="/"
-          className="relative flex h-9 w-[150px] shrink-0 items-center sm:h-10 sm:w-[190px]"
+          className="relative flex h-11 w-[200px] shrink-0 items-center sm:h-12 sm:w-[240px]"
           onClick={() => setOpen(false)}
           aria-label={settings.brandName}
         >
           <Image
-            src="/brand/logo.webp"
+            src="/brand/logo.png"
             alt={settings.brandName}
             fill
-            sizes="190px"
+            sizes="240px"
             className="object-contain object-left"
             priority
           />

@@ -25,14 +25,14 @@ export function Footer() {
         <div className="space-y-4">
           <Link
             href="/"
-            className="relative block h-10 w-[180px]"
+            className="relative block h-14 w-[280px] sm:h-16 sm:w-[320px]"
             aria-label={settings.brandName}
           >
             <Image
-              src="/brand/logo.webp"
+              src="/brand/logo.png"
               alt={settings.brandName}
               fill
-              sizes="180px"
+              sizes="320px"
               className="object-contain object-left"
             />
           </Link>
