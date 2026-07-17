@@ -15,8 +15,6 @@ import { usePageCopy, useSiteSettings } from "@/components/site-settings-provide
 
 const MAX_PHOTOS = 5;
 const MAX_PHOTO_BYTES = 8 * 1024 * 1024;
-const MAX_EDGE = 1920;
-const JPEG_QUALITY = 0.82;
 
 const inquiryTypes = [
   "takvask",
@@ -69,45 +67,6 @@ const initial: FormState = {
   message: "",
 };
 
-function isHeic(file: File) {
-  return (
-    /heic|heif/i.test(file.type) || /\.heic$|\.heif$/i.test(file.name)
-  );
-}
-
-async function compressForUpload(file: File): Promise<File> {
-  if (isHeic(file) || typeof createImageBitmap !== "function") {
-    return file;
-  }
-
-  try {
-    const bitmap = await createImageBitmap(file);
-    const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
-    const width = Math.max(1, Math.round(bitmap.width * scale));
-    const height = Math.max(1, Math.round(bitmap.height * scale));
-    const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) {
-      bitmap.close();
-      return file;
-    }
-    ctx.drawImage(bitmap, 0, 0, width, height);
-    bitmap.close();
-
-    const blob = await new Promise<Blob | null>((resolve) =>
-      canvas.toBlob(resolve, "image/jpeg", JPEG_QUALITY),
-    );
-    if (!blob || blob.size >= file.size) return file;
-
-    const base = file.name.replace(/\.[^.]+$/, "") || "tak";
-    return new File([blob], `${base}.jpg`, { type: "image/jpeg" });
-  } catch {
-    return file;
-  }
-}
-
 function guessContentType(file: File) {
   if (file.type && file.type !== "application/octet-stream") return file.type;
   const name = file.name.toLowerCase();
@@ -138,21 +97,29 @@ export function ContactSection() {
     usikker: copy.contact.form.typeUnsure,
   };
 
-  const photosTooMany =
-    locale === "en"
-      ? "Max 5 photos – we kept the first 5"
-      : "Maks 5 bilder – vi tok de første 5";
-  const photoTooLarge =
-    locale === "en"
-      ? "One or more photos are too large (max 8 MB)"
-      : "Ett eller flere bilder er for store (maks 8 MB)";
-  const uploadingLabel = (current: number, total: number) =>
-    (locale === "en"
-      ? "Uploading photos ({current}/{total})…"
-      : "Laster opp bilder ({current}/{total})…"
-    )
-      .replace("{current}", String(current))
-      .replace("{total}", String(total));
+  const ui = {
+    choosePhotos: locale === "en" ? "Choose photos" : "Velg bilder",
+    noPhotos: locale === "en" ? "No files selected" : "Ingen filer valgt",
+    photosSelected: (n: number) =>
+      locale === "en"
+        ? `${n} photo${n === 1 ? "" : "s"} selected`
+        : `${n} bilde${n === 1 ? "" : "r"} valgt`,
+    photosTooMany:
+      locale === "en"
+        ? "Max 5 photos – we kept the first 5"
+        : "Maks 5 bilder – vi tok de første 5",
+    photoTooLarge:
+      locale === "en"
+        ? "One or more photos are too large (max 8 MB)"
+        : "Ett eller flere bilder er for store (maks 8 MB)",
+    uploading: (current: number, total: number) =>
+      (locale === "en"
+        ? "Uploading photos ({current}/{total})…"
+        : "Laster opp bilder ({current}/{total})…"
+      )
+        .replace("{current}", String(current))
+        .replace("{total}", String(total)),
+  };
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -161,7 +128,7 @@ export function ContactSection() {
   function onPhotosSelected(fileList: FileList | null) {
     const all = Array.from(fileList || []);
     if (all.length > MAX_PHOTOS) {
-      toast.message(photosTooMany);
+      toast.message(ui.photosTooMany);
     }
     setPhotos(all.slice(0, MAX_PHOTOS));
   }
@@ -216,35 +183,23 @@ export function ContactSection() {
     try {
       const selected = photos.slice(0, MAX_PHOTOS);
       if (selected.some((file) => file.size > MAX_PHOTO_BYTES)) {
-        toast.error(photoTooLarge);
+        toast.error(ui.photoTooLarge);
         return;
       }
 
-      let photoUrls: string[] = [];
-      if (selected.length) {
-        setStatus(uploadingLabel(0, selected.length));
-        const prepared = await Promise.all(selected.map(compressForUpload));
-        const urls: string[] = new Array(prepared.length);
-        let done = 0;
-
-        await Promise.all(
-          prepared.map(async (file, index) => {
-            const safeName = file.name.replace(/[^\w.\-]+/g, "_") || `photo-${index + 1}.jpg`;
-            const blob = await upload(`leads/${Date.now()}-${safeName}`, file, {
-              access: "public",
-              handleUploadUrl: "/api/lead/photo",
-              contentType: guessContentType(file),
-              multipart: file.size > 4 * 1024 * 1024,
-            });
-            urls[index] = blob.url;
-            done += 1;
-            setStatus(uploadingLabel(done, prepared.length));
-          }),
-        );
-        photoUrls = urls.filter(Boolean);
-        if (photoUrls.length !== prepared.length) {
-          throw new Error("Photo upload incomplete");
-        }
+      const photoUrls: string[] = [];
+      for (let i = 0; i < selected.length; i += 1) {
+        const file = selected[i]!;
+        setStatus(ui.uploading(i + 1, selected.length));
+        const safeName =
+          file.name.replace(/[^\w.\-]+/g, "_") || `photo-${i + 1}.jpg`;
+        const blob = await upload(`leads/${Date.now()}-${safeName}`, file, {
+          access: "public",
+          handleUploadUrl: "/api/lead/photo",
+          contentType: guessContentType(file),
+          multipart: true,
+        });
+        photoUrls.push(blob.url);
       }
 
       setStatus(copy.contact.form.sending);
@@ -435,18 +390,30 @@ export function ContactSection() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="photos">{copy.contact.form.photos}</Label>
-                  <Input
+                  <input
                     ref={photosInputRef}
                     id="photos"
                     type="file"
                     accept="image/*"
                     multiple
+                    className="sr-only"
                     onChange={(e) => onPhotosSelected(e.target.files)}
-                    className="cursor-pointer file:mr-3 file:rounded-lg file:border-0 file:bg-accent/20 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-accent"
                   />
+                  <div className="flex flex-wrap items-center gap-3">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      disabled={loading}
+                      onClick={() => photosInputRef.current?.click()}
+                    >
+                      {ui.choosePhotos}
+                    </Button>
+                    <span className="text-sm text-muted-foreground">
+                      {photos.length ? ui.photosSelected(photos.length) : ui.noPhotos}
+                    </span>
+                  </div>
                   <p className="text-xs text-muted-foreground">
                     {copy.contact.form.photosHint}
-                    {photos.length > 0 ? ` · ${photos.length}` : ""}
                   </p>
                   {photos.length > 0 ? (
                     <ul className="space-y-1 text-xs text-muted-foreground">
