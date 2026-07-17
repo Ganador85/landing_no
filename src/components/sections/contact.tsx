@@ -176,6 +176,7 @@ export function ContactSection() {
   const [step, setStep] = useState<1 | 2>(1);
   const [form, setForm] = useState<FormState>(initial);
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
+  const [photosLimitNotice, setPhotosLimitNotice] = useState<string | null>(null);
   const photosInputRef = useRef<HTMLInputElement>(null);
   const photosRef = useRef<PhotoItem[]>([]);
   const queueRef = useRef<PhotoItem[]>([]);
@@ -199,8 +200,12 @@ export function ContactSection() {
         : `${n} bilde${n === 1 ? "" : "r"} valgt`,
     photosTooMany:
       locale === "en"
-        ? "Max 15 photos – we kept the first 15"
-        : "Maks 15 bilder – vi tok de første 15",
+        ? "We only accept up to 15 photos. Extra files were not added."
+        : "Vi tar imot maks 15 bilder. Flere filer ble ikke lagt til.",
+    photosLimitInline:
+      locale === "en"
+        ? "Maximum 15 photos. Extra files were ignored."
+        : "Maksimum 15 bilder. Ekstra filer ble ignorert.",
     photoTooLarge:
       locale === "en"
         ? "One or more photos are too large (max 20 MB)"
@@ -247,7 +252,13 @@ export function ContactSection() {
 
   function onPhotosSelected(fileList: FileList | null) {
     const all = Array.from(fileList || []);
-    if (all.length > MAX_PHOTOS) toast.message(ui.photosTooMany);
+    const truncated = all.length > MAX_PHOTOS;
+    if (truncated) {
+      toast.warning(ui.photosTooMany, { duration: 6000 });
+      setPhotosLimitNotice(ui.photosLimitInline);
+    } else {
+      setPhotosLimitNotice(null);
+    }
 
     const nextFiles = all.slice(0, MAX_PHOTOS);
     if (nextFiles.some((file) => file.size > MAX_SOURCE_BYTES)) {
@@ -369,6 +380,7 @@ export function ContactSection() {
       }
       setForm(initial);
       setPhotos([]);
+      setPhotosLimitNotice(null);
       queueRef.current = [];
       if (photosInputRef.current) photosInputRef.current.value = "";
       setStep(1);
@@ -552,6 +564,11 @@ export function ContactSection() {
                   <p className="text-xs text-muted-foreground">
                     {copy.contact.form.photosHint}
                   </p>
+                  {photosLimitNotice ? (
+                    <p className="text-xs font-medium text-accent" role="status">
+                      {photosLimitNotice}
+                    </p>
+                  ) : null}
                   {photos.length > 0 ? (
                     <ul className="space-y-1 text-xs text-muted-foreground">
                       {photos.map((item) => (
