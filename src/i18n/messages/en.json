@@ -168,6 +168,27 @@
     "title": "Frequently asked questions",
     "subtitle": "Price, impregnation, moss removal and renewal vs replacement – explained briefly."
   },
+  "testimonials": {
+    "eyebrow": "Testimonials",
+    "title": "What customers say",
+    "items": [
+      {
+        "quote": "Good communication, tidy work and the roof looks like new.",
+        "author": "Customer, Oslo",
+        "service": "Roof renewal"
+      },
+      {
+        "quote": "Professional team from start to finish. Recommended!",
+        "author": "Customer, Viken",
+        "service": "Roof wash and impregnation"
+      },
+      {
+        "quote": "Fixed price, a clear plan and a result we are very happy with.",
+        "author": "Housing association, Oslo",
+        "service": "Roof renewal – housing association"
+      }
+    ]
+  },
   "contact": {
     "eyebrow": "Contact",
     "title": "Book a free inspection",

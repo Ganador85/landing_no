@@ -93,6 +93,14 @@ export const pageCopyTabs: Tab[] = [
         label: "Mobile sticky bar",
         fields: [...biText("call", "Call"), ...biText("book", "Book")],
       },
+      {
+        name: "copyTrustBar",
+        type: "group",
+        label: "Trust bar (under hero)",
+        fields: [
+          ...biText("items", "Items (one per line)", { textarea: true }),
+        ],
+      },
     ],
   },
   {
@@ -163,6 +171,18 @@ export const pageCopyTabs: Tab[] = [
           ...biText("eyebrow", "Eyebrow"),
           ...biText("title", "Title"),
           ...biText("subtitle", "Subtitle", { textarea: true }),
+        ],
+      },
+      {
+        name: "copyTestimonials",
+        type: "group",
+        label: "Testimonials",
+        fields: [
+          ...biText("eyebrow", "Eyebrow"),
+          ...biText("title", "Title"),
+          ...biText("items", "Items (quote | author | service — one per line)", {
+            textarea: true,
+          }),
         ],
       },
     ],

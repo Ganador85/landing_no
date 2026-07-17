@@ -168,6 +168,27 @@
     "title": "Ofte stilte spørsmål",
     "subtitle": "Pris, impregnering, mosefjerning og forskjellen på fornying og omlegging – kort forklart."
   },
+  "testimonials": {
+    "eyebrow": "Kundeomtaler",
+    "title": "Hva kundene sier",
+    "items": [
+      {
+        "quote": "God kommunikasjon, ryddig arbeid og taket ble som nytt.",
+        "author": "Kunde, Oslo",
+        "service": "Takfornying"
+      },
+      {
+        "quote": "Profesjonelt team fra start til slutt. Anbefales!",
+        "author": "Kunde, Viken",
+        "service": "Takvask og impregnering"
+      },
+      {
+        "quote": "Fast pris, tydelig plan og et resultat vi er svært fornøyde med.",
+        "author": "Borettslag, Oslo",
+        "service": "Takfornying – borettslag"
+      }
+    ]
+  },
   "contact": {
     "eyebrow": "Kontakt",
     "title": "Få en gratis befaring",

@@ -63,6 +63,7 @@ const groups = {
     "trust_rating_en",
   ],
   copy_sticky: ["call_no", "call_en", "book_no", "book_en"],
+  copy_trust_bar: ["items_no", "items_en"],
   copy_services: [
     "eyebrow_no",
     "eyebrow_en",
@@ -134,6 +135,14 @@ const groups = {
     "title_en",
     "subtitle_no",
     "subtitle_en",
+  ],
+  copy_testimonials: [
+    "eyebrow_no",
+    "eyebrow_en",
+    "title_no",
+    "title_en",
+    "items_no",
+    "items_en",
   ],
   copy_new_roof: [
     "eyebrow_no",

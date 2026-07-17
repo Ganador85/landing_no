@@ -80,19 +80,19 @@ export const faqItems = [
       en: "How is a roof impregnated?",
     },
     answer: {
-      no: "Impregnering gjøres etter grundig takvask. Vi bruker NowoCoat og Surfatech som trekker inn i steinen, beskytter mot fukt og hemmer ny mosevekst i mange år.",
-      en: "Impregnation follows a thorough wash. We use NowoCoat and Surfatech that penetrate the tiles, protect against moisture and slow new moss growth for years.",
+      no: "Etter grundig vask påføres impregnering som trekker inn i steinen. Den beskytter mot fukt og mose uten å tette damp – taket kan fortsatt puste.",
+      en: "After a thorough wash we apply impregnation that soaks into the tiles. It protects against moisture and moss without sealing vapour – the roof can still breathe.",
     },
   },
   {
-    id: "moss",
+    id: "duration",
     question: {
-      no: "Hvilket firma fjerner mose på tak?",
-      en: "Who removes moss from roofs?",
+      no: "Hvor lang tid tar takfornying?",
+      en: "How long does roof renewal take?",
     },
     answer: {
-      no: "Vi er et profesjonelt firma som fjerner mose på tak i Oslo, Viken, Innlandet, Vestfold og Telemark, Agder, Rogaland, Vestland, Møre og Romsdal og Trøndelag. Vi bruker både høytrykksvask og skånsom softwash, avhengig av takets tilstand.",
-      en: "We are a professional company removing moss from roofs in Oslo, Viken, Innlandet, Vestfold og Telemark, Agder, Rogaland, Vestland, Møre og Romsdal and Trøndelag. We use both high-pressure washing and gentle softwash, depending on roof condition.",
+      no: "De fleste boligtak blir ferdige på 1–3 dager, avhengig av vær og størrelse. Store borettslag planlegges over flere etapper.",
+      en: "Most homes are finished in 1–3 days, depending on weather and size. Larger housing associations are planned in stages.",
     },
   },
   {
@@ -113,8 +113,8 @@ export const faqItems = [
       en: "Do you have experience with roof renewal?",
     },
     answer: {
-      no: "Ja. Vi har fornyet over to millioner kvadratmeter tak, med dedikerte team, dokumenterte metoder og opptil 10 års produkt- og utførelsesgaranti (avhengig av behandling og takets tilstand).",
-      en: "Yes. We have renewed over two million square metres of roofing, with dedicated teams, proven methods and up to 10 years’ product and workmanship warranty (depending on treatment and roof condition).",
+      no: "Ja. Vi har gjennomført over 100 takprosjekter, med dedikerte team, dokumenterte metoder og opptil 10 års produkt- og utførelsesgaranti (avhengig av behandling og takets tilstand).",
+      en: "Yes. We have completed over 100 roof projects, with dedicated teams, proven methods and up to 10 years’ product and workmanship warranty (depending on treatment and roof condition).",
     },
   },
 ] as const;

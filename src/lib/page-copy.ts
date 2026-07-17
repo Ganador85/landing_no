@@ -106,6 +106,11 @@ export type PageCopy = {
     title: LocaleText;
     subtitle: LocaleText;
   };
+  testimonials: {
+    eyebrow: LocaleText;
+    title: LocaleText;
+    items: Array<{ quote: LocaleText; author: LocaleText; service: LocaleText }>;
+  };
   contact: {
     eyebrow: LocaleText;
     title: LocaleText;
@@ -305,6 +310,18 @@ export function pageCopyFromMessages(no: Msg, en: Msg): PageCopy {
       title: t(no.faq.title, en.faq.title),
       subtitle: t(no.faq.subtitle, en.faq.subtitle),
     },
+    testimonials: {
+      eyebrow: t(no.testimonials.eyebrow, en.testimonials.eyebrow),
+      title: t(no.testimonials.title, en.testimonials.title),
+      items: no.testimonials.items.map((item, i) => {
+        const enItem = en.testimonials.items[i] || item;
+        return {
+          quote: t(item.quote, enItem.quote),
+          author: t(item.author, enItem.author),
+          service: t(item.service, enItem.service),
+        };
+      }),
+    },
     contact: {
       eyebrow: t(no.contact.eyebrow, en.contact.eyebrow),
       title: t(no.contact.title, en.contact.title),
@@ -390,6 +407,42 @@ function pickTypesList(
   }));
 }
 
+function pickTestimonialItems(
+  noVal: string | null | undefined,
+  enVal: string | null | undefined,
+  fallback: Array<{ quote: LocaleText; author: LocaleText; service: LocaleText }>,
+): Array<{ quote: LocaleText; author: LocaleText; service: LocaleText }> {
+  const parse = (raw: string) =>
+    raw
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => {
+        const [quote = "", author = "", service = ""] = line.split("|").map((s) => s.trim());
+        return { quote, author, service };
+      });
+
+  const noItems = parse(noVal || "");
+  const enItems = parse(enVal || "");
+  if (noItems.length === 0 && enItems.length === 0) return fallback;
+
+  const maxLen = Math.max(noItems.length, enItems.length, fallback.length);
+  return Array.from({ length: maxLen }, (_, i) => ({
+    quote: {
+      no: noItems[i]?.quote || fallback[i]?.quote.no || "",
+      en: enItems[i]?.quote || fallback[i]?.quote.en || "",
+    },
+    author: {
+      no: noItems[i]?.author || fallback[i]?.author.no || "",
+      en: enItems[i]?.author || fallback[i]?.author.en || "",
+    },
+    service: {
+      no: noItems[i]?.service || fallback[i]?.service.no || "",
+      en: enItems[i]?.service || fallback[i]?.service.en || "",
+    },
+  }));
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function pageCopyFromSettingsDoc(doc: any, fallback: PageCopy): PageCopy {
   const meta = doc?.copyMeta;
@@ -401,6 +454,7 @@ export function pageCopyFromSettingsDoc(doc: any, fallback: PageCopy): PageCopy 
   const references = doc?.copyReferences;
   const products = doc?.copyProducts;
   const faq = doc?.copyFaq;
+  const testimonials = doc?.copyTestimonials;
   const newRoof = doc?.copyNewRoof;
   const about = doc?.copyAbout;
   const contact = doc?.copyContact;
@@ -435,7 +489,11 @@ export function pageCopyFromSettingsDoc(doc: any, fallback: PageCopy): PageCopy 
       trustRating: pickField(hero?.trustRatingNo, hero?.trustRatingEn, fallback.hero.trustRating),
     },
     trustBar: {
-      items: fallback.trustBar.items,
+      items: pickTypesList(
+        doc?.copyTrustBar?.itemsNo,
+        doc?.copyTrustBar?.itemsEn,
+        fallback.trustBar.items,
+      ),
     },
     sticky: {
       call: pickField(sticky?.callNo, sticky?.callEn, fallback.sticky.call),
@@ -526,6 +584,19 @@ export function pageCopyFromSettingsDoc(doc: any, fallback: PageCopy): PageCopy 
       eyebrow: pickField(faq?.eyebrowNo, faq?.eyebrowEn, fallback.faq.eyebrow),
       title: pickField(faq?.titleNo, faq?.titleEn, fallback.faq.title),
       subtitle: pickField(faq?.subtitleNo, faq?.subtitleEn, fallback.faq.subtitle),
+    },
+    testimonials: {
+      eyebrow: pickField(
+        testimonials?.eyebrowNo,
+        testimonials?.eyebrowEn,
+        fallback.testimonials.eyebrow,
+      ),
+      title: pickField(testimonials?.titleNo, testimonials?.titleEn, fallback.testimonials.title),
+      items: pickTestimonialItems(
+        testimonials?.itemsNo,
+        testimonials?.itemsEn,
+        fallback.testimonials.items,
+      ),
     },
     contact: {
       eyebrow: pickField(contact?.eyebrowNo, contact?.eyebrowEn, fallback.contact.eyebrow),
@@ -701,6 +772,15 @@ export function localizeCopy(copy: PageCopy, locale: "no" | "en"): LocalizedCopy
       eyebrow: pickText(copy.faq.eyebrow, locale),
       title: pickText(copy.faq.title, locale),
       subtitle: pickText(copy.faq.subtitle, locale),
+    },
+    testimonials: {
+      eyebrow: pickText(copy.testimonials.eyebrow, locale),
+      title: pickText(copy.testimonials.title, locale),
+      items: copy.testimonials.items.map((item) => ({
+        quote: pickText(item.quote, locale),
+        author: pickText(item.author, locale),
+        service: pickText(item.service, locale),
+      })),
     },
     contact: {
       eyebrow: pickText(copy.contact.eyebrow, locale),

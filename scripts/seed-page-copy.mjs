@@ -81,6 +81,9 @@ const data = {
   copy_sticky_book_no: no.sticky.book,
   copy_sticky_book_en: en.sticky.book,
 
+  copy_trust_bar_items_no: lines(no.trustBar.items),
+  copy_trust_bar_items_en: lines(en.trustBar.items),
+
   copy_services_eyebrow_no: no.services.eyebrow,
   copy_services_eyebrow_en: en.services.eyebrow,
   copy_services_title_no: no.services.title,
@@ -147,6 +150,17 @@ const data = {
   copy_faq_title_en: en.faq.title,
   copy_faq_subtitle_no: no.faq.subtitle,
   copy_faq_subtitle_en: en.faq.subtitle,
+
+  copy_testimonials_eyebrow_no: no.testimonials.eyebrow,
+  copy_testimonials_eyebrow_en: en.testimonials.eyebrow,
+  copy_testimonials_title_no: no.testimonials.title,
+  copy_testimonials_title_en: en.testimonials.title,
+  copy_testimonials_items_no: no.testimonials.items
+    .map((i) => `${i.quote} | ${i.author} | ${i.service}`)
+    .join("\n"),
+  copy_testimonials_items_en: en.testimonials.items
+    .map((i) => `${i.quote} | ${i.author} | ${i.service}`)
+    .join("\n"),
 
   copy_new_roof_eyebrow_no: no.newRoof.eyebrow,
   copy_new_roof_eyebrow_en: en.newRoof.eyebrow,

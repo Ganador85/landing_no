@@ -144,9 +144,9 @@ const faqItems = [
     questionNo: "Har dere erfaring med takfornying?",
     questionEn: "Do you have experience with roof renewal?",
     answerNo:
-      "Ja. Vi har fornyet over to millioner kvadratmeter tak, med dedikerte team, dokumenterte metoder og opptil 10 års produkt- og utførelsesgaranti (avhengig av behandling og takets tilstand).",
+      "Ja. Vi har gjennomført over 100 takprosjekter, med dedikerte team, dokumenterte metoder og opptil 10 års produkt- og utførelsesgaranti (avhengig av behandling og takets tilstand).",
     answerEn:
-      "Yes. We have renewed over two million square metres of roofing, with dedicated teams, proven methods and up to 10 years’ product and workmanship warranty (depending on treatment and roof condition).",
+      "Yes. We have completed over 100 roof projects, with dedicated teams, proven methods and up to 10 years’ product and workmanship warranty (depending on treatment and roof condition).",
   },
 ];
 
