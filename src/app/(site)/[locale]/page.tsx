@@ -1,5 +1,6 @@
 import { setRequestLocale } from "next-intl/server";
 import { HeroSection } from "@/components/sections/hero";
+import { TrustBarSection } from "@/components/sections/trust-bar";
 import { ServicesSection } from "@/components/sections/services";
 import { CalculatorSection } from "@/components/sections/calculator";
 import { NewRoofSection } from "@/components/sections/new-roof";
@@ -36,6 +37,7 @@ export default async function HomePage({ params }: Props) {
         description={content.copy.meta.description[locale as "no" | "en"]}
       />
       <HeroSection heroImage={content.settings.images.hero} />
+      <TrustBarSection />
       <ServicesSection items={content.services} />
       <CalculatorSection calculator={content.settings.calculator} />
       <NewRoofSection imageUrl={content.settings.images.newRoof} />

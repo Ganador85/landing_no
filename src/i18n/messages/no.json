@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Takfornying – takvask, impregnering og maling av takstein",
-    "description": "Vi fornyer norske tak med vask, impregnering og maling – eller legger helt nytt. Fast pris, gratis befaring og 10 års garanti."
+    "description": "Vi fornyer norske tak med vask, impregnering og maling – eller legger helt nytt. Fast pris, gratis befaring og opptil 10 års garanti."
   },
   "nav": {
     "home": "Hjem",
@@ -22,9 +22,17 @@
     "subtitle": "Vedlikehold eller nytt tak – vi tar hele jobben fra befaring til ferdig resultat.",
     "cta": "Få gratis befaring",
     "ctaSecondary": "Se tjenester",
-    "trustWarranty": "10 års garanti",
+    "trustWarranty": "Opptil 10 års garanti",
     "trustCustomers": "500+ fornøyde kunder",
     "trustRating": "4.9/5 vurdering"
+  },
+  "trustBar": {
+    "items": [
+      "Registrert i MVA-registeret",
+      "Ansvarsforsikret",
+      "HMS-rutiner",
+      "Dokumentert sluttkontroll"
+    ]
   },
   "sticky": {
     "call": "Ring",
@@ -68,8 +76,8 @@
         "featured": false
       },
       "warranty": {
-        "title": "10 års garanti",
-        "description": "Vi står bak fargetap og tett tak i ti år – din trygghet er en del av tilbudet.",
+        "title": "Opptil 10 års garanti",
+        "description": "Opptil 10 års produkt- og utførelsesgaranti, avhengig av valgt behandling og takets tilstand. Garantivilkår oppgis i tilbudet.",
         "featured": false
       },
       "newRoof": {
@@ -134,8 +142,8 @@
     "stats": {
       "roofs": "Tusenvis av tak",
       "roofsDesc": "vasket, impregnert og malt",
-      "warranty": "10 års garanti",
-      "warrantyDesc": "på fargetap og tett tak",
+      "warranty": "Opptil 10 års garanti",
+      "warrantyDesc": "Opptil 10 års produkt- og utførelsesgaranti, avhengig av valgt behandling og takets tilstand. Garantivilkår oppgis i tilbudet.",
       "area": "Sør- og Midt-Norge",
       "areaDesc": "Ålesund til svenskegrensa",
       "teams": "Lokale team",
@@ -197,7 +205,7 @@
     "partOf": "En del av",
     "quickLinks": "Hurtiglenker",
     "contact": "Kontakt",
-    "warrantyNote": "Garantivilkår gjelder iht. avtale. Ta kontakt for fullstendige vilkår.",
+    "warrantyNote": "Opptil 10 års produkt- og utførelsesgaranti, avhengig av valgt behandling og takets tilstand. Garantivilkår oppgis i tilbudet.",
     "rights": "Alle rettigheter reservert."
   }
 }

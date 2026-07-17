@@ -23,27 +23,25 @@ type LightboxState = {
 };
 
 type Pair = {
-  before?: Stage;
-  after?: Stage;
+  before: Stage;
+  after: Stage;
 };
 
+/** Pair equal before/after counts; leftover photos render as singles (never empty cells). */
 function splitStages(stages: Stage[]) {
   const before = stages.filter((s) => s.label === "before");
   const after = stages.filter((s) => s.label === "after");
   const during = stages.filter((s) => s.label === "during");
-  const hasCompare = before.length > 0 && after.length > 0;
 
+  const pairCount = Math.min(before.length, after.length);
   const pairs: Pair[] = [];
-  if (hasCompare) {
-    const count = Math.max(before.length, after.length);
-    for (let i = 0; i < count; i++) {
-      pairs.push({ before: before[i], after: after[i] });
-    }
+  for (let i = 0; i < pairCount; i++) {
+    pairs.push({ before: before[i], after: after[i] });
   }
 
-  const singles = hasCompare ? [] : [...before, ...after];
+  const singles = [...before.slice(pairCount), ...after.slice(pairCount)];
 
-  return { hasCompare, pairs, during, singles };
+  return { pairs, during, singles };
 }
 
 export function ReferencesSection({ projects }: Props) {
@@ -51,8 +49,7 @@ export function ReferencesSection({ projects }: Props) {
   const locale = useLocale() as "no" | "en";
   const [lightbox, setLightbox] = useState<LightboxState | null>(null);
 
-  const openStage = (project: CmsProject, stage?: Stage) => {
-    if (!stage) return;
+  const openStage = (project: CmsProject, stage: Stage) => {
     const index = project.stages.indexOf(stage);
     setLightbox({
       title: project.title[locale],
@@ -77,14 +74,14 @@ export function ReferencesSection({ projects }: Props) {
 
         <div className="mt-10 space-y-8">
           {projects.map((project, projectIndex) => {
-            const { hasCompare, pairs, during, singles } = splitStages(project.stages);
+            const { pairs, during, singles } = splitStages(project.stages);
 
             return (
               <Reveal key={project.id} delay={Math.min(projectIndex * 0.05, 0.2)}>
                 <article className="overflow-hidden rounded-2xl border border-white/10 bg-black/20">
                   <div className="border-b border-white/10 px-4 py-4 sm:px-5">
                     <h3 className="font-semibold">{project.title[locale]}</h3>
-                    {hasCompare ? (
+                    {pairs.length > 0 ? (
                       <p className="mt-1 text-xs text-muted-foreground">
                         {locale === "no"
                           ? "Venstre: før · Høyre: etter"
@@ -94,57 +91,51 @@ export function ReferencesSection({ projects }: Props) {
                   </div>
 
                   <div className="space-y-3 p-3 sm:space-y-4 sm:p-4">
-                    {hasCompare
-                      ? pairs.map((pair, pairIndex) => (
-                          <div
-                            key={`${project.id}-pair-${pairIndex}`}
-                            className="grid grid-cols-2 gap-2 sm:gap-3"
-                          >
-                            <CompareCell
-                              stage={pair.before}
-                              label={copy.references.before}
-                              emptyLabel={
-                                locale === "no" ? "Ingen før-bilde" : "No before photo"
-                              }
-                              locale={locale}
-                              onOpen={() => openStage(project, pair.before)}
-                            />
-                            <CompareCell
-                              stage={pair.after}
-                              label={copy.references.after}
-                              emptyLabel={
-                                locale === "no" ? "Ingen etter-bilde" : "No after photo"
-                              }
-                              locale={locale}
-                              onOpen={() => openStage(project, pair.after)}
-                            />
-                          </div>
-                        ))
-                      : (
-                          <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                            {singles.map((stage, i) => (
-                              <CompareCell
-                                key={`${project.id}-single-${i}`}
-                                stage={stage}
-                                label={copy.references[stage.label]}
-                                emptyLabel=""
-                                locale={locale}
-                                onOpen={() => openStage(project, stage)}
-                              />
-                            ))}
-                          </div>
-                        )}
+                    {pairs.map((pair, pairIndex) => (
+                      <div
+                        key={`${project.id}-pair-${pairIndex}`}
+                        className="grid grid-cols-2 gap-2 sm:gap-3"
+                      >
+                        <PhotoCell
+                          stage={pair.before}
+                          label={copy.references.before}
+                          locale={locale}
+                          onOpen={() => openStage(project, pair.before)}
+                        />
+                        <PhotoCell
+                          stage={pair.after}
+                          label={copy.references.after}
+                          locale={locale}
+                          onOpen={() => openStage(project, pair.after)}
+                        />
+                      </div>
+                    ))}
+
+                    {singles.length > 0 ? (
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3">
+                        {singles.map((stage, i) => (
+                          <PhotoCell
+                            key={`${project.id}-single-${i}`}
+                            stage={stage}
+                            label={copy.references[stage.label]}
+                            locale={locale}
+                            onOpen={() => openStage(project, stage)}
+                            wide
+                          />
+                        ))}
+                      </div>
+                    ) : null}
 
                     {during.length > 0 ? (
                       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3">
                         {during.map((stage, i) => (
-                          <CompareCell
+                          <PhotoCell
                             key={`${project.id}-during-${i}`}
                             stage={stage}
                             label={copy.references.during}
-                            emptyLabel=""
                             locale={locale}
                             onOpen={() => openStage(project, stage)}
+                            wide
                           />
                         ))}
                       </div>
@@ -171,42 +162,36 @@ export function ReferencesSection({ projects }: Props) {
   );
 }
 
-function CompareCell({
+function PhotoCell({
   stage,
   label,
-  emptyLabel,
   locale,
   onOpen,
+  wide = false,
 }: {
-  stage?: Stage;
+  stage: Stage;
   label: string;
-  emptyLabel: string;
   locale: "no" | "en";
   onOpen: () => void;
+  wide?: boolean;
 }) {
-  if (!stage) {
-    return (
-      <div className="flex aspect-[4/3] items-center justify-center rounded-xl border border-dashed border-white/10 bg-black/30 px-3 text-center text-xs text-muted-foreground">
-        {emptyLabel}
-      </div>
-    );
-  }
-
-  const src = optimizeRemoteImageUrl(stage.image, { width: 900, quality: 72 });
+  const src = optimizeRemoteImageUrl(stage.image, { width: 1200, quality: 75 });
 
   return (
     <button
       type="button"
       onClick={onOpen}
-      className="group relative aspect-[4/3] overflow-hidden rounded-xl bg-black/40 text-left"
+      className={`group relative overflow-hidden rounded-xl bg-black/40 text-left ${
+        wide ? "aspect-[16/10] sm:aspect-[4/3]" : "aspect-[4/3]"
+      }`}
       aria-label={stage.caption[locale]}
     >
       <Image
         src={src}
         alt={stage.caption[locale]}
-        width={900}
-        height={675}
-        sizes="(max-width: 640px) 50vw, 420px"
+        width={1200}
+        height={900}
+        sizes={wide ? "(max-width: 640px) 100vw, 560px" : "(max-width: 640px) 50vw, 420px"}
         className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         loading="lazy"
       />
@@ -283,12 +268,12 @@ function Lightbox({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col bg-black/90 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex flex-col bg-black"
       role="dialog"
       aria-modal="true"
       aria-label={title}
     >
-      <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-6">
+      <div className="flex items-center justify-between gap-3 px-3 pb-2 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-6">
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-white">{title}</p>
           <p className="text-xs text-white/60">
@@ -303,7 +288,7 @@ function Lightbox({
         <button
           type="button"
           aria-label="Close"
-          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white"
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white"
           onClick={onClose}
         >
           <X className="size-5" />
@@ -312,21 +297,22 @@ function Lightbox({
 
       <div className="relative min-h-0 flex-1">
         <div className="h-full overflow-hidden" ref={emblaRef}>
-          <div className="flex h-full">
+          <div className="flex h-full touch-pan-y">
             {stages.map((item, i) => (
               <div
                 key={`${item.image}-${i}`}
-                className="relative flex min-w-0 shrink-0 grow-0 basis-full items-center justify-center px-3 sm:px-10"
+                className="relative min-w-0 shrink-0 grow-0 basis-full px-2 sm:px-8"
               >
-                <Image
-                  src={optimizeRemoteImageUrl(item.image, { width: 1600, quality: 82 })}
-                  alt={item.caption[locale]}
-                  width={1600}
-                  height={1200}
-                  className="max-h-[72vh] w-auto max-w-full object-contain"
-                  sizes="100vw"
-                  priority={i === startIndex}
-                />
+                <div className="relative mx-auto h-full w-full max-w-5xl">
+                  <Image
+                    src={optimizeRemoteImageUrl(item.image, { width: 1800, quality: 85 })}
+                    alt={item.caption[locale]}
+                    fill
+                    className="object-contain"
+                    sizes="100vw"
+                    priority={i === startIndex}
+                  />
+                </div>
               </div>
             ))}
           </div>
@@ -339,7 +325,7 @@ function Lightbox({
               aria-label="Previous"
               disabled={!canPrev}
               onClick={() => emblaApi?.scrollPrev()}
-              className="absolute left-2 top-1/2 z-10 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/50 text-white disabled:opacity-0 sm:left-4"
+              className="absolute left-1 top-1/2 z-10 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white disabled:opacity-0 sm:left-4"
             >
               <ChevronLeft className="size-5" />
             </button>
@@ -348,7 +334,7 @@ function Lightbox({
               aria-label="Next"
               disabled={!canNext}
               onClick={() => emblaApi?.scrollNext()}
-              className="absolute right-2 top-1/2 z-10 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/50 text-white disabled:opacity-0 sm:right-4"
+              className="absolute right-1 top-1/2 z-10 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white disabled:opacity-0 sm:right-4"
             >
               <ChevronRight className="size-5" />
             </button>
@@ -356,7 +342,7 @@ function Lightbox({
         ) : null}
       </div>
 
-      <div className="px-4 py-4 sm:px-6">
+      <div className="px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 sm:px-6">
         <span className="inline-flex rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white/90">
           {labelFor(stage.label)}
         </span>

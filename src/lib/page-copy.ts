@@ -30,6 +30,9 @@ export type PageCopy = {
     trustCustomers: LocaleText;
     trustRating: LocaleText;
   };
+  trustBar: {
+    items: LocaleText[];
+  };
   sticky: {
     call: LocaleText;
     book: LocaleText;
@@ -206,6 +209,11 @@ export function pageCopyFromMessages(no: Msg, en: Msg): PageCopy {
       trustWarranty: t(no.hero.trustWarranty, en.hero.trustWarranty),
       trustCustomers: t(no.hero.trustCustomers, en.hero.trustCustomers),
       trustRating: t(no.hero.trustRating, en.hero.trustRating),
+    },
+    trustBar: {
+      items: no.trustBar.items.map((label, i) =>
+        t(label, en.trustBar.items[i] || label),
+      ),
     },
     sticky: {
       call: t(no.sticky.call, en.sticky.call),
@@ -426,6 +434,9 @@ export function pageCopyFromSettingsDoc(doc: any, fallback: PageCopy): PageCopy 
       trustCustomers: pickField(hero?.trustCustomersNo, hero?.trustCustomersEn, fallback.hero.trustCustomers),
       trustRating: pickField(hero?.trustRatingNo, hero?.trustRatingEn, fallback.hero.trustRating),
     },
+    trustBar: {
+      items: fallback.trustBar.items,
+    },
     sticky: {
       call: pickField(sticky?.callNo, sticky?.callEn, fallback.sticky.call),
       book: pickField(sticky?.bookNo, sticky?.bookEn, fallback.sticky.book),
@@ -611,6 +622,9 @@ export function localizeCopy(copy: PageCopy, locale: "no" | "en"): LocalizedCopy
       trustWarranty: pickText(copy.hero.trustWarranty, locale),
       trustCustomers: pickText(copy.hero.trustCustomers, locale),
       trustRating: pickText(copy.hero.trustRating, locale),
+    },
+    trustBar: {
+      items: copy.trustBar.items.map((item) => pickText(item, locale)),
     },
     sticky: {
       call: pickText(copy.sticky.call, locale),

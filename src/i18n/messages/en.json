@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Roof renewal – wash, impregnation & painting",
-    "description": "We renew Norwegian roofs with washing, impregnation and painting – or install a brand-new roof. Fixed price, free inspection and 10-year warranty."
+    "description": "We renew Norwegian roofs with washing, impregnation and painting – or install a brand-new roof. Fixed price, free inspection and up to 10-year warranty."
   },
   "nav": {
     "home": "Home",
@@ -22,9 +22,17 @@
     "subtitle": "Maintenance or a new roof – we handle the full job from inspection to finished result.",
     "cta": "Get a free inspection",
     "ctaSecondary": "View services",
-    "trustWarranty": "10-year warranty",
+    "trustWarranty": "Up to 10-year warranty",
     "trustCustomers": "500+ happy customers",
     "trustRating": "4.9/5 rating"
+  },
+  "trustBar": {
+    "items": [
+      "VAT registered",
+      "Liability insured",
+      "HSE routines",
+      "Documented final inspection"
+    ]
   },
   "sticky": {
     "call": "Call",
@@ -68,8 +76,8 @@
         "featured": false
       },
       "warranty": {
-        "title": "10-year warranty",
-        "description": "We stand behind colour retention and a weathertight roof for ten years – peace of mind built in.",
+        "title": "Up to 10-year warranty",
+        "description": "Up to 10 years’ product and workmanship warranty, depending on the chosen treatment and the condition of the roof. Warranty terms are stated in the quote.",
         "featured": false
       },
       "newRoof": {
@@ -134,8 +142,8 @@
     "stats": {
       "roofs": "Thousands of roofs",
       "roofsDesc": "washed, impregnated and painted",
-      "warranty": "10-year warranty",
-      "warrantyDesc": "on colour retention and weathertightness",
+      "warranty": "Up to 10-year warranty",
+      "warrantyDesc": "Up to 10 years’ product and workmanship warranty, depending on the chosen treatment and the condition of the roof. Warranty terms are stated in the quote.",
       "area": "Southern & Central Norway",
       "areaDesc": "Ålesund to the Swedish border",
       "teams": "Local teams",
@@ -197,7 +205,7 @@
     "partOf": "Part of",
     "quickLinks": "Quick links",
     "contact": "Contact",
-    "warrantyNote": "Warranty terms apply as agreed. Contact us for full terms.",
+    "warrantyNote": "Up to 10 years’ product and workmanship warranty, depending on the chosen treatment and the condition of the roof. Warranty terms are stated in the quote.",
     "rights": "All rights reserved."
   }
 }
