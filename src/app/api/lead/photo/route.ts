@@ -1,6 +1,10 @@
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { NextResponse } from "next/server";
 
+/**
+ * Kept for compatibility. New uploads go through /api/lead/photo-upload.
+ * Do not attach onUploadCompleted — it makes browser uploads hang waiting for a webhook.
+ */
 export async function POST(request: Request): Promise<NextResponse> {
   if (!process.env.BLOB_READ_WRITE_TOKEN) {
     return NextResponse.json(
@@ -15,7 +19,6 @@ export async function POST(request: Request): Promise<NextResponse> {
       body,
       request,
       onBeforeGenerateToken: async () => ({
-        // Keep broad enough for phone cameras; client compresses to JPEG first.
         allowedContentTypes: [
           "image/jpeg",
           "image/jpg",
@@ -28,11 +31,7 @@ export async function POST(request: Request): Promise<NextResponse> {
         ],
         maximumSizeInBytes: 8 * 1024 * 1024,
         addRandomSuffix: true,
-        tokenPayload: JSON.stringify({ purpose: "lead-photo" }),
       }),
-      onUploadCompleted: async () => {
-        // Lead record is created separately after client uploads finish.
-      },
     });
 
     return NextResponse.json(jsonResponse);

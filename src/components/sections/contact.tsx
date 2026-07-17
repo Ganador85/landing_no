@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { upload } from "@vercel/blob/client";
 import { Clock, Mail, MapPin, Phone } from "lucide-react";
 import { useLocale } from "next-intl";
 import { toast } from "sonner";
@@ -14,7 +13,10 @@ import { Reveal } from "@/components/ui/reveal";
 import { usePageCopy, useSiteSettings } from "@/components/site-settings-provider";
 
 const MAX_PHOTOS = 15;
-const MAX_PHOTO_BYTES = 8 * 1024 * 1024;
+const MAX_SOURCE_BYTES = 20 * 1024 * 1024;
+const MAX_UPLOAD_BYTES = 3.5 * 1024 * 1024;
+const MAX_EDGE = 1600;
+const UPLOAD_CONCURRENCY = 2;
 
 const inquiryTypes = [
   "takvask",
@@ -29,10 +31,10 @@ type InquiryType = (typeof inquiryTypes)[number];
 type PhotoItem = {
   id: string;
   file: File;
-  status: "uploading" | "ready" | "error";
+  status: "queued" | "uploading" | "ready" | "error";
   url?: string;
-  error?: string;
   done: Promise<string | null>;
+  resolve: (url: string | null) => void;
 };
 
 const step1Schema = z.object({
@@ -76,19 +78,92 @@ const initial: FormState = {
   message: "",
 };
 
-function guessContentType(file: File) {
-  if (file.type && file.type !== "application/octet-stream") return file.type;
-  const name = file.name.toLowerCase();
-  if (name.endsWith(".png")) return "image/png";
-  if (name.endsWith(".webp")) return "image/webp";
-  if (name.endsWith(".gif")) return "image/gif";
-  if (name.endsWith(".heic")) return "image/heic";
-  if (name.endsWith(".heif")) return "image/heif";
-  return "image/jpeg";
+function photoKey(file: File) {
+  return `${file.name}-${file.size}-${file.lastModified}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-function photoKey(file: File) {
-  return `${file.name}-${file.size}-${file.lastModified}`;
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = window.setTimeout(() => reject(new Error(`${label} timed out`)), ms);
+    promise.then(
+      (value) => {
+        window.clearTimeout(timer);
+        resolve(value);
+      },
+      (err) => {
+        window.clearTimeout(timer);
+        reject(err);
+      },
+    );
+  });
+}
+
+async function compressImage(file: File): Promise<File> {
+  if (/heic|heif/i.test(file.type) || /\.heic$|\.heif$/i.test(file.name)) {
+    if (file.size > MAX_UPLOAD_BYTES) {
+      throw new Error("HEIC too large");
+    }
+    return file;
+  }
+
+  if (typeof createImageBitmap !== "function") {
+    if (file.size > MAX_UPLOAD_BYTES) throw new Error("too large");
+    return file;
+  }
+
+  const bitmap = await withTimeout(createImageBitmap(file), 12_000, "decode");
+  try {
+    const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      if (file.size > MAX_UPLOAD_BYTES) throw new Error("too large");
+      return file;
+    }
+    ctx.drawImage(bitmap, 0, 0, width, height);
+
+    let quality = 0.72;
+    let blob: Blob | null = null;
+    for (let i = 0; i < 4; i += 1) {
+      blob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve, "image/jpeg", quality),
+      );
+      if (!blob) break;
+      if (blob.size <= MAX_UPLOAD_BYTES) break;
+      quality -= 0.12;
+    }
+
+    if (!blob) {
+      if (file.size > MAX_UPLOAD_BYTES) throw new Error("compress failed");
+      return file;
+    }
+
+    const base = file.name.replace(/\.[^.]+$/, "") || "tak";
+    return new File([blob], `${base}.jpg`, { type: "image/jpeg" });
+  } finally {
+    bitmap.close();
+  }
+}
+
+async function uploadViaServer(file: File): Promise<string> {
+  const prepared = await compressImage(file);
+  const body = new FormData();
+  body.set("file", prepared);
+
+  const res = await withTimeout(
+    fetch("/api/lead/photo-upload", { method: "POST", body }),
+    45_000,
+    "upload",
+  );
+  const data = (await res.json().catch(() => null)) as { url?: string; error?: string } | null;
+  if (!res.ok || !data?.url) {
+    throw new Error(data?.error || "Upload failed");
+  }
+  return data.url;
 }
 
 export function ContactSection() {
@@ -101,6 +176,8 @@ export function ContactSection() {
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
   const photosInputRef = useRef<HTMLInputElement>(null);
   const photosRef = useRef<PhotoItem[]>([]);
+  const queueRef = useRef<PhotoItem[]>([]);
+  const activeRef = useRef(0);
   photosRef.current = photos;
 
   const typeLabels: Record<InquiryType, string> = {
@@ -124,9 +201,10 @@ export function ContactSection() {
         : "Maks 15 bilder – vi tok de første 15",
     photoTooLarge:
       locale === "en"
-        ? "One or more photos are too large (max 8 MB)"
-        : "Ett eller flere bilder er for store (maks 8 MB)",
+        ? "One or more photos are too large (max 20 MB)"
+        : "Ett eller flere bilder er for store (maks 20 MB)",
     photoUploading: locale === "en" ? "Uploading…" : "Laster opp…",
+    photoQueued: locale === "en" ? "Waiting…" : "Venter…",
     photoReady: locale === "en" ? "Ready" : "Klar",
     photoFailed: locale === "en" ? "Failed" : "Feilet",
   };
@@ -141,63 +219,61 @@ export function ContactSection() {
     );
   }
 
-  function startPhotoUpload(file: File): PhotoItem {
-    const id = photoKey(file);
-    let resolveDone: (url: string | null) => void = () => {};
-    const done = new Promise<string | null>((resolve) => {
-      resolveDone = resolve;
-    });
+  function pumpQueue() {
+    while (activeRef.current < UPLOAD_CONCURRENCY && queueRef.current.length) {
+      const item = queueRef.current.shift();
+      if (!item) break;
+      activeRef.current += 1;
+      patchPhoto(item.id, { status: "uploading" });
 
-    const item: PhotoItem = {
-      id,
-      file,
-      status: "uploading",
-      done,
-    };
-
-    void (async () => {
-      try {
-        if (file.size > MAX_PHOTO_BYTES) {
-          throw new Error("too-large");
+      void (async () => {
+        try {
+          const url = await uploadViaServer(item.file);
+          patchPhoto(item.id, { status: "ready", url });
+          item.resolve(url);
+        } catch (err) {
+          console.error("Photo upload failed:", err);
+          patchPhoto(item.id, { status: "error" });
+          item.resolve(null);
+        } finally {
+          activeRef.current -= 1;
+          pumpQueue();
         }
-        const safeName =
-          file.name.replace(/[^\w.\-]+/g, "_") || `photo-${Date.now()}.jpg`;
-        const blob = await upload(`leads/${Date.now()}-${safeName}`, file, {
-          access: "public",
-          handleUploadUrl: "/api/lead/photo",
-          contentType: guessContentType(file),
-          multipart: true,
-        });
-        patchPhoto(id, { status: "ready", url: blob.url });
-        resolveDone(blob.url);
-      } catch (err) {
-        console.error("Photo upload failed:", err);
-        patchPhoto(id, {
-          status: "error",
-          error: err instanceof Error ? err.message : "failed",
-        });
-        resolveDone(null);
-      }
-    })();
-
-    return item;
+      })();
+    }
   }
 
   function onPhotosSelected(fileList: FileList | null) {
     const all = Array.from(fileList || []);
-    if (all.length > MAX_PHOTOS) {
-      toast.message(ui.photosTooMany);
-    }
+    if (all.length > MAX_PHOTOS) toast.message(ui.photosTooMany);
+
     const nextFiles = all.slice(0, MAX_PHOTOS);
-    if (nextFiles.some((file) => file.size > MAX_PHOTO_BYTES)) {
+    if (nextFiles.some((file) => file.size > MAX_SOURCE_BYTES)) {
       toast.error(ui.photoTooLarge);
     }
 
-    // Replace selection and start uploading immediately while the user fills the form.
-    const next = nextFiles
-      .filter((file) => file.size <= MAX_PHOTO_BYTES)
-      .map((file) => startPhotoUpload(file));
+    queueRef.current = [];
+    activeRef.current = 0;
+
+    const next: PhotoItem[] = nextFiles
+      .filter((file) => file.size <= MAX_SOURCE_BYTES)
+      .map((file) => {
+        let resolveDone: (url: string | null) => void = () => {};
+        const done = new Promise<string | null>((resolve) => {
+          resolveDone = resolve;
+        });
+        return {
+          id: photoKey(file),
+          file,
+          status: "queued" as const,
+          done,
+          resolve: resolveDone,
+        };
+      });
+
     setPhotos(next);
+    queueRef.current = [...next];
+    pumpQueue();
   }
 
   function goNext() {
@@ -291,6 +367,7 @@ export function ContactSection() {
       }
       setForm(initial);
       setPhotos([]);
+      queueRef.current = [];
       if (photosInputRef.current) photosInputRef.current.value = "";
       setStep(1);
     } catch (err) {
@@ -494,7 +571,9 @@ export function ContactSection() {
                               ? ui.photoReady
                               : item.status === "error"
                                 ? ui.photoFailed
-                                : ui.photoUploading}
+                                : item.status === "queued"
+                                  ? ui.photoQueued
+                                  : ui.photoUploading}
                           </span>
                         </li>
                       ))}
