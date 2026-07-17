@@ -5,6 +5,7 @@ import { Shield, Star, Users } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
+import { TrustBarSection } from "@/components/sections/trust-bar";
 import { usePageCopy } from "@/components/site-settings-provider";
 import { siteImages } from "@/content/images";
 import { optimizeRemoteImageUrl } from "@/lib/images";
@@ -18,7 +19,7 @@ export function HeroSection({ heroImage = siteImages.hero }: Props) {
   const src = optimizeRemoteImageUrl(heroImage, { width: 2000, quality: 72 });
 
   return (
-    <section className="relative flex min-h-[100svh] items-end overflow-hidden pb-28 pt-28 md:items-center md:pb-20 md:pt-24">
+    <section className="relative flex min-h-[100svh] flex-col overflow-hidden pt-28 md:pt-24">
       <Image
         src={src}
         alt={`${copy.hero.title} ${copy.hero.titleAccent}`}
@@ -36,7 +37,7 @@ export function HeroSection({ heroImage = siteImages.hero }: Props) {
       />
       <div className="grain absolute inset-0 opacity-60" aria-hidden />
 
-      <div className="container-narrow relative z-10 w-full px-4 sm:px-6 lg:px-8">
+      <div className="container-narrow relative z-10 flex w-full flex-1 flex-col justify-end px-4 pb-8 sm:px-6 md:justify-center md:pb-10 lg:px-8">
         {copy.hero.badge ? (
           <Reveal>
             <div className="mb-5 inline-flex max-w-full items-center gap-2 rounded-full border border-accent/30 bg-accent-soft px-3 py-1.5 text-xs font-medium text-accent sm:text-sm">
@@ -91,13 +92,9 @@ export function HeroSection({ heroImage = siteImages.hero }: Props) {
         </Reveal>
       </div>
 
-      <div
-        className="absolute bottom-24 left-1/2 hidden -translate-x-1/2 animate-bounce text-white/40 md:bottom-8 md:block"
-        aria-hidden
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M6 9l6 6 6-6" />
-        </svg>
+      {/* First-viewport trust strip – sits above mobile sticky CTA */}
+      <div className="relative z-10 mb-[calc(4.25rem+env(safe-area-inset-bottom))] md:mb-0">
+        <TrustBarSection variant="hero" />
       </div>
     </section>
   );
