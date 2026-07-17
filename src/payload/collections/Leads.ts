@@ -21,7 +21,17 @@ export const Leads: CollectionConfig = {
     { name: "postal", type: "text", required: true },
     { name: "city", type: "text" },
     { name: "approxSqm", type: "number" },
-    { name: "photoUrls", type: "textarea" },
+    {
+      name: "photoUrls",
+      type: "textarea",
+      admin: {
+        description:
+          "Lead photos from the website form. Previews work in admin; direct Blob links are private.",
+        components: {
+          Field: "/components/LeadPhotoUrlsField#LeadPhotoUrlsField",
+        },
+      },
+    },
     {
       name: "inquiryType",
       type: "select",
