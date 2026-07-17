@@ -27,10 +27,10 @@ export function Navbar() {
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-xl">
-      <div className="container-narrow flex h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+      <div className="container-narrow flex h-14 items-center justify-between gap-3 px-4 sm:h-16 sm:gap-4 sm:px-6 lg:px-8">
         <Link
           href="/"
-          className="relative flex h-11 w-[200px] shrink-0 items-center sm:h-12 sm:w-[240px]"
+          className="relative -my-1 flex h-12 w-[210px] shrink-0 items-center sm:h-14 sm:w-[260px]"
           onClick={() => setOpen(false)}
           aria-label={settings.brandName}
         >
@@ -38,7 +38,7 @@ export function Navbar() {
             src="/brand/logo.png"
             alt={settings.brandName}
             fill
-            sizes="240px"
+            sizes="(max-width: 640px) 210px, 260px"
             className="object-contain object-left"
             priority
           />
