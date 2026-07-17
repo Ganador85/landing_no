@@ -17,10 +17,11 @@ type Props = {
 type Stage = CmsProject["stages"][number];
 
 type LightboxState = {
-  src: string;
-  alt: string;
-  label: string;
-} | null;
+  projectId: string;
+  title: string;
+  stages: Stage[];
+  index: number;
+};
 
 function useClickWithoutDrag(onActivate: () => void) {
   const origin = useRef<{ x: number; y: number } | null>(null);
@@ -85,11 +86,15 @@ export function ReferencesSection({ projects }: Props) {
     align: "start",
     containScroll: "trimSnaps",
     dragFree: false,
-    watchDrag: true,
+    watchDrag: (_api, event) => {
+      const target = event.target as HTMLElement | null;
+      // Let the inner project gallery handle horizontal swipes on photos.
+      return !target?.closest("[data-project-gallery]");
+    },
   });
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(false);
-  const [lightbox, setLightbox] = useState<LightboxState>(null);
+  const [lightbox, setLightbox] = useState<LightboxState | null>(null);
 
   useCarouselWheel(emblaApi, sectionRef);
 
@@ -105,20 +110,6 @@ export function ReferencesSection({ projects }: Props) {
     emblaApi.on("select", onSelect);
     emblaApi.on("reInit", onSelect);
   }, [emblaApi, onSelect]);
-
-  useEffect(() => {
-    if (!lightbox) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setLightbox(null);
-    };
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = prev;
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [lightbox]);
 
   return (
     <section
@@ -174,11 +165,12 @@ export function ReferencesSection({ projects }: Props) {
                 project={project}
                 locale={locale}
                 labelFor={(label) => copy.references[label]}
-                onOpen={(stage) =>
+                onOpen={(index) =>
                   setLightbox({
-                    src: optimizeRemoteImageUrl(stage.image, { width: 1600, quality: 82 }),
-                    alt: stage.caption[locale],
-                    label: copy.references[stage.label],
+                    projectId: project.id,
+                    title: project.title[locale],
+                    stages: project.stages,
+                    index,
                   })
                 }
               />
@@ -188,44 +180,158 @@ export function ReferencesSection({ projects }: Props) {
       </div>
 
       {lightbox ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm"
-          role="dialog"
-          aria-modal="true"
-          aria-label={lightbox.alt}
-          onClick={() => setLightbox(null)}
-        >
-          <button
-            type="button"
-            aria-label="Close"
-            className="absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white"
-            onClick={() => setLightbox(null)}
-          >
-            <X className="size-5" />
-          </button>
-          <div
-            className="relative max-h-[90vh] w-full max-w-5xl overflow-hidden rounded-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Image
-              src={lightbox.src}
-              alt={lightbox.alt}
-              width={1600}
-              height={1200}
-              className="h-auto max-h-[90vh] w-full object-contain"
-              sizes="100vw"
-              priority
-            />
-            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-5 py-4">
-              <span className="inline-flex rounded-full bg-black/45 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white/90">
-                {lightbox.label}
-              </span>
-              <p className="mt-2 text-sm font-medium text-white">{lightbox.alt}</p>
-            </div>
-          </div>
-        </div>
+        <Lightbox
+          title={lightbox.title}
+          stages={lightbox.stages}
+          startIndex={lightbox.index}
+          locale={locale}
+          labelFor={(label) => copy.references[label]}
+          onClose={() => setLightbox(null)}
+        />
       ) : null}
     </section>
+  );
+}
+
+function Lightbox({
+  title,
+  stages,
+  startIndex,
+  locale,
+  labelFor,
+  onClose,
+}: {
+  title: string;
+  stages: Stage[];
+  startIndex: number;
+  locale: "no" | "en";
+  labelFor: (label: Stage["label"]) => string;
+  onClose: () => void;
+}) {
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    startIndex,
+    align: "center",
+    containScroll: false,
+    watchDrag: true,
+  });
+  const [index, setIndex] = useState(startIndex);
+  const [canPrev, setCanPrev] = useState(false);
+  const [canNext, setCanNext] = useState(false);
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setIndex(emblaApi.selectedScrollSnap());
+    setCanPrev(emblaApi.canScrollPrev());
+    setCanNext(emblaApi.canScrollNext());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    emblaApi.scrollTo(startIndex, true);
+    onSelect();
+    emblaApi.on("select", onSelect);
+    emblaApi.on("reInit", onSelect);
+  }, [emblaApi, onSelect, startIndex]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowLeft") emblaApi?.scrollPrev();
+      if (e.key === "ArrowRight") emblaApi?.scrollNext();
+    };
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [emblaApi, onClose]);
+
+  const stage = stages[index] ?? stages[0];
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex flex-col bg-black/90 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
+    >
+      <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-6">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold text-white">{title}</p>
+          <p className="text-xs text-white/60">
+            {index + 1} / {stages.length}
+            {stages.length > 1
+              ? locale === "no"
+                ? " · sveip for å se mer"
+                : " · swipe for more"
+              : ""}
+          </p>
+        </div>
+        <button
+          type="button"
+          aria-label="Close"
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white"
+          onClick={onClose}
+        >
+          <X className="size-5" />
+        </button>
+      </div>
+
+      <div className="relative min-h-0 flex-1">
+        <div className="h-full overflow-hidden" ref={emblaRef}>
+          <div className="flex h-full">
+            {stages.map((item, i) => (
+              <div
+                key={`${item.image}-${i}`}
+                className="relative flex min-w-0 shrink-0 grow-0 basis-full items-center justify-center px-3 sm:px-10"
+              >
+                <Image
+                  src={optimizeRemoteImageUrl(item.image, { width: 1600, quality: 82 })}
+                  alt={item.caption[locale]}
+                  width={1600}
+                  height={1200}
+                  className="max-h-[72vh] w-auto max-w-full object-contain"
+                  sizes="100vw"
+                  priority={i === startIndex}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {stages.length > 1 ? (
+          <>
+            <button
+              type="button"
+              aria-label="Previous"
+              disabled={!canPrev}
+              onClick={() => emblaApi?.scrollPrev()}
+              className="absolute left-2 top-1/2 z-10 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/50 text-white disabled:opacity-0 sm:left-4"
+            >
+              <ChevronLeft className="size-5" />
+            </button>
+            <button
+              type="button"
+              aria-label="Next"
+              disabled={!canNext}
+              onClick={() => emblaApi?.scrollNext()}
+              className="absolute right-2 top-1/2 z-10 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/50 text-white disabled:opacity-0 sm:right-4"
+            >
+              <ChevronRight className="size-5" />
+            </button>
+          </>
+        ) : null}
+      </div>
+
+      <div className="px-4 py-4 sm:px-6">
+        <span className="inline-flex rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white/90">
+          {labelFor(stage.label)}
+        </span>
+        <p className="mt-2 text-sm font-medium text-white">{stage.caption[locale]}</p>
+      </div>
+    </div>
   );
 }
 
@@ -238,7 +344,7 @@ function ProjectCard({
   project: CmsProject;
   locale: "no" | "en";
   labelFor: (label: Stage["label"]) => string;
-  onOpen: (stage: Stage) => void;
+  onOpen: (index: number) => void;
 }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "start",
@@ -266,7 +372,11 @@ function ProjectCard({
     <article className="min-w-0 shrink-0 grow-0 basis-[85%] sm:basis-[60%] lg:basis-[42%]">
       <div className="surface-card overflow-hidden">
         <div className="relative">
-          <div className="cursor-grab overflow-hidden active:cursor-grabbing" ref={emblaRef}>
+          <div
+            className="cursor-grab overflow-hidden active:cursor-grabbing"
+            data-project-gallery
+            ref={emblaRef}
+          >
             <div className="flex">
               {project.stages.map((stage, idx) => (
                 <StageSlide
@@ -274,7 +384,7 @@ function ProjectCard({
                   stage={stage}
                   locale={locale}
                   label={labelFor(stage.label)}
-                  onOpen={() => onOpen(stage)}
+                  onOpen={() => onOpen(idx)}
                 />
               ))}
             </div>
