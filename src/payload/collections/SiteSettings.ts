@@ -18,7 +18,7 @@ export const SiteSettings: GlobalConfig = {
         {
           label: "Contact",
           fields: [
-            { name: "brandName", type: "text", defaultValue: "Takproff" },
+            { name: "brandName", type: "text", defaultValue: "Takfornyelse" },
             { name: "phone", type: "text", defaultValue: "+47 47 73 66 69" },
             { name: "email", type: "email", defaultValue: "post@takfornyelse.no" },
             { name: "street", type: "text", defaultValue: "Nesbruveien 75" },

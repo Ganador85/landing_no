@@ -1,6 +1,6 @@
 export const siteConfig = {
-  name: "Takproff",
-  domain: "takproff.no",
+  name: "Takfornyelse",
+  domain: "takfornyelse.no",
   url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
   phone: "+47 47 73 66 69",
   phoneHref: "tel:+4747736669",
