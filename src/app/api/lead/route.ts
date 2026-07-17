@@ -22,6 +22,7 @@ const leadSchema = z.object({
   address: z.string().max(200).optional(),
   roofSize: z.string().max(20).optional(),
   message: z.string().max(5000).optional(),
+  photoUrls: z.array(z.string().url()).max(5).optional(),
 });
 
 const rateMap = new Map<string, { count: number; reset: number }>();
@@ -38,25 +39,24 @@ function rateLimit(ip: string, limit = 8, windowMs = 60_000) {
   return true;
 }
 
-async function uploadPhotos(files: File[]): Promise<string[]> {
-  if (!files.length || !process.env.BLOB_READ_WRITE_TOKEN) return [];
-  try {
-    const { put } = await import("@vercel/blob");
-    const urls: string[] = [];
-    for (const file of files.slice(0, 5)) {
-      if (!file.type.startsWith("image/")) continue;
-      if (file.size > 8_000_000) continue;
-      const blob = await put(`leads/${Date.now()}-${file.name}`, file, {
-        access: "public",
-        token: process.env.BLOB_READ_WRITE_TOKEN,
-      });
-      urls.push(blob.url);
-    }
-    return urls;
-  } catch (err) {
-    console.error("Lead photo upload failed:", err);
-    return [];
+function parsePhotoUrls(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.filter((v): v is string => typeof v === "string" && v.length > 0);
   }
+  if (typeof value === "string" && value.trim()) {
+    try {
+      const parsed = JSON.parse(value) as unknown;
+      if (Array.isArray(parsed)) {
+        return parsed.filter((v): v is string => typeof v === "string" && v.length > 0);
+      }
+    } catch {
+      return value
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean);
+    }
+  }
+  return [];
 }
 
 export async function POST(request: Request) {
@@ -72,7 +72,6 @@ export async function POST(request: Request) {
 
     const contentType = request.headers.get("content-type") || "";
     let raw: Record<string, unknown> = {};
-    let photoFiles: File[] = [];
 
     if (contentType.includes("multipart/form-data")) {
       const form = await request.formData();
@@ -86,8 +85,8 @@ export async function POST(request: Request) {
         address: form.get("address") || undefined,
         roofSize: form.get("roofSize") || undefined,
         message: form.get("message") || undefined,
+        photoUrls: parsePhotoUrls(form.get("photoUrls")),
       };
-      photoFiles = form.getAll("photos").filter((f): f is File => f instanceof File);
     } else {
       const body = await request.json();
       const {
@@ -97,7 +96,10 @@ export async function POST(request: Request) {
       } = body as Record<string, unknown>;
       void _website;
       void _hp;
-      raw = safeBody;
+      raw = {
+        ...safeBody,
+        photoUrls: parsePhotoUrls(safeBody.photoUrls),
+      };
     }
 
     const parsed = leadSchema.safeParse({
@@ -106,6 +108,7 @@ export async function POST(request: Request) {
       address: raw.address || undefined,
       roofSize: raw.roofSize || undefined,
       message: raw.message || undefined,
+      photoUrls: parsePhotoUrls(raw.photoUrls),
     });
 
     if (!parsed.success) {
@@ -115,10 +118,18 @@ export async function POST(request: Request) {
       );
     }
 
-    const { phone, type, locale, message, email, address, roofSize, ...rest } =
-      parsed.data;
+    const {
+      phone,
+      type,
+      locale,
+      message,
+      email,
+      address,
+      roofSize,
+      photoUrls = [],
+      ...rest
+    } = parsed.data;
 
-    const photoUrls = await uploadPhotos(photoFiles);
     const approxSqm = roofSize ? Number(roofSize) : undefined;
 
     const payload = await getPayload();

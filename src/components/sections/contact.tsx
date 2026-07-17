@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { upload } from "@vercel/blob/client";
 import { Clock, Mail, MapPin, Phone } from "lucide-react";
 import { useLocale } from "next-intl";
 import { toast } from "sonner";
@@ -11,6 +12,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Reveal } from "@/components/ui/reveal";
 import { usePageCopy, useSiteSettings } from "@/components/site-settings-provider";
+
+const MAX_PHOTOS = 5;
+const MAX_PHOTO_BYTES = 8 * 1024 * 1024;
 
 const inquiryTypes = [
   "takvask",
@@ -131,6 +135,24 @@ export function ContactSection() {
 
     setLoading(true);
     try {
+      const selected = photos.slice(0, MAX_PHOTOS);
+      for (const file of selected) {
+        if (file.size > MAX_PHOTO_BYTES) {
+          toast.error(copy.contact.form.error);
+          return;
+        }
+      }
+
+      const photoUrls: string[] = [];
+      for (const file of selected) {
+        const blob = await upload(`leads/${file.name}`, file, {
+          access: "public",
+          handleUploadUrl: "/api/lead/photo",
+          contentType: file.type || "application/octet-stream",
+        });
+        photoUrls.push(blob.url);
+      }
+
       const body = new FormData();
       body.set("name", step1.data.name);
       body.set("phone", step1.data.phone);
@@ -141,9 +163,7 @@ export function ContactSection() {
       if (step2.data.address) body.set("address", step2.data.address);
       if (step2.data.roofSize) body.set("roofSize", step2.data.roofSize);
       if (step2.data.message) body.set("message", step2.data.message);
-      for (const file of photos.slice(0, 5)) {
-        body.append("photos", file);
-      }
+      if (photoUrls.length) body.set("photoUrls", JSON.stringify(photoUrls));
 
       const res = await fetch("/api/lead", {
         method: "POST",
@@ -322,7 +342,9 @@ export function ContactSection() {
                     accept="image/*"
                     multiple
                     onChange={(e) =>
-                      setPhotos(Array.from(e.target.files || []).slice(0, 5))
+                      setPhotos(
+                        Array.from(e.target.files || []).slice(0, MAX_PHOTOS),
+                      )
                     }
                     className="cursor-pointer file:mr-3 file:rounded-lg file:border-0 file:bg-accent/20 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-accent"
                   />
