@@ -159,11 +159,13 @@ async function uploadViaServer(file: File): Promise<string> {
     45_000,
     "upload",
   );
-  const data = (await res.json().catch(() => null)) as { url?: string; error?: string } | null;
+  const data = (await res.json().catch(() => null)) as
+    | { url?: string; downloadUrl?: string; error?: string }
+    | null;
   if (!res.ok || !data?.url) {
     throw new Error(data?.error || "Upload failed");
   }
-  return data.url;
+  return data.downloadUrl || data.url;
 }
 
 export function ContactSection() {

@@ -6,14 +6,13 @@ export const maxDuration = 60;
 
 const MAX_BYTES = 4 * 1024 * 1024;
 
-function isUploadFile(value: FormDataEntryValue): value is File {
+function isUploadBlob(value: FormDataEntryValue): value is Blob {
   return (
     typeof value === "object" &&
     value !== null &&
-    "arrayBuffer" in value &&
-    "name" in value &&
-    typeof (value as File).size === "number" &&
-    (value as File).size > 0
+    typeof (value as Blob).arrayBuffer === "function" &&
+    typeof (value as Blob).size === "number" &&
+    (value as Blob).size > 0
   );
 }
 
@@ -28,7 +27,7 @@ export async function POST(request: Request) {
   try {
     const form = await request.formData();
     const file = form.get("file");
-    if (!file || !isUploadFile(file)) {
+    if (!file || !isUploadBlob(file)) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
@@ -39,21 +38,29 @@ export async function POST(request: Request) {
       );
     }
 
-    const safeName =
-      String(file.name || "photo.jpg").replace(/[^\w.\-]+/g, "_") || "photo.jpg";
+    const fileName =
+      "name" in file && typeof file.name === "string" && file.name
+        ? file.name
+        : "photo.jpg";
+    const safeName = fileName.replace(/[^\w.\-]+/g, "_") || "photo.jpg";
     const contentType =
       file.type && file.type !== "application/octet-stream"
         ? file.type
         : "image/jpeg";
 
-    const blob = await put(`leads/${Date.now()}-${safeName}`, file, {
-      access: "public",
+    // Store is configured as private in Vercel — public access throws.
+    const bytes = Buffer.from(await file.arrayBuffer());
+    const blob = await put(`leads/${Date.now()}-${safeName}`, bytes, {
+      access: "private",
       token: process.env.BLOB_READ_WRITE_TOKEN,
       contentType,
       addRandomSuffix: true,
     });
 
-    return NextResponse.json({ url: blob.url });
+    return NextResponse.json({
+      url: blob.url,
+      downloadUrl: blob.downloadUrl,
+    });
   } catch (err) {
     console.error("Lead photo upload failed:", err);
     return NextResponse.json(
