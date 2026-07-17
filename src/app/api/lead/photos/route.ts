@@ -1,0 +1,69 @@
+import { timingSafeEqual } from "crypto";
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { getPayload } from "@/lib/payload";
+import { makeLeadPhotoToken } from "@/lib/lead-photo-token";
+
+const photosSchema = z.object({
+  id: z.union([z.string(), z.number()]),
+  token: z.string().min(16).max(128),
+  photoUrls: z.array(z.string().url()).min(1).max(5),
+});
+
+function tokensMatch(a: string, b: string) {
+  const left = Buffer.from(a);
+  const right = Buffer.from(b);
+  if (left.length !== right.length) return false;
+  return timingSafeEqual(left, right);
+}
+
+export async function PATCH(request: Request) {
+  try {
+    const body = await request.json();
+    const parsed = photosSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+    }
+
+    const { id, token, photoUrls } = parsed.data;
+    const expected = makeLeadPhotoToken(id);
+    if (!tokensMatch(token, expected)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const payload = await getPayload();
+    const existing = await payload.findByID({
+      collection: "leads",
+      id,
+      overrideAccess: true,
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    const previous =
+      typeof existing.photoUrls === "string" && existing.photoUrls.trim()
+        ? existing.photoUrls
+            .split("\n")
+            .map((line) => line.trim())
+            .filter(Boolean)
+        : [];
+
+    const merged = [...previous, ...photoUrls].slice(0, 5);
+
+    await payload.update({
+      collection: "leads",
+      id,
+      data: {
+        photoUrls: merged.join("\n"),
+      },
+      overrideAccess: true,
+    });
+
+    return NextResponse.json({ ok: true, count: merged.length });
+  } catch (err) {
+    console.error("Lead photo attach failed:", err);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
+}

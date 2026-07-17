@@ -179,7 +179,7 @@ export function ContactSection() {
     }
 
     setLoading(true);
-    setStatus(null);
+    setStatus(copy.contact.form.sending);
     try {
       const selected = photos.slice(0, MAX_PHOTOS);
       if (selected.some((file) => file.size > MAX_PHOTO_BYTES)) {
@@ -187,23 +187,7 @@ export function ContactSection() {
         return;
       }
 
-      const photoUrls: string[] = [];
-      for (let i = 0; i < selected.length; i += 1) {
-        const file = selected[i]!;
-        setStatus(ui.uploading(i + 1, selected.length));
-        const safeName =
-          file.name.replace(/[^\w.\-]+/g, "_") || `photo-${i + 1}.jpg`;
-        const blob = await upload(`leads/${Date.now()}-${safeName}`, file, {
-          access: "public",
-          handleUploadUrl: "/api/lead/photo",
-          contentType: guessContentType(file),
-          multipart: true,
-        });
-        photoUrls.push(blob.url);
-      }
-
-      setStatus(copy.contact.form.sending);
-
+      // Save the enquiry first so the user is not blocked by photo uploads.
       const res = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -217,23 +201,66 @@ export function ContactSection() {
           address: step2.data.address || undefined,
           roofSize: step2.data.roofSize || undefined,
           message: step2.data.message || undefined,
-          photoUrls: photoUrls.length ? photoUrls : undefined,
         }),
       });
 
       const data = (await res.json().catch(() => null)) as
-        | { ok?: boolean; error?: string }
+        | { ok?: boolean; id?: string | number; photoToken?: string; error?: string }
         | null;
 
-      if (!res.ok || !data?.ok) {
+      if (!res.ok || !data?.ok || data.id == null || !data.photoToken) {
         throw new Error(data?.error || "Failed");
       }
+
+      const leadId = data.id;
+      const photoToken = data.photoToken;
+      const pendingPhotos = [...selected];
 
       toast.success(copy.contact.form.success);
       setForm(initial);
       setPhotos([]);
       if (photosInputRef.current) photosInputRef.current.value = "";
       setStep(1);
+      setLoading(false);
+      setStatus(null);
+
+      if (!pendingPhotos.length) return;
+
+      // Continue photo upload in the background after success.
+      void (async () => {
+        try {
+          const photoUrls: string[] = [];
+          for (let i = 0; i < pendingPhotos.length; i += 1) {
+            const file = pendingPhotos[i]!;
+            const safeName =
+              file.name.replace(/[^\w.\-]+/g, "_") || `photo-${i + 1}.jpg`;
+            const blob = await upload(`leads/${Date.now()}-${safeName}`, file, {
+              access: "public",
+              handleUploadUrl: "/api/lead/photo",
+              contentType: guessContentType(file),
+              multipart: true,
+            });
+            photoUrls.push(blob.url);
+          }
+
+          const attach = await fetch("/api/lead/photos", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: leadId,
+              token: photoToken,
+              photoUrls,
+            }),
+            keepalive: true,
+          });
+          if (!attach.ok) {
+            throw new Error("Failed to attach photos");
+          }
+        } catch (err) {
+          console.error("Background lead photo upload failed:", err);
+        }
+      })();
+      return;
     } catch (err) {
       console.error("Lead submit failed:", err);
       toast.error(copy.contact.form.error);

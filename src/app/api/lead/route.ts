@@ -3,6 +3,7 @@ import { z } from "zod";
 import { Resend } from "resend";
 import { getPayload } from "@/lib/payload";
 import { siteConfig } from "@/lib/site";
+import { makeLeadPhotoToken } from "@/lib/lead-photo-token";
 
 const inquiryTypes = [
   "takvask",
@@ -179,7 +180,11 @@ export async function POST(request: Request) {
       }
     }
 
-    return NextResponse.json({ ok: true, id: created.id });
+    return NextResponse.json({
+      ok: true,
+      id: created.id,
+      photoToken: makeLeadPhotoToken(created.id),
+    });
   } catch (err) {
     console.error("Lead create failed:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
