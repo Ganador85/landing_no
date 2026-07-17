@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { upload } from "@vercel/blob/client";
 import { Clock, Mail, MapPin, Phone } from "lucide-react";
 import { useLocale } from "next-intl";
@@ -15,6 +15,8 @@ import { usePageCopy, useSiteSettings } from "@/components/site-settings-provide
 
 const MAX_PHOTOS = 5;
 const MAX_PHOTO_BYTES = 8 * 1024 * 1024;
+const MAX_EDGE = 1920;
+const JPEG_QUALITY = 0.82;
 
 const inquiryTypes = [
   "takvask",
@@ -67,14 +69,66 @@ const initial: FormState = {
   message: "",
 };
 
+function isHeic(file: File) {
+  return (
+    /heic|heif/i.test(file.type) || /\.heic$|\.heif$/i.test(file.name)
+  );
+}
+
+async function compressForUpload(file: File): Promise<File> {
+  if (isHeic(file) || typeof createImageBitmap !== "function") {
+    return file;
+  }
+
+  try {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      bitmap.close();
+      return file;
+    }
+    ctx.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close();
+
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, "image/jpeg", JPEG_QUALITY),
+    );
+    if (!blob || blob.size >= file.size) return file;
+
+    const base = file.name.replace(/\.[^.]+$/, "") || "tak";
+    return new File([blob], `${base}.jpg`, { type: "image/jpeg" });
+  } catch {
+    return file;
+  }
+}
+
+function guessContentType(file: File) {
+  if (file.type && file.type !== "application/octet-stream") return file.type;
+  const name = file.name.toLowerCase();
+  if (name.endsWith(".png")) return "image/png";
+  if (name.endsWith(".webp")) return "image/webp";
+  if (name.endsWith(".gif")) return "image/gif";
+  if (name.endsWith(".heic")) return "image/heic";
+  if (name.endsWith(".heif")) return "image/heif";
+  return "image/jpeg";
+}
+
 export function ContactSection() {
   const copy = usePageCopy();
   const locale = useLocale() as "no" | "en";
   const settings = useSiteSettings();
   const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<string | null>(null);
   const [step, setStep] = useState<1 | 2>(1);
   const [form, setForm] = useState<FormState>(initial);
   const [photos, setPhotos] = useState<File[]>([]);
+  const photosInputRef = useRef<HTMLInputElement>(null);
 
   const typeLabels: Record<InquiryType, string> = {
     takvask: copy.contact.form.typeWash,
@@ -84,8 +138,32 @@ export function ContactSection() {
     usikker: copy.contact.form.typeUnsure,
   };
 
+  const photosTooMany =
+    locale === "en"
+      ? "Max 5 photos – we kept the first 5"
+      : "Maks 5 bilder – vi tok de første 5";
+  const photoTooLarge =
+    locale === "en"
+      ? "One or more photos are too large (max 8 MB)"
+      : "Ett eller flere bilder er for store (maks 8 MB)";
+  const uploadingLabel = (current: number, total: number) =>
+    (locale === "en"
+      ? "Uploading photos ({current}/{total})…"
+      : "Laster opp bilder ({current}/{total})…"
+    )
+      .replace("{current}", String(current))
+      .replace("{total}", String(total));
+
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function onPhotosSelected(fileList: FileList | null) {
+    const all = Array.from(fileList || []);
+    if (all.length > MAX_PHOTOS) {
+      toast.message(photosTooMany);
+    }
+    setPhotos(all.slice(0, MAX_PHOTOS));
   }
 
   function goNext() {
@@ -134,40 +212,58 @@ export function ContactSection() {
     }
 
     setLoading(true);
+    setStatus(null);
     try {
       const selected = photos.slice(0, MAX_PHOTOS);
-      for (const file of selected) {
-        if (file.size > MAX_PHOTO_BYTES) {
-          toast.error(copy.contact.form.error);
-          return;
+      if (selected.some((file) => file.size > MAX_PHOTO_BYTES)) {
+        toast.error(photoTooLarge);
+        return;
+      }
+
+      let photoUrls: string[] = [];
+      if (selected.length) {
+        setStatus(uploadingLabel(0, selected.length));
+        const prepared = await Promise.all(selected.map(compressForUpload));
+        const urls: string[] = new Array(prepared.length);
+        let done = 0;
+
+        await Promise.all(
+          prepared.map(async (file, index) => {
+            const safeName = file.name.replace(/[^\w.\-]+/g, "_") || `photo-${index + 1}.jpg`;
+            const blob = await upload(`leads/${Date.now()}-${safeName}`, file, {
+              access: "public",
+              handleUploadUrl: "/api/lead/photo",
+              contentType: guessContentType(file),
+              multipart: file.size > 4 * 1024 * 1024,
+            });
+            urls[index] = blob.url;
+            done += 1;
+            setStatus(uploadingLabel(done, prepared.length));
+          }),
+        );
+        photoUrls = urls.filter(Boolean);
+        if (photoUrls.length !== prepared.length) {
+          throw new Error("Photo upload incomplete");
         }
       }
 
-      const photoUrls: string[] = [];
-      for (const file of selected) {
-        const blob = await upload(`leads/${file.name}`, file, {
-          access: "public",
-          handleUploadUrl: "/api/lead/photo",
-          contentType: file.type || "application/octet-stream",
-        });
-        photoUrls.push(blob.url);
-      }
-
-      const body = new FormData();
-      body.set("name", step1.data.name);
-      body.set("phone", step1.data.phone);
-      body.set("postal", step1.data.postal);
-      body.set("type", step1.data.type);
-      body.set("locale", locale);
-      if (step2.data.email) body.set("email", step2.data.email);
-      if (step2.data.address) body.set("address", step2.data.address);
-      if (step2.data.roofSize) body.set("roofSize", step2.data.roofSize);
-      if (step2.data.message) body.set("message", step2.data.message);
-      if (photoUrls.length) body.set("photoUrls", JSON.stringify(photoUrls));
+      setStatus(copy.contact.form.sending);
 
       const res = await fetch("/api/lead", {
         method: "POST",
-        body,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: step1.data.name,
+          phone: step1.data.phone,
+          postal: step1.data.postal,
+          type: step1.data.type,
+          locale,
+          email: step2.data.email || undefined,
+          address: step2.data.address || undefined,
+          roofSize: step2.data.roofSize || undefined,
+          message: step2.data.message || undefined,
+          photoUrls: photoUrls.length ? photoUrls : undefined,
+        }),
       });
 
       const data = (await res.json().catch(() => null)) as
@@ -181,11 +277,14 @@ export function ContactSection() {
       toast.success(copy.contact.form.success);
       setForm(initial);
       setPhotos([]);
+      if (photosInputRef.current) photosInputRef.current.value = "";
       setStep(1);
-    } catch {
+    } catch (err) {
+      console.error("Lead submit failed:", err);
       toast.error(copy.contact.form.error);
     } finally {
       setLoading(false);
+      setStatus(null);
     }
   }
 
@@ -337,21 +436,27 @@ export function ContactSection() {
                 <div className="space-y-2">
                   <Label htmlFor="photos">{copy.contact.form.photos}</Label>
                   <Input
+                    ref={photosInputRef}
                     id="photos"
                     type="file"
                     accept="image/*"
                     multiple
-                    onChange={(e) =>
-                      setPhotos(
-                        Array.from(e.target.files || []).slice(0, MAX_PHOTOS),
-                      )
-                    }
+                    onChange={(e) => onPhotosSelected(e.target.files)}
                     className="cursor-pointer file:mr-3 file:rounded-lg file:border-0 file:bg-accent/20 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-accent"
                   />
                   <p className="text-xs text-muted-foreground">
                     {copy.contact.form.photosHint}
                     {photos.length > 0 ? ` · ${photos.length}` : ""}
                   </p>
+                  {photos.length > 0 ? (
+                    <ul className="space-y-1 text-xs text-muted-foreground">
+                      {photos.map((file) => (
+                        <li key={`${file.name}-${file.size}-${file.lastModified}`}>
+                          {file.name} ({Math.max(1, Math.round(file.size / 1024))} KB)
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="message">{copy.contact.form.message}</Label>
@@ -368,12 +473,13 @@ export function ContactSection() {
                     size="lg"
                     variant="secondary"
                     className="w-full sm:w-auto"
+                    disabled={loading}
                     onClick={() => setStep(1)}
                   >
                     {copy.contact.form.back}
                   </Button>
                   <Button type="submit" size="lg" className="w-full flex-1" disabled={loading}>
-                    {loading ? copy.contact.form.sending : copy.contact.form.submit}
+                    {status || (loading ? copy.contact.form.sending : copy.contact.form.submit)}
                   </Button>
                 </div>
               </>

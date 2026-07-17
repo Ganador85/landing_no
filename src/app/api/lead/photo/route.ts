@@ -15,6 +15,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       body,
       request,
       onBeforeGenerateToken: async () => ({
+        // Keep broad enough for phone cameras; client compresses to JPEG first.
         allowedContentTypes: [
           "image/jpeg",
           "image/jpg",
@@ -23,6 +24,7 @@ export async function POST(request: Request): Promise<NextResponse> {
           "image/heic",
           "image/heif",
           "image/gif",
+          "application/octet-stream",
         ],
         maximumSizeInBytes: 8 * 1024 * 1024,
         addRandomSuffix: true,
