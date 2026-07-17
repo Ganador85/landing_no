@@ -4,17 +4,24 @@ import { Resend } from "resend";
 import { getPayload } from "@/lib/payload";
 import { siteConfig } from "@/lib/site";
 
+const inquiryTypes = [
+  "takvask",
+  "impregnering",
+  "takmaling",
+  "nytt_tak",
+  "usikker",
+] as const;
+
 const leadSchema = z.object({
   name: z.string().min(2).max(120),
   phone: z.string().min(5).max(40),
   postal: z.string().min(3).max(12),
-  type: z.enum(["vedlikehold", "nytt_tak", "kledning"]),
-  message: z.string().max(5000).optional(),
+  type: z.enum(inquiryTypes),
+  locale: z.enum(["no", "en"]),
   email: z.string().email().max(200).optional(),
   address: z.string().max(200).optional(),
-  houseNumber: z.string().max(20).optional(),
-  city: z.string().max(100).optional(),
-  locale: z.enum(["no", "en"]),
+  roofSize: z.string().max(20).optional(),
+  message: z.string().max(5000).optional(),
 });
 
 const rateMap = new Map<string, { count: number; reset: number }>();
@@ -31,6 +38,27 @@ function rateLimit(ip: string, limit = 8, windowMs = 60_000) {
   return true;
 }
 
+async function uploadPhotos(files: File[]): Promise<string[]> {
+  if (!files.length || !process.env.BLOB_READ_WRITE_TOKEN) return [];
+  try {
+    const { put } = await import("@vercel/blob");
+    const urls: string[] = [];
+    for (const file of files.slice(0, 5)) {
+      if (!file.type.startsWith("image/")) continue;
+      if (file.size > 8_000_000) continue;
+      const blob = await put(`leads/${Date.now()}-${file.name}`, file, {
+        access: "public",
+        token: process.env.BLOB_READ_WRITE_TOKEN,
+      });
+      urls.push(blob.url);
+    }
+    return urls;
+  } catch (err) {
+    console.error("Lead photo upload failed:", err);
+    return [];
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const ip =
@@ -42,16 +70,43 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }
 
-    const body = await request.json();
-    const {
-      website: _website,
-      company_url_hp: _hp,
-      ...safeBody
-    } = body as Record<string, unknown>;
-    void _website;
-    void _hp;
+    const contentType = request.headers.get("content-type") || "";
+    let raw: Record<string, unknown> = {};
+    let photoFiles: File[] = [];
 
-    const parsed = leadSchema.safeParse(safeBody);
+    if (contentType.includes("multipart/form-data")) {
+      const form = await request.formData();
+      raw = {
+        name: form.get("name"),
+        phone: form.get("phone"),
+        postal: form.get("postal"),
+        type: form.get("type"),
+        locale: form.get("locale"),
+        email: form.get("email") || undefined,
+        address: form.get("address") || undefined,
+        roofSize: form.get("roofSize") || undefined,
+        message: form.get("message") || undefined,
+      };
+      photoFiles = form.getAll("photos").filter((f): f is File => f instanceof File);
+    } else {
+      const body = await request.json();
+      const {
+        website: _website,
+        company_url_hp: _hp,
+        ...safeBody
+      } = body as Record<string, unknown>;
+      void _website;
+      void _hp;
+      raw = safeBody;
+    }
+
+    const parsed = leadSchema.safeParse({
+      ...raw,
+      email: raw.email || undefined,
+      address: raw.address || undefined,
+      roofSize: raw.roofSize || undefined,
+      message: raw.message || undefined,
+    });
 
     if (!parsed.success) {
       return NextResponse.json(
@@ -60,8 +115,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const { phone, type, locale, message, email, address, houseNumber, city, ...rest } =
+    const { phone, type, locale, message, email, address, roofSize, ...rest } =
       parsed.data;
+
+    const photoUrls = await uploadPhotos(photoFiles);
+    const approxSqm = roofSize ? Number(roofSize) : undefined;
 
     const payload = await getPayload();
     const created = await payload.create({
@@ -75,8 +133,8 @@ export async function POST(request: Request) {
         message: message || "",
         ...(email ? { email } : {}),
         ...(address ? { address } : {}),
-        ...(houseNumber ? { houseNumber } : {}),
-        ...(city ? { city } : {}),
+        ...(approxSqm && Number.isFinite(approxSqm) ? { approxSqm } : {}),
+        ...(photoUrls.length ? { photoUrls: photoUrls.join("\n") } : {}),
         status: "new",
       },
       overrideAccess: true,
@@ -94,9 +152,11 @@ export async function POST(request: Request) {
             `Telefon: ${phone}`,
             `Postnummer: ${rest.postal}`,
             email ? `E-post: ${email}` : null,
-            address ? `Adresse: ${address} ${houseNumber || ""}, ${rest.postal} ${city || ""}` : null,
+            address ? `Adresse: ${address}` : null,
+            approxSqm ? `Ca. m²: ${approxSqm}` : null,
             `Type: ${type}`,
             `Språk: ${locale}`,
+            photoUrls.length ? `Bilder:\n${photoUrls.join("\n")}` : null,
             "",
             message || "",
           ]

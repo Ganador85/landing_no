@@ -129,18 +129,24 @@ export type PageCopy = {
       postal: LocaleText;
       city: LocaleText;
       type: LocaleText;
-      typeRenewal: LocaleText;
+      typeWash: LocaleText;
+      typeImpregnation: LocaleText;
+      typePaint: LocaleText;
       typeNew: LocaleText;
-      typeCladding: LocaleText;
+      typeUnsure: LocaleText;
+      roofSize: LocaleText;
+      photos: LocaleText;
+      photosHint: LocaleText;
       message: LocaleText;
+      next: LocaleText;
+      back: LocaleText;
+      step: LocaleText;
       submit: LocaleText;
       sending: LocaleText;
       success: LocaleText;
       error: LocaleText;
       required: LocaleText;
       invalidEmail: LocaleText;
-      messageTooShort: LocaleText;
-      messageHint: LocaleText;
     };
   };
   footer: {
@@ -340,18 +346,24 @@ export function pageCopyFromMessages(no: Msg, en: Msg): PageCopy {
         postal: t(no.contact.form.postal, en.contact.form.postal),
         city: t(no.contact.form.city, en.contact.form.city),
         type: t(no.contact.form.type, en.contact.form.type),
-        typeRenewal: t(no.contact.form.typeRenewal, en.contact.form.typeRenewal),
+        typeWash: t(no.contact.form.typeWash, en.contact.form.typeWash),
+        typeImpregnation: t(no.contact.form.typeImpregnation, en.contact.form.typeImpregnation),
+        typePaint: t(no.contact.form.typePaint, en.contact.form.typePaint),
         typeNew: t(no.contact.form.typeNew, en.contact.form.typeNew),
-        typeCladding: t(no.contact.form.typeCladding, en.contact.form.typeCladding),
+        typeUnsure: t(no.contact.form.typeUnsure, en.contact.form.typeUnsure),
+        roofSize: t(no.contact.form.roofSize, en.contact.form.roofSize),
+        photos: t(no.contact.form.photos, en.contact.form.photos),
+        photosHint: t(no.contact.form.photosHint, en.contact.form.photosHint),
         message: t(no.contact.form.message, en.contact.form.message),
+        next: t(no.contact.form.next, en.contact.form.next),
+        back: t(no.contact.form.back, en.contact.form.back),
+        step: t(no.contact.form.step, en.contact.form.step),
         submit: t(no.contact.form.submit, en.contact.form.submit),
         sending: t(no.contact.form.sending, en.contact.form.sending),
         success: t(no.contact.form.success, en.contact.form.success),
         error: t(no.contact.form.error, en.contact.form.error),
         required: t(no.contact.form.required, en.contact.form.required),
         invalidEmail: t(no.contact.form.invalidEmail, en.contact.form.invalidEmail),
-        messageTooShort: t(no.contact.form.messageTooShort, en.contact.form.messageTooShort),
-        messageHint: t(no.contact.form.messageHint, en.contact.form.messageHint),
       },
     },
     footer: {
@@ -620,18 +632,42 @@ export function pageCopyFromSettingsDoc(doc: any, fallback: PageCopy): PageCopy 
         postal: pickField(contact?.formPostalNo, contact?.formPostalEn, fallback.contact.form.postal),
         city: pickField(contact?.formCityNo, contact?.formCityEn, fallback.contact.form.city),
         type: pickField(contact?.formTypeNo, contact?.formTypeEn, fallback.contact.form.type),
-        typeRenewal: pickField(
-          contact?.formTypeRenewalNo,
-          contact?.formTypeRenewalEn,
-          fallback.contact.form.typeRenewal,
+        typeWash: pickField(
+          contact?.formTypeWashNo,
+          contact?.formTypeWashEn,
+          fallback.contact.form.typeWash,
+        ),
+        typeImpregnation: pickField(
+          contact?.formTypeImpregnationNo,
+          contact?.formTypeImpregnationEn,
+          fallback.contact.form.typeImpregnation,
+        ),
+        typePaint: pickField(
+          contact?.formTypePaintNo,
+          contact?.formTypePaintEn,
+          fallback.contact.form.typePaint,
         ),
         typeNew: pickField(contact?.formTypeNewNo, contact?.formTypeNewEn, fallback.contact.form.typeNew),
-        typeCladding: pickField(
-          contact?.formTypeCladdingNo,
-          contact?.formTypeCladdingEn,
-          fallback.contact.form.typeCladding,
+        typeUnsure: pickField(
+          contact?.formTypeUnsureNo,
+          contact?.formTypeUnsureEn,
+          fallback.contact.form.typeUnsure,
+        ),
+        roofSize: pickField(
+          contact?.formRoofSizeNo,
+          contact?.formRoofSizeEn,
+          fallback.contact.form.roofSize,
+        ),
+        photos: pickField(contact?.formPhotosNo, contact?.formPhotosEn, fallback.contact.form.photos),
+        photosHint: pickField(
+          contact?.formPhotosHintNo,
+          contact?.formPhotosHintEn,
+          fallback.contact.form.photosHint,
         ),
         message: pickField(contact?.formMessageNo, contact?.formMessageEn, fallback.contact.form.message),
+        next: pickField(contact?.formNextNo, contact?.formNextEn, fallback.contact.form.next),
+        back: pickField(contact?.formBackNo, contact?.formBackEn, fallback.contact.form.back),
+        step: pickField(contact?.formStepNo, contact?.formStepEn, fallback.contact.form.step),
         submit: pickField(contact?.formSubmitNo, contact?.formSubmitEn, fallback.contact.form.submit),
         sending: pickField(contact?.formSendingNo, contact?.formSendingEn, fallback.contact.form.sending),
         success: pickField(contact?.formSuccessNo, contact?.formSuccessEn, fallback.contact.form.success),
@@ -641,16 +677,6 @@ export function pageCopyFromSettingsDoc(doc: any, fallback: PageCopy): PageCopy 
           contact?.formInvalidEmailNo,
           contact?.formInvalidEmailEn,
           fallback.contact.form.invalidEmail,
-        ),
-        messageTooShort: pickField(
-          contact?.formMessageTooShortNo,
-          contact?.formMessageTooShortEn,
-          fallback.contact.form.messageTooShort,
-        ),
-        messageHint: pickField(
-          contact?.formMessageHintNo,
-          contact?.formMessageHintEn,
-          fallback.contact.form.messageHint,
         ),
       },
     },
@@ -800,18 +826,24 @@ export function localizeCopy(copy: PageCopy, locale: "no" | "en"): LocalizedCopy
         postal: pickText(copy.contact.form.postal, locale),
         city: pickText(copy.contact.form.city, locale),
         type: pickText(copy.contact.form.type, locale),
-        typeRenewal: pickText(copy.contact.form.typeRenewal, locale),
+        typeWash: pickText(copy.contact.form.typeWash, locale),
+        typeImpregnation: pickText(copy.contact.form.typeImpregnation, locale),
+        typePaint: pickText(copy.contact.form.typePaint, locale),
         typeNew: pickText(copy.contact.form.typeNew, locale),
-        typeCladding: pickText(copy.contact.form.typeCladding, locale),
+        typeUnsure: pickText(copy.contact.form.typeUnsure, locale),
+        roofSize: pickText(copy.contact.form.roofSize, locale),
+        photos: pickText(copy.contact.form.photos, locale),
+        photosHint: pickText(copy.contact.form.photosHint, locale),
         message: pickText(copy.contact.form.message, locale),
+        next: pickText(copy.contact.form.next, locale),
+        back: pickText(copy.contact.form.back, locale),
+        step: pickText(copy.contact.form.step, locale),
         submit: pickText(copy.contact.form.submit, locale),
         sending: pickText(copy.contact.form.sending, locale),
         success: pickText(copy.contact.form.success, locale),
         error: pickText(copy.contact.form.error, locale),
         required: pickText(copy.contact.form.required, locale),
         invalidEmail: pickText(copy.contact.form.invalidEmail, locale),
-        messageTooShort: pickText(copy.contact.form.messageTooShort, locale),
-        messageHint: pickText(copy.contact.form.messageHint, locale),
       },
     },
     footer: {
