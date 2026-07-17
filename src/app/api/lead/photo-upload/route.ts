@@ -6,7 +6,9 @@ export const maxDuration = 60;
 
 const MAX_BYTES = 4 * 1024 * 1024;
 
-function isUploadBlob(value: FormDataEntryValue): value is Blob {
+function isUploadBlob(
+  value: FormDataEntryValue,
+): value is File | (Blob & { name?: string }) {
   return (
     typeof value === "object" &&
     value !== null &&
