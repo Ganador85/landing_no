@@ -9,20 +9,20 @@ export function StickyBottomCta() {
   const settings = useSiteSettings();
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-background/90 p-3 backdrop-blur-xl md:hidden pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-background/90 px-3 py-2 backdrop-blur-xl md:hidden pb-[max(0.5rem,env(safe-area-inset-bottom))]">
       <div className="mx-auto flex max-w-lg gap-2">
         <a
           href={settings.phoneHref}
-          className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 text-sm font-semibold text-foreground transition-colors active:scale-[0.98]"
+          className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg border border-white/15 bg-white/5 text-sm font-medium text-foreground transition-colors active:scale-[0.98]"
         >
-          <Phone className="size-4" />
+          <Phone className="size-3.5" />
           {copy.sticky.call}
         </a>
         <Link
           href="/#kontakt"
-          className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-accent text-sm font-semibold text-accent-foreground shadow-lg shadow-accent/25 transition-colors active:scale-[0.98]"
+          className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg bg-accent text-sm font-semibold text-accent-foreground shadow-md shadow-accent/20 transition-colors active:scale-[0.98]"
         >
-          <CalendarCheck className="size-4" />
+          <CalendarCheck className="size-3.5" />
           {copy.sticky.book}
         </Link>
       </div>

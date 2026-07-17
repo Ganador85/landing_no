@@ -14,6 +14,20 @@ type Props = {
   heroImage?: string;
 };
 
+/** Keep "70 %" together; on mobile wrap after it, on desktop keep one line. */
+function HeroTitle({ title }: { title: string }) {
+  const match = title.match(/^(.*?70[\u00a0\s]?%)\s*(.+)$/i);
+  const lead = match?.[1] ?? title;
+  const rest = match?.[2] ?? "";
+
+  return (
+    <span className="block md:whitespace-nowrap">
+      <span className="whitespace-nowrap">{lead}</span>
+      {rest ? <span>{` ${rest}`}</span> : null}
+    </span>
+  );
+}
+
 export function HeroSection({ heroImage = siteImages.hero }: Props) {
   const copy = usePageCopy();
   const src = optimizeRemoteImageUrl(heroImage, { width: 2000, quality: 72 });
@@ -48,8 +62,8 @@ export function HeroSection({ heroImage = siteImages.hero }: Props) {
         ) : null}
 
         <Reveal delay={0.08}>
-          <h1 className="max-w-3xl text-balance text-3xl font-bold leading-[1.12] tracking-tight sm:text-5xl lg:text-6xl xl:text-[4.25rem]">
-            <span className="block">{copy.hero.title}</span>
+          <h1 className="max-w-4xl text-3xl font-bold leading-[1.12] tracking-tight sm:text-5xl lg:max-w-5xl lg:text-6xl xl:text-[4.25rem]">
+            <HeroTitle title={copy.hero.title} />
             {copy.hero.titleAccent ? (
               <span className="mt-2 block text-[0.72em] font-semibold text-accent sm:mt-3">
                 {copy.hero.titleAccent}
@@ -65,11 +79,16 @@ export function HeroSection({ heroImage = siteImages.hero }: Props) {
         </Reveal>
 
         <Reveal delay={0.2}>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <Button asChild size="xl" className="w-full sm:w-auto">
+          <div className="mt-7 flex flex-col gap-2.5 sm:mt-8 sm:flex-row sm:items-center sm:gap-3">
+            <Button asChild size="lg" className="h-11 w-full rounded-lg shadow-md shadow-accent/15 sm:h-12 sm:w-auto sm:rounded-xl">
               <Link href="/#kontakt">{copy.hero.cta}</Link>
             </Button>
-            <Button asChild size="xl" variant="secondary" className="w-full sm:w-auto">
+            <Button
+              asChild
+              size="lg"
+              variant="ghost"
+              className="h-11 w-full rounded-lg border border-white/15 bg-transparent text-white/90 hover:bg-white/8 sm:h-12 sm:w-auto sm:rounded-xl"
+            >
               <Link href="/#tjenester">{copy.hero.ctaSecondary}</Link>
             </Button>
           </div>
@@ -97,7 +116,7 @@ export function HeroSection({ heroImage = siteImages.hero }: Props) {
       </div>
 
       {/* First-viewport trust strip – sits above mobile sticky CTA */}
-      <div className="relative z-10 mb-[calc(4.25rem+env(safe-area-inset-bottom))] md:mb-0">
+      <div className="relative z-10 mb-[calc(3.25rem+env(safe-area-inset-bottom))] md:mb-0">
         <TrustBarSection variant="hero" />
       </div>
     </section>
