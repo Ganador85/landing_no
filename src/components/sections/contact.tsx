@@ -26,6 +26,15 @@ const inquiryTypes = [
 
 type InquiryType = (typeof inquiryTypes)[number];
 
+type PhotoItem = {
+  id: string;
+  file: File;
+  status: "uploading" | "ready" | "error";
+  url?: string;
+  error?: string;
+  done: Promise<string | null>;
+};
+
 const step1Schema = z.object({
   name: z.string().trim().min(2),
   phone: z.string().trim().min(5),
@@ -78,16 +87,21 @@ function guessContentType(file: File) {
   return "image/jpeg";
 }
 
+function photoKey(file: File) {
+  return `${file.name}-${file.size}-${file.lastModified}`;
+}
+
 export function ContactSection() {
   const copy = usePageCopy();
   const locale = useLocale() as "no" | "en";
   const settings = useSiteSettings();
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState<string | null>(null);
   const [step, setStep] = useState<1 | 2>(1);
   const [form, setForm] = useState<FormState>(initial);
-  const [photos, setPhotos] = useState<File[]>([]);
+  const [photos, setPhotos] = useState<PhotoItem[]>([]);
   const photosInputRef = useRef<HTMLInputElement>(null);
+  const photosRef = useRef<PhotoItem[]>([]);
+  photosRef.current = photos;
 
   const typeLabels: Record<InquiryType, string> = {
     takvask: copy.contact.form.typeWash,
@@ -112,17 +126,61 @@ export function ContactSection() {
       locale === "en"
         ? "One or more photos are too large (max 8 MB)"
         : "Ett eller flere bilder er for store (maks 8 MB)",
-    uploading: (current: number, total: number) =>
-      (locale === "en"
-        ? "Uploading photos ({current}/{total})…"
-        : "Laster opp bilder ({current}/{total})…"
-      )
-        .replace("{current}", String(current))
-        .replace("{total}", String(total)),
+    photoUploading: locale === "en" ? "Uploading…" : "Laster opp…",
+    photoReady: locale === "en" ? "Ready" : "Klar",
+    photoFailed: locale === "en" ? "Failed" : "Feilet",
   };
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function patchPhoto(id: string, patch: Partial<PhotoItem>) {
+    setPhotos((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, ...patch } : item)),
+    );
+  }
+
+  function startPhotoUpload(file: File): PhotoItem {
+    const id = photoKey(file);
+    let resolveDone: (url: string | null) => void = () => {};
+    const done = new Promise<string | null>((resolve) => {
+      resolveDone = resolve;
+    });
+
+    const item: PhotoItem = {
+      id,
+      file,
+      status: "uploading",
+      done,
+    };
+
+    void (async () => {
+      try {
+        if (file.size > MAX_PHOTO_BYTES) {
+          throw new Error("too-large");
+        }
+        const safeName =
+          file.name.replace(/[^\w.\-]+/g, "_") || `photo-${Date.now()}.jpg`;
+        const blob = await upload(`leads/${Date.now()}-${safeName}`, file, {
+          access: "public",
+          handleUploadUrl: "/api/lead/photo",
+          contentType: guessContentType(file),
+          multipart: true,
+        });
+        patchPhoto(id, { status: "ready", url: blob.url });
+        resolveDone(blob.url);
+      } catch (err) {
+        console.error("Photo upload failed:", err);
+        patchPhoto(id, {
+          status: "error",
+          error: err instanceof Error ? err.message : "failed",
+        });
+        resolveDone(null);
+      }
+    })();
+
+    return item;
   }
 
   function onPhotosSelected(fileList: FileList | null) {
@@ -130,7 +188,16 @@ export function ContactSection() {
     if (all.length > MAX_PHOTOS) {
       toast.message(ui.photosTooMany);
     }
-    setPhotos(all.slice(0, MAX_PHOTOS));
+    const nextFiles = all.slice(0, MAX_PHOTOS);
+    if (nextFiles.some((file) => file.size > MAX_PHOTO_BYTES)) {
+      toast.error(ui.photoTooLarge);
+    }
+
+    // Replace selection and start uploading immediately while the user fills the form.
+    const next = nextFiles
+      .filter((file) => file.size <= MAX_PHOTO_BYTES)
+      .map((file) => startPhotoUpload(file));
+    setPhotos(next);
   }
 
   function goNext() {
@@ -179,15 +246,16 @@ export function ContactSection() {
     }
 
     setLoading(true);
-    setStatus(copy.contact.form.sending);
     try {
-      const selected = photos.slice(0, MAX_PHOTOS);
-      if (selected.some((file) => file.size > MAX_PHOTO_BYTES)) {
-        toast.error(ui.photoTooLarge);
-        return;
+      const current = photosRef.current;
+      const settled = await Promise.all(current.map((p) => p.done));
+      const photoUrls = settled.filter((url): url is string => Boolean(url));
+      const failed = settled.length - photoUrls.length;
+
+      if (current.length && !photoUrls.length) {
+        throw new Error("All photo uploads failed");
       }
 
-      // Save the enquiry first so the user is not blocked by photo uploads.
       const res = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -201,72 +269,35 @@ export function ContactSection() {
           address: step2.data.address || undefined,
           roofSize: step2.data.roofSize || undefined,
           message: step2.data.message || undefined,
+          photoUrls: photoUrls.length ? photoUrls : undefined,
         }),
       });
 
       const data = (await res.json().catch(() => null)) as
-        | { ok?: boolean; id?: string | number; photoToken?: string; error?: string }
+        | { ok?: boolean; error?: string }
         | null;
 
-      if (!res.ok || !data?.ok || data.id == null || !data.photoToken) {
+      if (!res.ok || !data?.ok) {
         throw new Error(data?.error || "Failed");
       }
 
-      const leadId = data.id;
-      const photoToken = data.photoToken;
-      const pendingPhotos = [...selected];
-
       toast.success(copy.contact.form.success);
+      if (failed > 0 && photoUrls.length) {
+        toast.message(
+          locale === "en"
+            ? "Enquiry sent. Some photos could not be uploaded."
+            : "Henvendelsen er sendt. Noen bilder kunne ikke lastes opp.",
+        );
+      }
       setForm(initial);
       setPhotos([]);
       if (photosInputRef.current) photosInputRef.current.value = "";
       setStep(1);
-      setLoading(false);
-      setStatus(null);
-
-      if (!pendingPhotos.length) return;
-
-      // Continue photo upload in the background after success.
-      void (async () => {
-        try {
-          const photoUrls: string[] = [];
-          for (let i = 0; i < pendingPhotos.length; i += 1) {
-            const file = pendingPhotos[i]!;
-            const safeName =
-              file.name.replace(/[^\w.\-]+/g, "_") || `photo-${i + 1}.jpg`;
-            const blob = await upload(`leads/${Date.now()}-${safeName}`, file, {
-              access: "public",
-              handleUploadUrl: "/api/lead/photo",
-              contentType: guessContentType(file),
-              multipart: true,
-            });
-            photoUrls.push(blob.url);
-          }
-
-          const attach = await fetch("/api/lead/photos", {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              id: leadId,
-              token: photoToken,
-              photoUrls,
-            }),
-            keepalive: true,
-          });
-          if (!attach.ok) {
-            throw new Error("Failed to attach photos");
-          }
-        } catch (err) {
-          console.error("Background lead photo upload failed:", err);
-        }
-      })();
-      return;
     } catch (err) {
       console.error("Lead submit failed:", err);
       toast.error(copy.contact.form.error);
     } finally {
       setLoading(false);
-      setStatus(null);
     }
   }
 
@@ -444,9 +475,27 @@ export function ContactSection() {
                   </p>
                   {photos.length > 0 ? (
                     <ul className="space-y-1 text-xs text-muted-foreground">
-                      {photos.map((file) => (
-                        <li key={`${file.name}-${file.size}-${file.lastModified}`}>
-                          {file.name} ({Math.max(1, Math.round(file.size / 1024))} KB)
+                      {photos.map((item) => (
+                        <li
+                          key={item.id}
+                          className="flex items-center justify-between gap-3"
+                        >
+                          <span className="truncate">{item.file.name}</span>
+                          <span
+                            className={
+                              item.status === "ready"
+                                ? "shrink-0 text-accent"
+                                : item.status === "error"
+                                  ? "shrink-0 text-red-400"
+                                  : "shrink-0"
+                            }
+                          >
+                            {item.status === "ready"
+                              ? ui.photoReady
+                              : item.status === "error"
+                                ? ui.photoFailed
+                                : ui.photoUploading}
+                          </span>
                         </li>
                       ))}
                     </ul>
@@ -473,7 +522,7 @@ export function ContactSection() {
                     {copy.contact.form.back}
                   </Button>
                   <Button type="submit" size="lg" className="w-full flex-1" disabled={loading}>
-                    {status || (loading ? copy.contact.form.sending : copy.contact.form.submit)}
+                    {loading ? copy.contact.form.sending : copy.contact.form.submit}
                   </Button>
                 </div>
               </>
