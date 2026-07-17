@@ -12,43 +12,26 @@ import { Label } from "@/components/ui/label";
 import { Reveal } from "@/components/ui/reveal";
 import { usePageCopy, useSiteSettings } from "@/components/site-settings-provider";
 
-const step1Schema = z.object({
+const leadSchema = z.object({
   name: z.string().trim().min(2),
-  email: z.string().trim().email(),
-  phone: z.string().trim().optional(),
-  address: z.string().trim().min(2),
-  houseNumber: z.string().trim().min(1),
-});
-
-const step2Schema = z.object({
+  phone: z.string().trim().min(5),
   postal: z.string().trim().min(3),
-  city: z.string().trim().min(2),
   type: z.enum(["vedlikehold", "nytt_tak", "kledning"]),
-  message: z.string().trim().min(10),
+  message: z.string().trim().optional(),
 });
-
-const leadSchema = step1Schema.merge(step2Schema);
 
 type FormState = {
   name: string;
-  email: string;
   phone: string;
-  address: string;
-  houseNumber: string;
   postal: string;
-  city: string;
   type: "vedlikehold" | "nytt_tak" | "kledning";
   message: string;
 };
 
 const initial: FormState = {
   name: "",
-  email: "",
   phone: "",
-  address: "",
-  houseNumber: "",
   postal: "",
-  city: "",
   type: "vedlikehold",
   message: "",
 };
@@ -58,75 +41,21 @@ export function ContactSection() {
   const locale = useLocale();
   const settings = useSiteSettings();
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState<1 | 2>(1);
   const [form, setForm] = useState<FormState>(initial);
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  function goNext() {
-    const parsed = step1Schema.safeParse({
-      name: form.name,
-      email: form.email,
-      phone: form.phone || undefined,
-      address: form.address,
-      houseNumber: form.houseNumber,
-    });
-
-    if (!parsed.success) {
-      const issue = parsed.error.issues[0];
-      if (issue?.path[0] === "email") {
-        toast.error(copy.contact.form.invalidEmail);
-      } else {
-        toast.error(copy.contact.form.required);
-      }
-      return;
-    }
-
-    setStep(2);
-  }
-
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    const step1 = step1Schema.safeParse({
-      name: form.name,
-      email: form.email,
-      phone: form.phone || undefined,
-      address: form.address,
-      houseNumber: form.houseNumber,
-    });
-
-    if (!step1.success) {
-      setStep(1);
-      const issue = step1.error.issues[0];
-      toast.error(
-        issue?.path[0] === "email" ? copy.contact.form.invalidEmail : copy.contact.form.required,
-      );
-      return;
-    }
-
-    const step2 = step2Schema.safeParse({
-      postal: form.postal,
-      city: form.city,
-      type: form.type,
-      message: form.message,
-    });
-
-    if (!step2.success) {
-      const issue = step2.error.issues[0];
-      if (issue?.path[0] === "message") {
-        toast.error(copy.contact.form.messageTooShort);
-      } else {
-        toast.error(copy.contact.form.required);
-      }
-      return;
-    }
-
     const parsed = leadSchema.safeParse({
-      ...step1.data,
-      ...step2.data,
+      name: form.name,
+      phone: form.phone,
+      postal: form.postal,
+      type: form.type,
+      message: form.message || undefined,
     });
 
     if (!parsed.success) {
@@ -139,7 +68,11 @@ export function ContactSection() {
       const res = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...parsed.data, locale }),
+        body: JSON.stringify({
+          ...parsed.data,
+          message: parsed.data.message || (locale === "no" ? "Ønsker kontakt" : "Request contact"),
+          locale,
+        }),
       });
 
       const data = (await res.json().catch(() => null)) as
@@ -152,7 +85,6 @@ export function ContactSection() {
 
       toast.success(copy.contact.form.success);
       setForm(initial);
-      setStep(1);
     } catch {
       toast.error(copy.contact.form.error);
     } finally {
@@ -217,135 +149,73 @@ export function ContactSection() {
 
         <Reveal delay={0.1}>
           <form onSubmit={onSubmit} className="surface-card space-y-4 p-5 sm:p-8" noValidate>
-            <p className="text-xs text-muted-foreground">
-              {locale === "no" ? `Steg ${step} av 2` : `Step ${step} of 2`}
-            </p>
+            <div className="space-y-2">
+              <Label htmlFor="name">{copy.contact.form.name} *</Label>
+              <Input
+                id="name"
+                value={form.name}
+                onChange={(e) => update("name", e.target.value)}
+                placeholder={copy.contact.form.name}
+                autoComplete="name"
+                required
+              />
+            </div>
 
-            {step === 1 ? (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="name">{copy.contact.form.name} *</Label>
-                  <Input
-                    id="name"
-                    value={form.name}
-                    onChange={(e) => update("name", e.target.value)}
-                    placeholder={copy.contact.form.name}
-                    autoComplete="name"
-                  />
-                </div>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">{copy.contact.form.phone}</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={form.phone}
-                      onChange={(e) => update("phone", e.target.value)}
-                      placeholder={copy.contact.form.phone}
-                      autoComplete="tel"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">{copy.contact.form.email} *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={form.email}
-                      onChange={(e) => update("email", e.target.value)}
-                      placeholder="name@email.com"
-                      autoComplete="email"
-                    />
-                  </div>
-                </div>
-                <div className="grid gap-4 sm:grid-cols-[1fr_100px]">
-                  <div className="space-y-2">
-                    <Label htmlFor="address">{copy.contact.form.address} *</Label>
-                    <Input
-                      id="address"
-                      value={form.address}
-                      onChange={(e) => update("address", e.target.value)}
-                      placeholder={copy.contact.form.address}
-                      autoComplete="street-address"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="houseNumber">{copy.contact.form.houseNumber} *</Label>
-                    <Input
-                      id="houseNumber"
-                      value={form.houseNumber}
-                      onChange={(e) => update("houseNumber", e.target.value)}
-                      placeholder="12"
-                    />
-                  </div>
-                </div>
-                <Button type="button" className="w-full" size="lg" onClick={goNext}>
-                  {locale === "no" ? "Neste" : "Next"}
-                </Button>
-              </>
-            ) : (
-              <>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="postal">{copy.contact.form.postal} *</Label>
-                    <Input
-                      id="postal"
-                      value={form.postal}
-                      onChange={(e) => update("postal", e.target.value)}
-                      placeholder="1182"
-                      autoComplete="postal-code"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="city">{copy.contact.form.city} *</Label>
-                    <Input
-                      id="city"
-                      value={form.city}
-                      onChange={(e) => update("city", e.target.value)}
-                      placeholder={copy.contact.form.city}
-                      autoComplete="address-level2"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="type">{copy.contact.form.type}</Label>
-                  <select
-                    id="type"
-                    value={form.type}
-                    onChange={(e) =>
-                      update("type", e.target.value as FormState["type"])
-                    }
-                    className="flex h-12 w-full rounded-xl border border-white/10 bg-white/5 px-4 text-base text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-                  >
-                    <option value="vedlikehold">{copy.contact.form.typeRenewal}</option>
-                    <option value="nytt_tak">{copy.contact.form.typeNew}</option>
-                    <option value="kledning">{copy.contact.form.typeCladding}</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="message">{copy.contact.form.message} *</Label>
-                  <Textarea
-                    id="message"
-                    value={form.message}
-                    onChange={(e) => update("message", e.target.value)}
-                    placeholder={copy.contact.form.message}
-                  />
-                  <p className="text-xs text-muted-foreground">{copy.contact.form.messageHint}</p>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    className="flex-1"
-                    onClick={() => setStep(1)}
-                  >
-                    {locale === "no" ? "Tilbake" : "Back"}
-                  </Button>
-                  <Button type="submit" className="flex-1" size="lg" disabled={loading}>
-                    {loading ? copy.contact.form.sending : copy.contact.form.submit}
-                  </Button>
-                </div>
-              </>
-            )}
+            <div className="space-y-2">
+              <Label htmlFor="phone">{copy.contact.form.phone} *</Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={form.phone}
+                onChange={(e) => update("phone", e.target.value)}
+                placeholder={copy.contact.form.phone}
+                autoComplete="tel"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="postal">{copy.contact.form.postal} *</Label>
+              <Input
+                id="postal"
+                value={form.postal}
+                onChange={(e) => update("postal", e.target.value)}
+                placeholder={copy.contact.form.postal}
+                autoComplete="postal-code"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="type">{copy.contact.form.type} *</Label>
+              <select
+                id="type"
+                value={form.type}
+                onChange={(e) =>
+                  update("type", e.target.value as FormState["type"])
+                }
+                className="flex h-11 w-full rounded-xl border border-white/10 bg-black/30 px-3 text-sm text-foreground outline-none focus-visible:border-accent/50 focus-visible:ring-2 focus-visible:ring-accent/30"
+              >
+                <option value="vedlikehold">{copy.contact.form.typeRenewal}</option>
+                <option value="nytt_tak">{copy.contact.form.typeNew}</option>
+                <option value="kledning">{copy.contact.form.typeCladding}</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="message">{copy.contact.form.message}</Label>
+              <Textarea
+                id="message"
+                value={form.message}
+                onChange={(e) => update("message", e.target.value)}
+                placeholder={copy.contact.form.message}
+                rows={3}
+              />
+            </div>
+
+            <Button type="submit" size="lg" className="w-full" disabled={loading}>
+              {loading ? copy.contact.form.sending : copy.contact.form.submit}
+            </Button>
           </form>
         </Reveal>
       </div>

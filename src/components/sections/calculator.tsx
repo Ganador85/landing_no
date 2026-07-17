@@ -5,7 +5,6 @@ import { useLocale } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
-import { CountUp } from "@/components/ui/count-up";
 import { usePageCopy } from "@/components/site-settings-provider";
 import type { CmsSettings } from "@/lib/cms-content";
 import { siteConfig } from "@/lib/site";
@@ -23,16 +22,13 @@ export function CalculatorSection({
   const { minSqm, maxSqm, defaultSqm, newRoofPerSqm, renewalPerSqm } = calculator;
   const [sqm, setSqm] = useState(defaultSqm);
 
-  const { newRoof, renewal, save, percent } = useMemo(() => {
+  const { newRoof, renewal, save } = useMemo(() => {
     const newRoofCost = sqm * newRoofPerSqm;
     const renewalCost = sqm * renewalPerSqm;
-    const saveAmount = newRoofCost - renewalCost;
-    const pct = Math.round((saveAmount / newRoofCost) * 100);
     return {
       newRoof: newRoofCost,
       renewal: renewalCost,
-      save: saveAmount,
-      percent: pct,
+      save: newRoofCost - renewalCost,
     };
   }, [sqm, newRoofPerSqm, renewalPerSqm]);
 
@@ -78,34 +74,25 @@ export function CalculatorSection({
               <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
                 <p className="text-sm text-muted-foreground">{copy.calculator.newRoof}</p>
                 <p className="mt-2 text-xl font-bold tabular-nums line-through decoration-white/30 sm:text-2xl">
-                  <CountUp
-                    value={newRoof}
-                    formatter={(n) => formatNok(n, locale)}
-                  />
+                  {formatNok(newRoof, locale)}
                 </p>
               </div>
               <div className="rounded-2xl border border-accent/30 bg-accent-soft p-5">
                 <p className="text-sm text-accent">{copy.calculator.renewal}</p>
                 <p className="mt-2 text-xl font-bold tabular-nums text-accent sm:text-2xl">
-                  <CountUp
-                    value={renewal}
-                    formatter={(n) => formatNok(n, locale)}
-                  />
+                  {formatNok(renewal, locale)}
                 </p>
               </div>
               <div className="rounded-2xl border border-success/30 bg-success/10 p-5">
                 <p className="text-sm text-success">{copy.calculator.youSave}</p>
                 <p className="mt-2 text-xl font-bold tabular-nums text-success sm:text-2xl">
-                  <CountUp
-                    value={save}
-                    formatter={(n) => formatNok(n, locale)}
-                  />
+                  {formatNok(save, locale)}
                 </p>
               </div>
             </div>
 
             <p className="mt-6 text-center text-lg font-semibold text-foreground">
-              {copy.calculator.cheaper.replace("{percent}", String(percent))}
+              {copy.calculator.cheaper}
             </p>
             <p className="mt-3 text-center text-xs leading-relaxed text-muted-foreground">
               {copy.calculator.disclaimer}

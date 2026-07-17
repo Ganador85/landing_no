@@ -23,8 +23,8 @@
     "cta": "Get a free inspection",
     "ctaSecondary": "View services",
     "trustWarranty": "Up to 10-year warranty",
-    "trustCustomers": "500+ happy customers",
-    "trustRating": "4.9/5 rating"
+    "trustCustomers": "100+ projects",
+    "trustRating": "4.9/5 on Google"
   },
   "trustBar": {
     "items": [
@@ -100,16 +100,16 @@
     "sizeLabel": "Roof size",
     "newRoof": "New roof",
     "renewal": "Roof renewal",
-    "youSave": "You save",
-    "cheaper": "That is {percent}% cheaper with roof renewal",
-    "disclaimer": "Estimate only. You get an exact quote after a free inspection. Applies to full renewal; maintenance is often lower priced.",
+    "youSave": "Estimated savings",
+    "cheaper": "Roof renewal can in many cases cost up to 70% less than a new roof",
+    "disclaimer": "Estimate for this example. Exact price depends on roof condition and chosen treatment. You get a quote after a free inspection.",
     "cta": "Get a free inspection and quote"
   },
   "newRoof": {
     "eyebrow": "New roof",
     "title": "Is the roof too worn to renew?",
     "subtitle": "We also install brand-new roofs – from strip-out to finished covering with solid insulation and ventilation.",
-    "body": "With years of experience and hundreds of projects, you can trust the job is done properly – at a competitive price.",
+    "body": "With years of experience and over 100 completed projects, you can trust the job is done properly – at a competitive price.",
     "typesTitle": "We cover all roof types",
     "types": [
       "Concrete and clay tiles",
@@ -123,7 +123,7 @@
   "references": {
     "eyebrow": "References",
     "title": "Results you can see",
-    "subtitle": "How we have renewed roofs for homes and housing associations across the country.",
+    "subtitle": "How we have renewed roofs for homes and housing associations in Oslo, Viken and across our service area.",
     "note": "",
     "before": "Before",
     "during": "In progress",
@@ -135,17 +135,17 @@
     "title": "Your roof deserves the best",
     "subtitle": "Confidence, quality and a result that lasts for years.",
     "p1": "We specialise in roof renewal: washing, impregnation and painting – so the roof looks new without a full replacement when it is not needed.",
-    "p2": "With dedicated teams across Southern and Central Norway, our own admin and close follow-up, you get one contact and zero worry – from inspection to finished work.",
-    "p3": "Thousands of treated roofs are no accident. It is craftspeople who care, high-quality materials, and warranties that mean something.",
-    "parent": "",
+    "p2": "With dedicated teams in Oslo, Viken, Innlandet, Vestfold og Telemark, Agder, Rogaland, Vestland, Møre og Romsdal and Trøndelag, you get one contact and zero worry – from inspection to finished work.",
+    "p3": "Over 100 completed projects are no accident. It is craftspeople who care, high-quality materials, and warranties that mean something.",
+    "parent": "Takfornyelse – part of Fornyelse Gruppen AS",
     "cta": "Get a free inspection today",
     "stats": {
-      "roofs": "Thousands of roofs",
-      "roofsDesc": "washed, impregnated and painted",
+      "roofs": "100+ projects",
+      "roofsDesc": "completed roof renewal and maintenance",
       "warranty": "Up to 10-year warranty",
       "warrantyDesc": "Up to 10 years’ product and workmanship warranty, depending on the chosen treatment and the condition of the roof. Warranty terms are stated in the quote.",
-      "area": "Southern & Central Norway",
-      "areaDesc": "Ålesund to the Swedish border",
+      "area": "Our service area",
+      "areaDesc": "Oslo, Viken, Innlandet, Vestfold og Telemark, Agder, Rogaland, Vestland, Møre og Romsdal and Trøndelag",
       "teams": "Local teams",
       "teamsDesc": "always nearby"
     },
@@ -171,7 +171,7 @@
   "contact": {
     "eyebrow": "Contact",
     "title": "Book a free inspection",
-    "subtitle": "No-obligation inspection and quote. We usually reply within 24 hours.",
+    "subtitle": "Fill in the form – we will contact you within 24 hours. It takes under a minute.",
     "phone": "Phone",
     "hours": "Mon–Fri 08:00–16:00",
     "email": "Email",
@@ -202,7 +202,7 @@
   },
   "footer": {
     "tagline": "Specialists in roof renewal. We wash, impregnate and paint – or install a new roof.",
-    "partOf": "Part of",
+    "partOf": "Takfornyelse – part of",
     "quickLinks": "Quick links",
     "contact": "Contact",
     "warrantyNote": "Up to 10 years’ product and workmanship warranty, depending on the chosen treatment and the condition of the roof. Warranty terms are stated in the quote.",

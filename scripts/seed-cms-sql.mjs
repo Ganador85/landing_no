@@ -272,11 +272,11 @@ try {
         trust_sqm_renewed, trust_warranty_years, trust_happy_customers, trust_rating,
         created_at, updated_at
       ) values (
-        'Takfornyelse', '+47 47 73 66 69', 'post@takfornyelse.no',
-        'Lyngveien 28', '1182', 'Oslo', '916 693 168', '',
+        'Takfornyelse', '+47 47 73 58 88', 'post@takfornyelse.as',
+        'Lyngveien 28', '1182', 'Oslo', '916 693 168', 'Fornyelse Gruppen AS',
         $1, $2, $3,
-        2490, 350, 50, 500, 150,
-        '2.000.000+', 10, '500+', '4.9/5',
+        2500, 750, 50, 500, 150,
+        '2.000.000+', 10, '100+', '4.9/5',
         now(), now()
       )`,
       [siteImages.hero, siteImages.about, siteImages.newRoof],

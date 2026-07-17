@@ -5,6 +5,7 @@ import { CalculatorSection } from "@/components/sections/calculator";
 import { NewRoofSection } from "@/components/sections/new-roof";
 import { ReferencesSection } from "@/components/sections/references";
 import { AboutSection } from "@/components/sections/about";
+import { TestimonialsSection } from "@/components/sections/testimonials";
 import { ProductsSection } from "@/components/sections/products";
 import { FaqSection } from "@/components/sections/faq";
 import { ContactSection } from "@/components/sections/contact";
@@ -44,6 +45,7 @@ export default async function HomePage({ params }: Props) {
         imageUrl={content.settings.images.about}
         settings={content.settings}
       />
+      <TestimonialsSection />
       <ProductsSection products={content.products} />
       <FaqSection items={content.faq} />
       <ContactSection />

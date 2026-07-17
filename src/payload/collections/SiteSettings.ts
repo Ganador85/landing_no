@@ -19,13 +19,13 @@ export const SiteSettings: GlobalConfig = {
           label: "Contact",
           fields: [
             { name: "brandName", type: "text", defaultValue: "Takfornyelse" },
-            { name: "phone", type: "text", defaultValue: "+47 47 73 66 69" },
-            { name: "email", type: "email", defaultValue: "post@takfornyelse.no" },
+            { name: "phone", type: "text", defaultValue: "+47 47 73 58 88" },
+            { name: "email", type: "email", defaultValue: "post@takfornyelse.as" },
             { name: "street", type: "text", defaultValue: "Lyngveien 28" },
             { name: "postal", type: "text", defaultValue: "1182" },
             { name: "city", type: "text", defaultValue: "Oslo" },
             { name: "orgNr", type: "text", defaultValue: "916 693 168" },
-            { name: "parentOrg", type: "text", defaultValue: "" },
+            { name: "parentOrg", type: "text", defaultValue: "Fornyelse Gruppen AS" },
           ],
         },
         {
@@ -74,8 +74,8 @@ export const SiteSettings: GlobalConfig = {
               name: "calculator",
               type: "group",
               fields: [
-                { name: "newRoofPerSqm", type: "number", defaultValue: 2490 },
-                { name: "renewalPerSqm", type: "number", defaultValue: 350 },
+                { name: "newRoofPerSqm", type: "number", defaultValue: 2500 },
+                { name: "renewalPerSqm", type: "number", defaultValue: 750 },
                 { name: "minSqm", type: "number", defaultValue: 50 },
                 { name: "maxSqm", type: "number", defaultValue: 500 },
                 { name: "defaultSqm", type: "number", defaultValue: 150 },
@@ -87,7 +87,7 @@ export const SiteSettings: GlobalConfig = {
               fields: [
                 { name: "sqmRenewed", type: "text", defaultValue: "2.000.000+" },
                 { name: "warrantyYears", type: "number", defaultValue: 10 },
-                { name: "happyCustomers", type: "text", defaultValue: "500+" },
+                { name: "happyCustomers", type: "text", defaultValue: "100+" },
                 { name: "rating", type: "text", defaultValue: "4.9/5" },
               ],
             },

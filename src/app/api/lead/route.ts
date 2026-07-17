@@ -6,14 +6,14 @@ import { siteConfig } from "@/lib/site";
 
 const leadSchema = z.object({
   name: z.string().min(2).max(120),
-  email: z.string().email().max(200),
-  phone: z.string().max(40).optional(),
-  address: z.string().min(2).max(200),
-  houseNumber: z.string().min(1).max(20),
+  phone: z.string().min(5).max(40),
   postal: z.string().min(3).max(12),
-  city: z.string().min(2).max(100),
   type: z.enum(["vedlikehold", "nytt_tak", "kledning"]),
-  message: z.string().min(10).max(5000),
+  message: z.string().max(5000).optional(),
+  email: z.string().email().max(200).optional(),
+  address: z.string().max(200).optional(),
+  houseNumber: z.string().max(20).optional(),
+  city: z.string().max(100).optional(),
   locale: z.enum(["no", "en"]),
 });
 
@@ -60,16 +60,23 @@ export async function POST(request: Request) {
       );
     }
 
-    const { phone, type, locale, ...rest } = parsed.data;
+    const { phone, type, locale, message, email, address, houseNumber, city, ...rest } =
+      parsed.data;
 
     const payload = await getPayload();
     const created = await payload.create({
       collection: "leads",
       data: {
-        ...rest,
+        name: rest.name,
+        postal: rest.postal,
+        phone,
         inquiryType: type,
         language: locale,
-        ...(phone ? { phone } : {}),
+        message: message || "",
+        ...(email ? { email } : {}),
+        ...(address ? { address } : {}),
+        ...(houseNumber ? { houseNumber } : {}),
+        ...(city ? { city } : {}),
         status: "new",
       },
       overrideAccess: true,
@@ -79,19 +86,22 @@ export async function POST(request: Request) {
       try {
         const resend = new Resend(process.env.RESEND_API_KEY);
         await resend.emails.send({
-          from: process.env.LEAD_FROM_EMAIL || "leads@takfornyelse.no",
+          from: process.env.LEAD_FROM_EMAIL || "leads@takfornyelse.as",
           to: process.env.LEAD_TO_EMAIL || siteConfig.email,
           subject: `Ny henvendelse: ${rest.name} (${type})`,
           text: [
             `Navn: ${rest.name}`,
-            `E-post: ${rest.email}`,
-            `Telefon: ${phone || "-"}`,
-            `Adresse: ${rest.address} ${rest.houseNumber}, ${rest.postal} ${rest.city}`,
+            `Telefon: ${phone}`,
+            `Postnummer: ${rest.postal}`,
+            email ? `E-post: ${email}` : null,
+            address ? `Adresse: ${address} ${houseNumber || ""}, ${rest.postal} ${city || ""}` : null,
             `Type: ${type}`,
             `Språk: ${locale}`,
             "",
-            rest.message,
-          ].join("\n"),
+            message || "",
+          ]
+            .filter(Boolean)
+            .join("\n"),
         });
       } catch (err) {
         console.error("Lead email failed:", err);

@@ -23,8 +23,8 @@
     "cta": "Få gratis befaring",
     "ctaSecondary": "Se tjenester",
     "trustWarranty": "Opptil 10 års garanti",
-    "trustCustomers": "500+ fornøyde kunder",
-    "trustRating": "4.9/5 vurdering"
+    "trustCustomers": "100+ prosjekter",
+    "trustRating": "4.9/5 på Google"
   },
   "trustBar": {
     "items": [
@@ -100,16 +100,16 @@
     "sizeLabel": "Takets størrelse",
     "newRoof": "Nytt tak",
     "renewal": "Takfornying",
-    "youSave": "Du sparer",
-    "cheaper": "Det er {percent}% billigere med takfornying",
-    "disclaimer": "Estimat. Du får nøyaktig tilbud etter gratis befaring. Gjelder full takfornying; vedlikehold har ofte lavere pris.",
+    "youSave": "Estimert besparelse",
+    "cheaper": "Takfornying kan i mange tilfeller koste opptil 70 % mindre enn nytt tak",
+    "disclaimer": "Estimat for dette eksempelet. Nøyaktig pris avhenger av takets tilstand og valgt behandling. Du får tilbud etter gratis befaring.",
     "cta": "Få gratis befaring og tilbud"
   },
   "newRoof": {
     "eyebrow": "Nytt tak",
     "title": "Er taket for slitt til å fornyes?",
     "subtitle": "Vi legger også helt nytt tak – fra riving til ferdig tekking med god isolasjon og ventilasjon.",
-    "body": "Med lang erfaring og hundrevis av prosjekter kan du stole på at jobben blir gjort skikkelig, til konkurransedyktig pris.",
+    "body": "Med lang erfaring og over 100 gjennomførte prosjekter kan du stole på at jobben blir gjort skikkelig, til konkurransedyktig pris.",
     "typesTitle": "Vi tekker alle typer tak",
     "types": [
       "Takstein (betong og tegl)",
@@ -123,7 +123,7 @@
   "references": {
     "eyebrow": "Referanser",
     "title": "Resultater du kan se",
-    "subtitle": "Slik har vi fornyet tak for boliger og borettslag over hele landet.",
+    "subtitle": "Slik har vi fornyet tak for boliger og borettslag i Oslo, Viken og resten av vårt dekningsområde.",
     "note": "",
     "before": "Før",
     "during": "Under arbeid",
@@ -135,17 +135,17 @@
     "title": "Taket ditt fortjener det beste",
     "subtitle": "Trygghet, kvalitet og et resultat som varer i årevis.",
     "p1": "Vi er spesialister på takfornying: vask, impregnering og maling – slik at taket ser ut som nytt, uten full omlegging når det ikke trengs.",
-    "p2": "Med dedikerte team over Sør- og Midt-Norge, egen administrasjon og tett oppfølging får du én kontaktperson og null bekymringer – fra befaring til ferdig jobb.",
-    "p3": "Tusenvis av tak behandlet er ikke tilfeldig. Det er håndverkere som bryr seg, materialer av høy kvalitet, og garantier som betyr noe.",
-    "parent": "",
+    "p2": "Med dedikerte team i Oslo, Viken, Innlandet, Vestfold og Telemark, Agder, Rogaland, Vestland, Møre og Romsdal og Trøndelag får du én kontaktperson og null bekymringer – fra befaring til ferdig jobb.",
+    "p3": "Over 100 gjennomførte prosjekter er ikke tilfeldig. Det er håndverkere som bryr seg, materialer av høy kvalitet, og garantier som betyr noe.",
+    "parent": "Takfornyelse – en del av Fornyelse Gruppen AS",
     "cta": "Få gratis befaring i dag",
     "stats": {
-      "roofs": "Tusenvis av tak",
-      "roofsDesc": "vasket, impregnert og malt",
+      "roofs": "100+ prosjekter",
+      "roofsDesc": "gjennomført takfornying og vedlikehold",
       "warranty": "Opptil 10 års garanti",
       "warrantyDesc": "Opptil 10 års produkt- og utførelsesgaranti, avhengig av valgt behandling og takets tilstand. Garantivilkår oppgis i tilbudet.",
-      "area": "Sør- og Midt-Norge",
-      "areaDesc": "Ålesund til svenskegrensa",
+      "area": "Vårt dekningsområde",
+      "areaDesc": "Oslo, Viken, Innlandet, Vestfold og Telemark, Agder, Rogaland, Vestland, Møre og Romsdal og Trøndelag",
       "teams": "Lokale team",
       "teamsDesc": "alltid nær deg"
     },
@@ -171,7 +171,7 @@
   "contact": {
     "eyebrow": "Kontakt",
     "title": "Få en gratis befaring",
-    "subtitle": "Uforpliktende befaring og tilbud. Vi svarer vanligvis innen 24 timer.",
+    "subtitle": "Fyll ut skjemaet – vi kontakter deg innen 24 timer. Det tar under ett minutt.",
     "phone": "Telefon",
     "hours": "Man–fre 08:00–16:00",
     "email": "E-post",
@@ -202,7 +202,7 @@
   },
   "footer": {
     "tagline": "Spesialister på takfornying. Vi vasker, impregnerer og maler – eller legger nytt tak.",
-    "partOf": "En del av",
+    "partOf": "Takfornyelse – en del av",
     "quickLinks": "Hurtiglenker",
     "contact": "Kontakt",
     "warrantyNote": "Opptil 10 års produkt- og utførelsesgaranti, avhengig av valgt behandling og takets tilstand. Garantivilkår oppgis i tilbudet.",

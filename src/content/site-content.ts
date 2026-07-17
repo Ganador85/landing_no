@@ -91,8 +91,8 @@ export const faqItems = [
       en: "Who removes moss from roofs?",
     },
     answer: {
-      no: "Vi er et profesjonelt firma som fjerner mose på tak over Sør- og Midt-Norge. Vi bruker både høytrykksvask og skånsom softwash, avhengig av takets tilstand.",
-      en: "We are a professional company removing moss from roofs across Southern and Central Norway. We use both high-pressure washing and gentle softwash, depending on roof condition.",
+      no: "Vi er et profesjonelt firma som fjerner mose på tak i Oslo, Viken, Innlandet, Vestfold og Telemark, Agder, Rogaland, Vestland, Møre og Romsdal og Trøndelag. Vi bruker både høytrykksvask og skånsom softwash, avhengig av takets tilstand.",
+      en: "We are a professional company removing moss from roofs in Oslo, Viken, Innlandet, Vestfold og Telemark, Agder, Rogaland, Vestland, Møre og Romsdal and Trøndelag. We use both high-pressure washing and gentle softwash, depending on roof condition.",
     },
   },
   {

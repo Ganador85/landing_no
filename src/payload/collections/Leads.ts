@@ -4,7 +4,7 @@ export const Leads: CollectionConfig = {
   slug: "leads",
   admin: {
     useAsTitle: "name",
-    defaultColumns: ["name", "email", "inquiryType", "language", "createdAt"],
+    defaultColumns: ["name", "phone", "postal", "inquiryType", "language", "createdAt"],
   },
   access: {
     create: () => true,
@@ -14,12 +14,12 @@ export const Leads: CollectionConfig = {
   },
   fields: [
     { name: "name", type: "text", required: true },
-    { name: "email", type: "email", required: true },
-    { name: "phone", type: "text" },
-    { name: "address", type: "text", required: true },
-    { name: "houseNumber", type: "text", required: true },
+    { name: "email", type: "email" },
+    { name: "phone", type: "text", required: true },
+    { name: "address", type: "text" },
+    { name: "houseNumber", type: "text" },
     { name: "postal", type: "text", required: true },
-    { name: "city", type: "text", required: true },
+    { name: "city", type: "text" },
     {
       name: "inquiryType",
       type: "select",
@@ -30,7 +30,7 @@ export const Leads: CollectionConfig = {
         { label: "Cladding", value: "kledning" },
       ],
     },
-    { name: "message", type: "textarea", required: true },
+    { name: "message", type: "textarea" },
     {
       name: "language",
       type: "select",

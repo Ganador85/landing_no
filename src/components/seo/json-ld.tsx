@@ -24,12 +24,15 @@ export function JsonLd({ locale, settings, faq, description }: Props) {
       postalCode: settings.address.postal,
       addressCountry: siteConfig.address.country,
     },
-    areaServed: locale === "no" ? "Sør- og Midt-Norge" : "Southern and Central Norway",
+    areaServed:
+      locale === "no"
+        ? "Oslo, Viken, Innlandet, Vestfold og Telemark, Agder, Rogaland, Vestland, Møre og Romsdal og Trøndelag"
+        : "Oslo, Viken, Innlandet, Vestfold og Telemark, Agder, Rogaland, Vestland, Møre og Romsdal and Trøndelag",
     priceRange: "$$",
     aggregateRating: {
       "@type": "AggregateRating",
       ratingValue: settings.trust.rating.split("/")[0] || "4.9",
-      reviewCount: "500",
+      reviewCount: settings.trust.happyCustomers.replace(/\D/g, "") || "100",
     },
     openingHoursSpecification: {
       "@type": "OpeningHoursSpecification",

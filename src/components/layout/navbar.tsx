@@ -30,18 +30,27 @@ export function Navbar() {
       <div className="container-narrow flex h-14 items-center justify-between gap-3 px-4 sm:h-16 sm:gap-4 sm:px-6 lg:px-8">
         <Link
           href="/"
-          className="relative -my-1 flex h-12 w-[210px] shrink-0 items-center sm:h-14 sm:w-[260px]"
+          className="group relative flex shrink-0 flex-col justify-center"
           onClick={() => setOpen(false)}
           aria-label={settings.brandName}
         >
-          <Image
-            src="/brand/logo.png"
-            alt={settings.brandName}
-            fill
-            sizes="(max-width: 640px) 210px, 260px"
-            className="object-contain object-left"
-            priority
-          />
+          <span className="relative block h-12 w-[210px] sm:h-14 sm:w-[260px]">
+            <Image
+              src="/brand/logo.png"
+              alt={settings.brandName}
+              fill
+              sizes="(max-width: 640px) 210px, 260px"
+              className="object-contain object-left"
+              priority
+            />
+          </span>
+          {settings.parentOrg ? (
+            <span className="mt-0.5 hidden max-w-[260px] truncate text-[10px] leading-tight text-muted-foreground lg:block">
+              {locale === "no"
+                ? `${settings.brandName} – en del av ${settings.parentOrg}`
+                : `${settings.brandName} – part of ${settings.parentOrg}`}
+            </span>
+          ) : null}
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">
