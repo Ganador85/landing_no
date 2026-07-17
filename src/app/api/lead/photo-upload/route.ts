@@ -6,16 +6,17 @@ export const maxDuration = 60;
 
 const MAX_BYTES = 4 * 1024 * 1024;
 
-function isUploadBlob(
-  value: FormDataEntryValue,
-): value is File | (Blob & { name?: string }) {
-  return (
+function asUploadBlob(value: FormDataEntryValue | null): Blob | null {
+  if (
     typeof value === "object" &&
     value !== null &&
     typeof (value as Blob).arrayBuffer === "function" &&
     typeof (value as Blob).size === "number" &&
     (value as Blob).size > 0
-  );
+  ) {
+    return value as Blob;
+  }
+  return null;
 }
 
 export async function POST(request: Request) {
@@ -28,8 +29,8 @@ export async function POST(request: Request) {
 
   try {
     const form = await request.formData();
-    const file = form.get("file");
-    if (!file || !isUploadBlob(file)) {
+    const file = asUploadBlob(form.get("file"));
+    if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
