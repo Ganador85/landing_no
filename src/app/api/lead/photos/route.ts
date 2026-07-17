@@ -7,7 +7,7 @@ import { makeLeadPhotoToken } from "@/lib/lead-photo-token";
 const photosSchema = z.object({
   id: z.union([z.string(), z.number()]),
   token: z.string().min(16).max(128),
-  photoUrls: z.array(z.string().url()).min(1).max(5),
+  photoUrls: z.array(z.string().url()).min(1).max(15),
 });
 
 function tokensMatch(a: string, b: string) {
@@ -50,7 +50,7 @@ export async function PATCH(request: Request) {
             .filter(Boolean)
         : [];
 
-    const merged = [...previous, ...photoUrls].slice(0, 5);
+    const merged = [...previous, ...photoUrls].slice(0, 15);
 
     await payload.update({
       collection: "leads",

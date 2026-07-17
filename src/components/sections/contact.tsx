@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Reveal } from "@/components/ui/reveal";
 import { usePageCopy, useSiteSettings } from "@/components/site-settings-provider";
 
-const MAX_PHOTOS = 5;
+const MAX_PHOTOS = 15;
 const MAX_PHOTO_BYTES = 8 * 1024 * 1024;
 
 const inquiryTypes = [
@@ -120,8 +120,8 @@ export function ContactSection() {
         : `${n} bilde${n === 1 ? "" : "r"} valgt`,
     photosTooMany:
       locale === "en"
-        ? "Max 5 photos – we kept the first 5"
-        : "Maks 5 bilder – vi tok de første 5",
+        ? "Max 15 photos – we kept the first 15"
+        : "Maks 15 bilder – vi tok de første 15",
     photoTooLarge:
       locale === "en"
         ? "One or more photos are too large (max 8 MB)"

@@ -23,7 +23,7 @@ const leadSchema = z.object({
   address: z.string().max(200).optional(),
   roofSize: z.string().max(20).optional(),
   message: z.string().max(5000).optional(),
-  photoUrls: z.array(z.string().url()).max(5).optional(),
+  photoUrls: z.array(z.string().url()).max(15).optional(),
 });
 
 const rateMap = new Map<string, { count: number; reset: number }>();
