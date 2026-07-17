@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useLocale } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { usePageCopy, useSiteSettings } from "@/components/site-settings-provider";
@@ -22,12 +23,19 @@ export function Footer() {
     <footer className="border-t border-white/10 bg-[#080a0e] pb-24 md:pb-0">
       <div className="container-narrow section-pad grid gap-10 md:grid-cols-3">
         <div className="space-y-4">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-amber-700 text-sm font-bold text-accent-foreground">
-              T
-            </span>
-            <span className="font-bold tracking-wide uppercase">{settings.brandName}</span>
-          </div>
+          <Link
+            href="/"
+            className="relative block h-10 w-[180px]"
+            aria-label={settings.brandName}
+          >
+            <Image
+              src="/brand/logo.webp"
+              alt={settings.brandName}
+              fill
+              sizes="180px"
+              className="object-contain object-left"
+            />
+          </Link>
           <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
             {copy.footer.tagline}
           </p>

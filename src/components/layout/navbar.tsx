@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Menu, Phone, X } from "lucide-react";
 import { useLocale } from "next-intl";
 import { Link, usePathname } from "@/i18n/routing";
@@ -27,13 +28,20 @@ export function Navbar() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-xl">
       <div className="container-narrow flex h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2.5" onClick={() => setOpen(false)}>
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-amber-700 text-sm font-bold text-accent-foreground shadow-lg shadow-accent/20">
-            T
-          </span>
-          <span className="text-sm font-bold tracking-wide uppercase sm:text-base">
-            {settings.brandName}
-          </span>
+        <Link
+          href="/"
+          className="relative flex h-9 w-[150px] shrink-0 items-center sm:h-10 sm:w-[190px]"
+          onClick={() => setOpen(false)}
+          aria-label={settings.brandName}
+        >
+          <Image
+            src="/brand/logo.webp"
+            alt={settings.brandName}
+            fill
+            sizes="190px"
+            className="object-contain object-left"
+            priority
+          />
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">
