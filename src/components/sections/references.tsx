@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
@@ -17,165 +17,143 @@ type Props = {
 type Stage = CmsProject["stages"][number];
 
 type LightboxState = {
-  projectId: string;
   title: string;
   stages: Stage[];
   index: number;
 };
 
-function useClickWithoutDrag(onActivate: () => void) {
-  const origin = useRef<{ x: number; y: number } | null>(null);
+type Pair = {
+  before?: Stage;
+  after?: Stage;
+};
 
-  return {
-    onPointerDown: (e: React.PointerEvent) => {
-      origin.current = { x: e.clientX, y: e.clientY };
-    },
-    onPointerUp: (e: React.PointerEvent) => {
-      if (!origin.current) return;
-      const dx = Math.abs(e.clientX - origin.current.x);
-      const dy = Math.abs(e.clientY - origin.current.y);
-      origin.current = null;
-      if (dx < 10 && dy < 10) onActivate();
-    },
-    onPointerCancel: () => {
-      origin.current = null;
-    },
-  };
-}
+function splitStages(stages: Stage[]) {
+  const before = stages.filter((s) => s.label === "before");
+  const after = stages.filter((s) => s.label === "after");
+  const during = stages.filter((s) => s.label === "during");
+  const hasCompare = before.length > 0 && after.length > 0;
 
-function useCarouselWheel(
-  emblaApi: ReturnType<typeof useEmblaCarousel>[1],
-  targetRef?: React.RefObject<HTMLElement | null>,
-) {
-  useEffect(() => {
-    if (!emblaApi) return;
-    const root = targetRef?.current ?? emblaApi.rootNode();
-    if (!root) return;
+  const pairs: Pair[] = [];
+  if (hasCompare) {
+    const count = Math.max(before.length, after.length);
+    for (let i = 0; i < count; i++) {
+      pairs.push({ before: before[i], after: after[i] });
+    }
+  }
 
-    let lockedUntil = 0;
+  const singles = hasCompare ? [] : [...before, ...after];
 
-    const onWheel = (event: WheelEvent) => {
-      const dominantX = Math.abs(event.deltaX) > Math.abs(event.deltaY);
-      const delta = dominantX ? event.deltaX : event.deltaY;
-      if (Math.abs(delta) < 6) return;
-
-      const goingNext = delta > 0;
-      if (goingNext && !emblaApi.canScrollNext()) return;
-      if (!goingNext && !emblaApi.canScrollPrev()) return;
-
-      event.preventDefault();
-
-      const now = Date.now();
-      if (now < lockedUntil) return;
-      lockedUntil = now + 280;
-
-      if (goingNext) emblaApi.scrollNext();
-      else emblaApi.scrollPrev();
-    };
-
-    root.addEventListener("wheel", onWheel, { passive: false });
-    return () => root.removeEventListener("wheel", onWheel);
-  }, [emblaApi, targetRef]);
+  return { hasCompare, pairs, during, singles };
 }
 
 export function ReferencesSection({ projects }: Props) {
   const copy = usePageCopy();
   const locale = useLocale() as "no" | "en";
-  const sectionRef = useRef<HTMLElement>(null);
-  const [emblaRef, emblaApi] = useEmblaCarousel({
-    align: "start",
-    containScroll: "trimSnaps",
-    dragFree: false,
-    watchDrag: (_api, event) => {
-      const target = event.target as HTMLElement | null;
-      // Let the inner project gallery handle horizontal swipes on photos.
-      return !target?.closest("[data-project-gallery]");
-    },
-  });
-  const [canPrev, setCanPrev] = useState(false);
-  const [canNext, setCanNext] = useState(false);
   const [lightbox, setLightbox] = useState<LightboxState | null>(null);
 
-  useCarouselWheel(emblaApi, sectionRef);
-
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setCanPrev(emblaApi.canScrollPrev());
-    setCanNext(emblaApi.canScrollNext());
-  }, [emblaApi]);
-
-  useEffect(() => {
-    if (!emblaApi) return;
-    onSelect();
-    emblaApi.on("select", onSelect);
-    emblaApi.on("reInit", onSelect);
-  }, [emblaApi, onSelect]);
+  const openStage = (project: CmsProject, stage?: Stage) => {
+    if (!stage) return;
+    const index = project.stages.indexOf(stage);
+    setLightbox({
+      title: project.title[locale],
+      stages: project.stages,
+      index: index >= 0 ? index : 0,
+    });
+  };
 
   return (
-    <section
-      id="referanser"
-      ref={sectionRef}
-      className="section-pad bg-background-elevated/40"
-    >
+    <section id="referanser" className="section-pad bg-background-elevated/40">
       <div className="container-narrow">
         <Reveal>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="eyebrow">{copy.references.eyebrow}</p>
-              <h2 className="heading-display mt-3 text-balance">{copy.references.title}</h2>
-              <p className="mt-4 max-w-xl text-muted-foreground">{copy.references.subtitle}</p>
-              {copy.references.note ? (
-                <p className="mt-2 max-w-xl text-xs text-muted-foreground/80">{copy.references.note}</p>
-              ) : null}
-            </div>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                aria-label="Previous"
-                disabled={!canPrev}
-                onClick={() => emblaApi?.scrollPrev()}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/15 bg-white/5 disabled:opacity-30"
-              >
-                <ChevronLeft className="size-5" />
-              </button>
-              <button
-                type="button"
-                aria-label="Next"
-                disabled={!canNext}
-                onClick={() => emblaApi?.scrollNext()}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/15 bg-white/5 disabled:opacity-30"
-              >
-                <ChevronRight className="size-5" />
-              </button>
-            </div>
+          <div className="max-w-2xl">
+            <p className="eyebrow">{copy.references.eyebrow}</p>
+            <h2 className="heading-display mt-3 text-balance">{copy.references.title}</h2>
+            <p className="mt-4 text-muted-foreground">{copy.references.subtitle}</p>
+            {copy.references.note ? (
+              <p className="mt-2 text-xs text-muted-foreground/80">{copy.references.note}</p>
+            ) : null}
           </div>
         </Reveal>
 
-        <p className="mt-4 text-xs text-muted-foreground">
-          {locale === "no"
-            ? "Dra med musen eller bruk hjulet for å bla · på mobil: sveip"
-            : "Drag with the mouse or use the scroll wheel · on mobile: swipe"}
-        </p>
+        <div className="mt-10 space-y-8">
+          {projects.map((project, projectIndex) => {
+            const { hasCompare, pairs, during, singles } = splitStages(project.stages);
 
-        <div className="mt-8 cursor-grab overflow-hidden active:cursor-grabbing" ref={emblaRef}>
-          <div className="flex gap-4">
-            {projects.map((project) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                locale={locale}
-                labelFor={(label) => copy.references[label]}
-                onOpen={(index) =>
-                  setLightbox({
-                    projectId: project.id,
-                    title: project.title[locale],
-                    stages: project.stages,
-                    index,
-                  })
-                }
-              />
-            ))}
-          </div>
+            return (
+              <Reveal key={project.id} delay={Math.min(projectIndex * 0.05, 0.2)}>
+                <article className="overflow-hidden rounded-2xl border border-white/10 bg-black/20">
+                  <div className="border-b border-white/10 px-4 py-4 sm:px-5">
+                    <h3 className="font-semibold">{project.title[locale]}</h3>
+                    {hasCompare ? (
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {locale === "no"
+                          ? "Venstre: før · Høyre: etter"
+                          : "Left: before · Right: after"}
+                      </p>
+                    ) : null}
+                  </div>
+
+                  <div className="space-y-3 p-3 sm:space-y-4 sm:p-4">
+                    {hasCompare
+                      ? pairs.map((pair, pairIndex) => (
+                          <div
+                            key={`${project.id}-pair-${pairIndex}`}
+                            className="grid grid-cols-2 gap-2 sm:gap-3"
+                          >
+                            <CompareCell
+                              stage={pair.before}
+                              label={copy.references.before}
+                              emptyLabel={
+                                locale === "no" ? "Ingen før-bilde" : "No before photo"
+                              }
+                              locale={locale}
+                              onOpen={() => openStage(project, pair.before)}
+                            />
+                            <CompareCell
+                              stage={pair.after}
+                              label={copy.references.after}
+                              emptyLabel={
+                                locale === "no" ? "Ingen etter-bilde" : "No after photo"
+                              }
+                              locale={locale}
+                              onOpen={() => openStage(project, pair.after)}
+                            />
+                          </div>
+                        ))
+                      : (
+                          <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                            {singles.map((stage, i) => (
+                              <CompareCell
+                                key={`${project.id}-single-${i}`}
+                                stage={stage}
+                                label={copy.references[stage.label]}
+                                emptyLabel=""
+                                locale={locale}
+                                onOpen={() => openStage(project, stage)}
+                              />
+                            ))}
+                          </div>
+                        )}
+
+                    {during.length > 0 ? (
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3">
+                        {during.map((stage, i) => (
+                          <CompareCell
+                            key={`${project.id}-during-${i}`}
+                            stage={stage}
+                            label={copy.references.during}
+                            emptyLabel=""
+                            locale={locale}
+                            onOpen={() => openStage(project, stage)}
+                          />
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                </article>
+              </Reveal>
+            );
+          })}
         </div>
       </div>
 
@@ -190,6 +168,59 @@ export function ReferencesSection({ projects }: Props) {
         />
       ) : null}
     </section>
+  );
+}
+
+function CompareCell({
+  stage,
+  label,
+  emptyLabel,
+  locale,
+  onOpen,
+}: {
+  stage?: Stage;
+  label: string;
+  emptyLabel: string;
+  locale: "no" | "en";
+  onOpen: () => void;
+}) {
+  if (!stage) {
+    return (
+      <div className="flex aspect-[4/3] items-center justify-center rounded-xl border border-dashed border-white/10 bg-black/30 px-3 text-center text-xs text-muted-foreground">
+        {emptyLabel}
+      </div>
+    );
+  }
+
+  const src = optimizeRemoteImageUrl(stage.image, { width: 900, quality: 72 });
+
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      className="group relative aspect-[4/3] overflow-hidden rounded-xl bg-black/40 text-left"
+      aria-label={stage.caption[locale]}
+    >
+      <Image
+        src={src}
+        alt={stage.caption[locale]}
+        width={900}
+        height={675}
+        sizes="(max-width: 640px) 50vw, 420px"
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        loading="lazy"
+      />
+      <div
+        className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"
+        aria-hidden
+      />
+      <span className="absolute left-2 top-2 inline-flex rounded-md bg-black/55 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-sm sm:left-3 sm:top-3 sm:text-[11px]">
+        {label}
+      </span>
+      <p className="absolute inset-x-2 bottom-2 line-clamp-2 text-[11px] font-medium leading-snug text-white/95 sm:inset-x-3 sm:bottom-3 sm:text-sm">
+        {stage.caption[locale]}
+      </p>
+    </button>
   );
 }
 
@@ -331,152 +362,6 @@ function Lightbox({
         </span>
         <p className="mt-2 text-sm font-medium text-white">{stage.caption[locale]}</p>
       </div>
-    </div>
-  );
-}
-
-function ProjectCard({
-  project,
-  locale,
-  labelFor,
-  onOpen,
-}: {
-  project: CmsProject;
-  locale: "no" | "en";
-  labelFor: (label: Stage["label"]) => string;
-  onOpen: (index: number) => void;
-}) {
-  const [emblaRef, emblaApi] = useEmblaCarousel({
-    align: "start",
-    containScroll: "trimSnaps",
-    dragFree: true,
-    watchDrag: true,
-  });
-  const [canPrev, setCanPrev] = useState(false);
-  const [canNext, setCanNext] = useState(false);
-
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setCanPrev(emblaApi.canScrollPrev());
-    setCanNext(emblaApi.canScrollNext());
-  }, [emblaApi]);
-
-  useEffect(() => {
-    if (!emblaApi) return;
-    onSelect();
-    emblaApi.on("select", onSelect);
-    emblaApi.on("reInit", onSelect);
-  }, [emblaApi, onSelect]);
-
-  return (
-    <article className="min-w-0 shrink-0 grow-0 basis-[85%] sm:basis-[60%] lg:basis-[42%]">
-      <div className="surface-card overflow-hidden">
-        <div className="relative">
-          <div
-            className="cursor-grab overflow-hidden active:cursor-grabbing"
-            data-project-gallery
-            ref={emblaRef}
-          >
-            <div className="flex">
-              {project.stages.map((stage, idx) => (
-                <StageSlide
-                  key={`${project.id}-${idx}`}
-                  stage={stage}
-                  locale={locale}
-                  label={labelFor(stage.label)}
-                  onOpen={() => onOpen(idx)}
-                />
-              ))}
-            </div>
-          </div>
-
-          {project.stages.length > 1 ? (
-            <>
-              <button
-                type="button"
-                aria-label="Previous photos"
-                disabled={!canPrev}
-                onClick={() => emblaApi?.scrollPrev()}
-                className="absolute left-2 top-1/2 z-10 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/45 text-white backdrop-blur-sm disabled:pointer-events-none disabled:opacity-0"
-              >
-                <ChevronLeft className="size-4" />
-              </button>
-              <button
-                type="button"
-                aria-label="Next photos"
-                disabled={!canNext}
-                onClick={() => emblaApi?.scrollNext()}
-                className="absolute right-2 top-1/2 z-10 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/45 text-white backdrop-blur-sm disabled:pointer-events-none disabled:opacity-0"
-              >
-                <ChevronRight className="size-4" />
-              </button>
-            </>
-          ) : null}
-        </div>
-
-        <div className="p-5">
-          <h3 className="font-semibold">{project.title[locale]}</h3>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {project.stages.length}{" "}
-            {locale === "no" ? "bilder · dra for å se mer" : "photos · drag to see more"}
-          </p>
-        </div>
-      </div>
-    </article>
-  );
-}
-
-function StageSlide({
-  stage,
-  locale,
-  label,
-  onOpen,
-}: {
-  stage: Stage;
-  locale: "no" | "en";
-  label: string;
-  onOpen: () => void;
-}) {
-  const clickHandlers = useClickWithoutDrag(onOpen);
-  const src = optimizeRemoteImageUrl(stage.image, {
-    width: 900,
-    quality: 72,
-  });
-
-  return (
-    <div
-      role="button"
-      tabIndex={0}
-      className="group relative aspect-[4/3] min-w-0 shrink-0 grow-0 basis-[88%] cursor-grab overflow-hidden bg-black/40 active:cursor-grabbing sm:basis-[72%]"
-      aria-label={stage.caption[locale]}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onOpen();
-        }
-      }}
-      {...clickHandlers}
-    >
-      <Image
-        src={src}
-        alt={stage.caption[locale]}
-        width={900}
-        height={675}
-        sizes="(max-width: 640px) 75vw, (max-width: 1024px) 40vw, 320px"
-        className="pointer-events-none absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
-        loading="lazy"
-        draggable={false}
-      />
-      <div
-        className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent"
-        aria-hidden
-      />
-      <span className="pointer-events-none absolute left-3 top-3 inline-flex rounded-full bg-black/45 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white/90 backdrop-blur-sm">
-        {label}
-      </span>
-      <p className="pointer-events-none absolute inset-x-3 bottom-3 text-left text-sm font-medium text-white/95">
-        {stage.caption[locale]}
-      </p>
     </div>
   );
 }
