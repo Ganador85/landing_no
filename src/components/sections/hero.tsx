@@ -48,9 +48,13 @@ export function HeroSection({ heroImage = siteImages.hero }: Props) {
         ) : null}
 
         <Reveal delay={0.08}>
-          <h1 className="max-w-3xl text-balance text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl xl:text-7xl">
-            {copy.hero.title}{" "}
-            <span className="text-accent">{copy.hero.titleAccent}</span>
+          <h1 className="max-w-3xl text-balance text-3xl font-bold leading-[1.12] tracking-tight sm:text-5xl lg:text-6xl xl:text-[4.25rem]">
+            <span className="block">{copy.hero.title}</span>
+            {copy.hero.titleAccent ? (
+              <span className="mt-2 block text-[0.72em] font-semibold text-accent sm:mt-3">
+                {copy.hero.titleAccent}
+              </span>
+            ) : null}
           </h1>
         </Reveal>
 
