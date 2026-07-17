@@ -37,10 +37,14 @@ export function JsonLd({ locale, settings, faq, description }: Props) {
       opens: "08:00",
       closes: "16:00",
     },
-    parentOrganization: {
-      "@type": "Organization",
-      name: settings.parentOrg,
-    },
+    ...(settings.parentOrg
+      ? {
+          parentOrganization: {
+            "@type": "Organization",
+            name: settings.parentOrg,
+          },
+        }
+      : {}),
   };
 
   const faqSchema = {

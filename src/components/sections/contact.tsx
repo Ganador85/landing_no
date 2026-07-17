@@ -291,7 +291,7 @@ export function ContactSection() {
                       id="postal"
                       value={form.postal}
                       onChange={(e) => update("postal", e.target.value)}
-                      placeholder="1394"
+                      placeholder="1182"
                       autoComplete="postal-code"
                     />
                   </div>

@@ -16,7 +16,7 @@
     "close": "Lukk"
   },
   "hero": {
-    "badge": "Over 2.000.000 m² norske tak fornyet",
+    "badge": "",
     "title": "Vi gir taket ditt",
     "titleAccent": "nytt liv",
     "subtitle": "Vedlikehold eller nytt tak – vi tar hele jobben fra befaring til ferdig resultat.",
@@ -129,7 +129,7 @@
     "p1": "Vi er spesialister på takfornying: vask, impregnering og maling – slik at taket ser ut som nytt, uten full omlegging når det ikke trengs.",
     "p2": "Med dedikerte team over Sør- og Midt-Norge, egen administrasjon og tett oppfølging får du én kontaktperson og null bekymringer – fra befaring til ferdig jobb.",
     "p3": "Tusenvis av tak behandlet er ikke tilfeldig. Det er håndverkere som bryr seg, materialer av høy kvalitet, og garantier som betyr noe.",
-    "parent": "En del av Fornyingsgruppen AS – ledende innen utvendig boligfornyelse.",
+    "parent": "",
     "cta": "Få gratis befaring i dag",
     "stats": {
       "roofs": "Tusenvis av tak",

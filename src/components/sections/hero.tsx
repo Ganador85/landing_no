@@ -37,12 +37,14 @@ export function HeroSection({ heroImage = siteImages.hero }: Props) {
       <div className="grain absolute inset-0 opacity-60" aria-hidden />
 
       <div className="container-narrow relative z-10 w-full px-4 sm:px-6 lg:px-8">
-        <Reveal>
-          <div className="mb-5 inline-flex max-w-full items-center gap-2 rounded-full border border-accent/30 bg-accent-soft px-3 py-1.5 text-xs font-medium text-accent sm:text-sm">
-            <Star className="size-3.5 shrink-0 fill-accent" />
-            <span className="truncate">{copy.hero.badge}</span>
-          </div>
-        </Reveal>
+        {copy.hero.badge ? (
+          <Reveal>
+            <div className="mb-5 inline-flex max-w-full items-center gap-2 rounded-full border border-accent/30 bg-accent-soft px-3 py-1.5 text-xs font-medium text-accent sm:text-sm">
+              <Star className="size-3.5 shrink-0 fill-accent" />
+              <span className="truncate">{copy.hero.badge}</span>
+            </div>
+          </Reveal>
+        ) : null}
 
         <Reveal delay={0.08}>
           <h1 className="max-w-3xl text-balance text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl xl:text-7xl">

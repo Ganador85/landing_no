@@ -47,7 +47,9 @@ export function AboutSection({ imageUrl, settings: settingsProp }: Props) {
               <p>{copy.about.p1}</p>
               <p>{copy.about.p2}</p>
               <p>{copy.about.p3}</p>
-              <p className="text-foreground/90">{copy.about.parent}</p>
+              {copy.about.parent ? (
+                <p className="text-foreground/90">{copy.about.parent}</p>
+              ) : null}
             </div>
             <Button asChild size="lg" className="mt-8">
               <Link href="/#kontakt">{copy.about.cta}</Link>

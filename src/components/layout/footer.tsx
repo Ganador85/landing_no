@@ -31,10 +31,12 @@ export function Footer() {
           <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
             {copy.footer.tagline}
           </p>
-          <p className="text-sm text-muted-foreground">
-            {copy.footer.partOf}{" "}
-            <span className="text-foreground">{settings.parentOrg}</span>
-          </p>
+          {settings.parentOrg ? (
+            <p className="text-sm text-muted-foreground">
+              {copy.footer.partOf}{" "}
+              <span className="text-foreground">{settings.parentOrg}</span>
+            </p>
+          ) : null}
         </div>
 
         <div>

@@ -6,13 +6,13 @@ export const siteConfig = {
   phoneHref: "tel:+4747736669",
   email: "post@takfornyelse.no",
   address: {
-    street: "Nesbruveien 75",
-    postal: "1394",
-    city: "Nesbru",
+    street: "Lyngveien 28",
+    postal: "1182",
+    city: "Oslo",
     country: "NO",
   },
   orgNr: "916 693 168",
-  parentOrg: "Fornyingsgruppen AS",
+  parentOrg: "",
   locales: ["no", "en"] as const,
   defaultLocale: "no" as const,
   calculator: {

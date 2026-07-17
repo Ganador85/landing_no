@@ -16,7 +16,7 @@
     "close": "Close"
   },
   "hero": {
-    "badge": "Over 2,000,000 m² of Norwegian roofs renewed",
+    "badge": "",
     "title": "We give your roof",
     "titleAccent": "new life",
     "subtitle": "Maintenance or a new roof – we handle the full job from inspection to finished result.",
@@ -129,7 +129,7 @@
     "p1": "We specialise in roof renewal: washing, impregnation and painting – so the roof looks new without a full replacement when it is not needed.",
     "p2": "With dedicated teams across Southern and Central Norway, our own admin and close follow-up, you get one contact and zero worry – from inspection to finished work.",
     "p3": "Thousands of treated roofs are no accident. It is craftspeople who care, high-quality materials, and warranties that mean something.",
-    "parent": "Part of Fornyingsgruppen AS – a leader in exterior home renewal.",
+    "parent": "",
     "cta": "Get a free inspection today",
     "stats": {
       "roofs": "Thousands of roofs",
