@@ -4,6 +4,11 @@ import { Resend } from "resend";
 import { getPayload } from "@/lib/payload";
 import { siteConfig } from "@/lib/site";
 import { makeLeadPhotoToken } from "@/lib/lead-photo-token";
+import {
+  buildLeadEmailHtml,
+  buildLeadEmailSubject,
+  buildLeadEmailText,
+} from "@/lib/lead-email";
 
 const inquiryTypes = [
   "takvask",
@@ -152,28 +157,33 @@ export async function POST(request: Request) {
       overrideAccess: true,
     });
 
+    const photoToken = makeLeadPhotoToken(created.id);
+    const emailPayload = {
+      id: created.id,
+      token: photoToken,
+      name: rest.name,
+      phone,
+      postal: rest.postal,
+      type,
+      locale,
+      email,
+      address,
+      approxSqm:
+        approxSqm && Number.isFinite(approxSqm) ? approxSqm : undefined,
+      message,
+      photoUrls,
+    };
+
     if (process.env.RESEND_API_KEY) {
       try {
         const resend = new Resend(process.env.RESEND_API_KEY);
         await resend.emails.send({
           from: process.env.LEAD_FROM_EMAIL || "leads@takfornyelse.as",
           to: process.env.LEAD_TO_EMAIL || siteConfig.email,
-          subject: `Ny henvendelse: ${rest.name} (${type})`,
-          text: [
-            `Navn: ${rest.name}`,
-            `Telefon: ${phone}`,
-            `Postnummer: ${rest.postal}`,
-            email ? `E-post: ${email}` : null,
-            address ? `Adresse: ${address}` : null,
-            approxSqm ? `Ca. m²: ${approxSqm}` : null,
-            `Type: ${type}`,
-            `Språk: ${locale}`,
-            photoUrls.length ? `Bilder:\n${photoUrls.join("\n")}` : null,
-            "",
-            message || "",
-          ]
-            .filter(Boolean)
-            .join("\n"),
+          ...(email ? { replyTo: email } : {}),
+          subject: buildLeadEmailSubject(emailPayload),
+          text: buildLeadEmailText(emailPayload),
+          html: buildLeadEmailHtml(emailPayload),
         });
       } catch (err) {
         console.error("Lead email failed:", err);
@@ -183,7 +193,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       ok: true,
       id: created.id,
-      photoToken: makeLeadPhotoToken(created.id),
+      photoToken,
     });
   } catch (err) {
     console.error("Lead create failed:", err);

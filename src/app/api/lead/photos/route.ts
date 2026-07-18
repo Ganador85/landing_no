@@ -1,21 +1,17 @@
-import { timingSafeEqual } from "crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getPayload } from "@/lib/payload";
-import { makeLeadPhotoToken } from "@/lib/lead-photo-token";
+import {
+  makeLeadPhotoToken,
+  parseLeadPhotoUrls,
+  tokensMatch,
+} from "@/lib/lead-photo-token";
 
 const photosSchema = z.object({
   id: z.union([z.string(), z.number()]),
   token: z.string().min(16).max(128),
   photoUrls: z.array(z.string().url()).min(1).max(15),
 });
-
-function tokensMatch(a: string, b: string) {
-  const left = Buffer.from(a);
-  const right = Buffer.from(b);
-  if (left.length !== right.length) return false;
-  return timingSafeEqual(left, right);
-}
 
 export async function PATCH(request: Request) {
   try {
@@ -42,14 +38,7 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    const previous =
-      typeof existing.photoUrls === "string" && existing.photoUrls.trim()
-        ? existing.photoUrls
-            .split("\n")
-            .map((line) => line.trim())
-            .filter(Boolean)
-        : [];
-
+    const previous = parseLeadPhotoUrls(existing.photoUrls);
     const merged = [...previous, ...photoUrls].slice(0, 15);
 
     await payload.update({
