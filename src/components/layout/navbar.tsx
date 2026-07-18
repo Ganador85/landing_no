@@ -25,32 +25,38 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
   const otherLocale = locale === "no" ? "en" : "no";
 
+  const parentLine = settings.parentOrg
+    ? locale === "no"
+      ? `${settings.brandName} – en del av ${settings.parentOrg}`
+      : `${settings.brandName} – part of ${settings.parentOrg}`
+    : null;
+
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-xl">
-      <div className="container-narrow flex min-h-14 items-center justify-between gap-3 px-4 py-2 sm:min-h-16 sm:gap-4 sm:px-6 sm:py-2.5 lg:px-8">
+      <div className="container-narrow flex h-14 items-center justify-between gap-3 px-4 sm:h-16 sm:gap-4 sm:px-6 lg:px-8">
         <Link
           href="/"
-          className="group relative flex shrink-0 flex-col justify-center"
+          className="group relative flex shrink-0 items-center"
           onClick={() => setOpen(false)}
           aria-label={settings.brandName}
         >
-          <span className="relative block h-11 w-[180px] sm:h-12 sm:w-[220px] lg:w-[240px]">
-            <Image
-              src="/brand/logo.png"
-              alt={settings.brandName}
-              fill
-              sizes="(max-width: 640px) 180px, (max-width: 1024px) 220px, 240px"
-              className="object-contain object-left"
-              priority
-            />
-          </span>
-          {settings.parentOrg ? (
-            <span className="mt-1 max-w-[180px] text-[9px] leading-snug text-muted-foreground sm:max-w-[240px] sm:text-[10px]">
-              {locale === "no"
-                ? `${settings.brandName} – en del av ${settings.parentOrg}`
-                : `${settings.brandName} – part of ${settings.parentOrg}`}
+          <span className="flex flex-col justify-center">
+            <span className="relative block h-10 w-[168px] sm:h-12 sm:w-[220px] lg:w-[240px]">
+              <Image
+                src="/brand/logo.png"
+                alt={settings.brandName}
+                fill
+                sizes="(max-width: 640px) 168px, (max-width: 1024px) 220px, 240px"
+                className="object-contain object-left"
+                priority
+              />
             </span>
-          ) : null}
+            {parentLine ? (
+              <span className="mt-1 hidden max-w-[240px] text-[10px] leading-snug text-muted-foreground lg:block">
+                {parentLine}
+              </span>
+            ) : null}
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">
@@ -105,6 +111,11 @@ export function Navbar() {
         )}
       >
         <nav className="container-narrow flex flex-col gap-1 px-4 py-4">
+          {parentLine ? (
+            <p className="mb-2 px-4 text-xs leading-relaxed text-muted-foreground">
+              {parentLine}
+            </p>
+          ) : null}
           {links.map((link) => (
             <Link
               key={link.key}
