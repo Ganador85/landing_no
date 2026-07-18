@@ -1,17 +1,32 @@
+import dynamic from "next/dynamic";
 import { setRequestLocale } from "next-intl/server";
 import { HeroSection } from "@/components/sections/hero";
 import { ServicesSection } from "@/components/sections/services";
-import { CalculatorSection } from "@/components/sections/calculator";
 import { NewRoofSection } from "@/components/sections/new-roof";
-import { ReferencesSection } from "@/components/sections/references";
 import { AboutSection } from "@/components/sections/about";
 import { TestimonialsSection } from "@/components/sections/testimonials";
 import { ProductsSection } from "@/components/sections/products";
 import { FaqSection } from "@/components/sections/faq";
-import { ContactSection } from "@/components/sections/contact";
 import { JsonLd } from "@/components/seo/json-ld";
 import { routing } from "@/i18n/routing";
 import { getSiteContent } from "@/lib/cms-content";
+
+/** Defer heavier below-fold client JS so initial load ships less unused code. */
+const CalculatorSection = dynamic(() =>
+  import("@/components/sections/calculator").then((m) => ({
+    default: m.CalculatorSection,
+  })),
+);
+const ReferencesSection = dynamic(() =>
+  import("@/components/sections/references").then((m) => ({
+    default: m.ReferencesSection,
+  })),
+);
+const ContactSection = dynamic(() =>
+  import("@/components/sections/contact").then((m) => ({
+    default: m.ContactSection,
+  })),
+);
 
 export const revalidate = 30;
 

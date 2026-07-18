@@ -41,14 +41,16 @@ export function Navbar() {
           aria-label={settings.brandName}
         >
           <span className="flex flex-col justify-center">
-            <span className="relative block h-10 w-[168px] sm:h-12 sm:w-[220px] lg:w-[240px]">
+            <span className="block">
               <Image
-                src="/brand/logo.png"
+                src="/brand/logo.webp"
                 alt={settings.brandName}
-                fill
+                width={900}
+                height={376}
                 sizes="(max-width: 640px) 168px, (max-width: 1024px) 220px, 240px"
-                className="object-contain object-left"
+                className="h-10 w-auto max-w-[168px] object-contain object-left sm:h-12 sm:max-w-[220px] lg:max-w-[240px]"
                 priority
+                quality={75}
               />
             </span>
             {parentLine ? (

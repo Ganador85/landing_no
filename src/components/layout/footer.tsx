@@ -23,17 +23,16 @@ export function Footer() {
     <footer className="border-t border-white/10 bg-[#080a0e] pb-24 md:pb-0">
       <div className="container-narrow section-pad grid gap-10 md:grid-cols-3">
         <div className="space-y-4">
-          <Link
-            href="/"
-            className="relative block h-14 w-[280px] sm:h-16 sm:w-[320px]"
-            aria-label={settings.brandName}
-          >
+          <Link href="/" className="inline-block" aria-label={settings.brandName}>
             <Image
-              src="/brand/logo.png"
+              src="/brand/logo.webp"
               alt={settings.brandName}
-              fill
+              width={900}
+              height={376}
               sizes="320px"
-              className="object-contain object-left"
+              className="h-14 w-auto max-w-[280px] object-contain object-left sm:h-16 sm:max-w-[320px]"
+              loading="lazy"
+              quality={75}
             />
           </Link>
           <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
