@@ -1,4 +1,13 @@
-import { PDFDocument, StandardFonts, rgb, type PDFFont } from "pdf-lib";
+import {
+  PDFArray,
+  PDFDocument,
+  PDFName,
+  PDFString,
+  StandardFonts,
+  rgb,
+  type PDFFont,
+  type PDFPage,
+} from "pdf-lib";
 import type { LeadEmailInput } from "@/lib/lead-email";
 import { leadAdminUrl, leadGalleryUrl } from "@/lib/lead-email";
 import { inquiryTypeLabelNo, languageLabelNo } from "@/lib/inquiry-labels";
@@ -7,11 +16,11 @@ import { inquiryTypeLabelNo, languageLabelNo } from "@/lib/inquiry-labels";
 function toPdfText(value: string) {
   return value
     .normalize("NFKC")
-    .replace(/\u2013|\u2014/g, "-") // en/em dash
+    .replace(/\u2013|\u2014/g, "-")
     .replace(/\u2018|\u2019/g, "'")
     .replace(/\u201C|\u201D/g, '"')
     .replace(/\u2022/g, "-")
-    .replace(/\u00B7/g, "|") // middle dot
+    .replace(/\u00B7/g, "|")
     .replace(/\u00A0/g, " ")
     .replace(/[^\x09\x0A\x0D\x20-\x7E\xA0-\xFF]/g, "?");
 }
@@ -49,7 +58,6 @@ function wrapLines(text: string, font: PDFFont, size: number, maxWidth: number):
         break;
       }
 
-      // Prefer breaking at the last space that still fits
       let breakAt = -1;
       let low = 1;
       let high = remaining.length;
@@ -65,7 +73,6 @@ function wrapLines(text: string, font: PDFFont, size: number, maxWidth: number):
       }
 
       if (breakAt <= 0) {
-        // Single glyph wider than page — force one char
         lines.push(remaining.slice(0, 1));
         remaining = remaining.slice(1);
         continue;
@@ -80,6 +87,30 @@ function wrapLines(text: string, font: PDFFont, size: number, maxWidth: number):
   }
 
   return lines;
+}
+
+function attachUriLink(page: PDFPage, uri: string, rect: [number, number, number, number]) {
+  const linkRef = page.doc.context.register(
+    page.doc.context.obj({
+      Type: "Annot",
+      Subtype: "Link",
+      Rect: rect,
+      Border: [0, 0, 0],
+      A: {
+        Type: "Action",
+        S: "URI",
+        URI: PDFString.of(uri),
+      },
+    }),
+  );
+
+  const annotsKey = PDFName.of("Annots");
+  const existing = page.node.lookup(annotsKey);
+  if (existing instanceof PDFArray) {
+    existing.push(linkRef);
+  } else {
+    page.node.set(annotsKey, page.doc.context.obj([linkRef]));
+  }
 }
 
 export async function buildLeadPdf(input: LeadEmailInput): Promise<Uint8Array> {
@@ -98,6 +129,7 @@ export async function buildLeadPdf(input: LeadEmailInput): Promise<Uint8Array> {
   const muted = rgb(0.4, 0.43, 0.48);
   const accent = rgb(0.85, 0.58, 0.05);
   const rule = rgb(0.86, 0.87, 0.89);
+  const linkBlue = rgb(0.12, 0.35, 0.75);
 
   const ensureSpace = (needed: number) => {
     if (y - needed >= margin) return;
@@ -182,6 +214,41 @@ export async function buildLeadPdf(input: LeadEmailInput): Promise<Uint8Array> {
     y -= 14;
   };
 
+  /** Short clickable label with full URI annotation (mobile-safe). */
+  const drawLinkButton = (label: string, uri: string) => {
+    const size = 12;
+    const text = toPdfText(label);
+    const textWidth = fontBold.widthOfTextAtSize(text, size);
+    const padX = 12;
+    const padY = 8;
+    const btnW = Math.min(maxWidth, textWidth + padX * 2);
+    const btnH = size + padY * 2;
+
+    ensureSpace(btnH + 12);
+    y -= btnH;
+
+    page.drawRectangle({
+      x: margin,
+      y,
+      width: btnW,
+      height: btnH,
+      color: rgb(0.96, 0.97, 0.98),
+      borderColor: accent,
+      borderWidth: 1,
+    });
+
+    page.drawText(text, {
+      x: margin + padX,
+      y: y + padY,
+      size,
+      font: fontBold,
+      color: linkBlue,
+    });
+
+    attachUriLink(page, uri, [margin, y, margin + btnW, y + btnH]);
+    y -= 10;
+  };
+
   const gallery = leadGalleryUrl(input.id, input.token);
   const admin = leadAdminUrl(input.id);
   const created = new Date().toLocaleString("nb-NO", {
@@ -225,12 +292,13 @@ export async function buildLeadPdf(input: LeadEmailInput): Promise<Uint8Array> {
   }
 
   drawRule();
-  drawLines("LENKER", { size: 9, bold: true, color: muted, gapAfter: 6 });
-  drawField("Bilder / galleri", gallery);
-  drawField("Admin", admin);
+  drawLines("LENKER", { size: 9, bold: true, color: muted, gapAfter: 8 });
+  // Prefer email HTML / these buttons over long raw URLs (Outlook truncates wrapped URLs → 404)
+  drawLinkButton("Åpne bildegalleri", gallery);
+  drawLinkButton("Åpne i admin", admin);
 
-  y -= 6;
-  drawLines("Bilder er ikke inkludert i PDF - åpne gallerilenken over.", {
+  y -= 4;
+  drawLines("Bilder er ikke inkludert i PDF - bruk knappen over.", {
     size: 9,
     color: muted,
   });
