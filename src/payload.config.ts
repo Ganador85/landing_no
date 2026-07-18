@@ -32,10 +32,33 @@ const serverURL =
     ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
     : "http://localhost:3000");
 
+/** Origins allowed to use the auth cookie (CSRF). Must include every host where /admin is opened. */
+const trustedOrigins = Array.from(
+  new Set(
+    [
+      serverURL,
+      "https://www.takfornyelse.as",
+      "https://takfornyelse.as",
+      "https://landing-no.vercel.app",
+      process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "",
+      process.env.VERCEL_PROJECT_PRODUCTION_URL
+        ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+        : "",
+      process.env.VERCEL_BRANCH_URL
+        ? `https://${process.env.VERCEL_BRANCH_URL}`
+        : "",
+      "http://localhost:3000",
+      "http://127.0.0.1:3000",
+    ].filter(Boolean),
+  ),
+);
+
 const migrationDir = path.resolve(dirname, "payload/migrations");
 
 export default buildConfig({
   serverURL,
+  csrf: trustedOrigins,
+  cors: trustedOrigins,
   admin: {
     user: Users.slug,
     importMap: {
