@@ -83,6 +83,8 @@ export function buildLeadEmailText(input: LeadEmailInput) {
     "",
     `Åpne bilder: ${gallery}`,
     `Admin: ${leadAdminUrl(input.id)}`,
+    "",
+    "PDF-vedlegg med henvendelsesinfo er inkludert (uten bilder).",
   ];
   return lines.filter((line) => line !== null).join("\n");
 }
@@ -156,7 +158,7 @@ export function buildLeadEmailHtml(input: LeadEmailInput) {
                   input.message?.trim()
                     ? row(
                         "Melding",
-                        `<span style="font-weight:500;white-space:pre-wrap;">${escapeHtml(input.message.trim())}</span>`,
+                        `<span style="font-weight:500;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;">${escapeHtml(input.message.trim())}</span>`,
                       )
                     : ""
                 }
@@ -189,6 +191,7 @@ export function buildLeadEmailHtml(input: LeadEmailInput) {
                 Lead #${escapeHtml(String(input.id))}
                 · <a href="${escapeHtml(admin)}" style="color:#9aa3b2;">Åpne i admin</a>
                 ${input.email ? " · Svar på denne e-posten for å kontakte kunden" : ""}
+                <br />PDF-vedlegg med henvendelsesinfo er inkludert (uten bilder).
               </p>
             </td>
           </tr>

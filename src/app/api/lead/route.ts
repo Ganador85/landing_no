@@ -9,6 +9,7 @@ import {
   buildLeadEmailSubject,
   buildLeadEmailText,
 } from "@/lib/lead-email";
+import { buildLeadPdf, leadPdfFilename } from "@/lib/lead-pdf";
 
 const inquiryTypes = [
   "takvask",
@@ -26,7 +27,18 @@ const leadSchema = z.object({
   locale: z.enum(["no", "en"]),
   email: z.string().email().max(200).optional(),
   address: z.string().max(200).optional(),
-  roofSize: z.string().max(20).optional(),
+  roofSize: z
+    .string()
+    .max(20)
+    .optional()
+    .refine(
+      (v) => {
+        if (!v) return true;
+        const n = Number(v);
+        return Number.isFinite(n) && n >= 1 && n <= 2000;
+      },
+      { message: "Invalid roof size" },
+    ),
   message: z.string().max(5000).optional(),
   photoUrls: z.array(z.string().url()).max(15).optional(),
 });
@@ -177,6 +189,22 @@ export async function POST(request: Request) {
     if (process.env.RESEND_API_KEY) {
       try {
         const resend = new Resend(process.env.RESEND_API_KEY);
+        let attachments:
+          | { filename: string; content: Buffer; contentType: string }[]
+          | undefined;
+        try {
+          const pdfBytes = await buildLeadPdf(emailPayload);
+          attachments = [
+            {
+              filename: leadPdfFilename(emailPayload),
+              content: Buffer.from(pdfBytes),
+              contentType: "application/pdf",
+            },
+          ];
+        } catch (pdfErr) {
+          console.error("Lead PDF failed:", pdfErr);
+        }
+
         await resend.emails.send({
           from: process.env.LEAD_FROM_EMAIL || "leads@takfornyelse.as",
           to: process.env.LEAD_TO_EMAIL || siteConfig.email,
@@ -184,6 +212,7 @@ export async function POST(request: Request) {
           subject: buildLeadEmailSubject(emailPayload),
           text: buildLeadEmailText(emailPayload),
           html: buildLeadEmailHtml(emailPayload),
+          ...(attachments ? { attachments } : {}),
         });
       } catch (err) {
         console.error("Lead email failed:", err);

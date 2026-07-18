@@ -52,8 +52,19 @@ const step2Schema = z.object({
     .optional()
     .or(z.literal("")),
   address: z.string().trim().optional(),
-  roofSize: z.string().trim().optional(),
-  message: z.string().trim().optional(),
+  roofSize: z
+    .string()
+    .trim()
+    .optional()
+    .refine(
+      (v) => {
+        if (!v) return true;
+        const n = Number(v);
+        return Number.isFinite(n) && n >= 1 && n <= 2000;
+      },
+      { message: "roofSize" },
+    ),
+  message: z.string().trim().max(5000).optional(),
 });
 
 type FormState = {
@@ -326,11 +337,17 @@ export function ContactSection() {
     });
     if (!step2.success) {
       const issue = step2.error.issues[0];
-      toast.error(
-        issue?.path[0] === "email"
-          ? copy.contact.form.invalidEmail
-          : copy.contact.form.required,
-      );
+      if (issue?.path[0] === "email") {
+        toast.error(copy.contact.form.invalidEmail);
+      } else if (issue?.path[0] === "roofSize") {
+        toast.error(
+          locale === "en"
+            ? "Enter a realistic roof size (1–2000 m²), or leave empty."
+            : "Oppgi et realistisk takareal (1–2000 m²), eller la feltet stå tomt.",
+        );
+      } else {
+        toast.error(copy.contact.form.required);
+      }
       return;
     }
 
@@ -530,9 +547,13 @@ export function ContactSection() {
                   <Label htmlFor="roofSize">{copy.contact.form.roofSize}</Label>
                   <Input
                     id="roofSize"
+                    name="roofArea"
                     type="number"
                     min={1}
+                    max={2000}
+                    step={1}
                     inputMode="numeric"
+                    autoComplete="off"
                     value={form.roofSize}
                     onChange={(e) => update("roofSize", e.target.value)}
                   />

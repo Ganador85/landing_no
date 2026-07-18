@@ -88,7 +88,7 @@ export default async function LeadHenvendelsePage({ params, searchParams }: Prop
           </header>
 
           <section className="mb-10 grid gap-6 rounded-2xl border border-white/10 bg-[#12151c] p-5 sm:grid-cols-2 sm:p-6">
-            <div>
+            <div className="min-w-0">
               <p className="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 Kontakt
               </p>
@@ -134,7 +134,7 @@ export default async function LeadHenvendelsePage({ params, searchParams }: Prop
               </dl>
             </div>
 
-            <div>
+            <div className="min-w-0">
               <p className="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 Detaljer
               </p>
@@ -162,7 +162,7 @@ export default async function LeadHenvendelsePage({ params, searchParams }: Prop
                 {lead.message?.trim() ? (
                   <div>
                     <dt className="text-muted-foreground">Melding</dt>
-                    <dd className="whitespace-pre-wrap font-medium leading-relaxed">
+                    <dd className="max-w-full break-words whitespace-pre-wrap font-medium leading-relaxed [overflow-wrap:anywhere]">
                       {lead.message.trim()}
                     </dd>
                   </div>
