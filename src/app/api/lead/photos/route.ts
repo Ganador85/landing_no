@@ -6,6 +6,7 @@ import {
   parseLeadPhotoUrls,
   tokensMatch,
 } from "@/lib/lead-photo-token";
+import { captureException } from "@/lib/monitoring";
 
 const photosSchema = z.object({
   id: z.union([z.string(), z.number()]),
@@ -52,7 +53,7 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json({ ok: true, count: merged.length });
   } catch (err) {
-    console.error("Lead photo attach failed:", err);
+    captureException(err, { route: "PATCH /api/lead/photos" });
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

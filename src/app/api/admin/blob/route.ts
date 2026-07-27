@@ -2,6 +2,7 @@ import { get } from "@vercel/blob";
 import { headers as getHeaders } from "next/headers";
 import { NextResponse } from "next/server";
 import { getPayload } from "@/lib/payload";
+import { captureException } from "@/lib/monitoring";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -55,7 +56,7 @@ export async function GET(request: Request) {
       },
     });
   } catch (err) {
-    console.error("Admin blob proxy failed:", err);
+    captureException(err, { route: "GET /api/admin/blob" });
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

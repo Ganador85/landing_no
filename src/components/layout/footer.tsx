@@ -3,7 +3,10 @@
 import Image from "next/image";
 import { useLocale } from "next-intl";
 import { Link } from "@/i18n/routing";
-import { usePageCopy, useSiteSettings } from "@/components/site-settings-provider";
+import {
+  usePageCopy,
+  useSiteSettings,
+} from "@/components/site-settings-provider";
 
 export function Footer() {
   const copy = usePageCopy();
@@ -11,22 +14,34 @@ export function Footer() {
   const settings = useSiteSettings();
   const year = new Date().getFullYear();
 
-  const quick = [
-    { href: "/", label: copy.nav.home },
-    { href: "/#tjenester", label: copy.nav.services },
-    { href: "/#referanser", label: copy.nav.references },
-    { href: "/#om-oss", label: copy.nav.about },
-    { href: "/#kontakt", label: copy.nav.contact },
-  ] as const;
+  const quick =
+    settings.navItems.length > 0
+      ? settings.navItems
+          .filter((item) => item.visible)
+          .map((item) => ({
+            href: item.href,
+            label: item.label[locale as "no" | "en"],
+          }))
+      : [
+          { href: "/", label: copy.nav.home },
+          { href: "/#tjenester", label: copy.nav.services },
+          { href: "/#referanser", label: copy.nav.references },
+          { href: "/#om-oss", label: copy.nav.about },
+          { href: "/#kontakt", label: copy.nav.contact },
+        ];
 
   return (
     <footer className="border-t border-white/10 bg-[#080a0e] pb-24 md:pb-0">
       <div className="container-narrow section-pad grid gap-10 md:grid-cols-3">
         <div className="space-y-4">
-          <Link href="/" className="inline-block" aria-label={settings.brandName}>
+          <Link
+            href="/"
+            className="inline-block"
+            aria-label={settings.brandName}
+          >
             <Image
-              src="/brand/logo.webp"
-              alt={settings.brandName}
+              src={settings.images.logo.url}
+              alt={settings.images.logo.alt || settings.brandName}
               width={900}
               height={376}
               sizes="320px"
@@ -35,11 +50,11 @@ export function Footer() {
               quality={75}
             />
           </Link>
-          <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
+          <p className="text-muted-foreground max-w-sm text-sm leading-relaxed">
             {copy.footer.tagline}
           </p>
           {settings.parentOrg ? (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               {copy.footer.partOf}{" "}
               <span className="text-foreground">{settings.parentOrg}</span>
             </p>
@@ -47,15 +62,15 @@ export function Footer() {
         </div>
 
         <div>
-          <p className="mb-4 text-sm font-semibold uppercase tracking-wider">
+          <p className="mb-4 text-sm font-semibold tracking-wider uppercase">
             {copy.footer.quickLinks}
           </p>
           <ul className="space-y-2">
-            {quick.map((item) => (
-              <li key={item.href}>
+            {quick.map((item, index) => (
+              <li key={`${item.href}-${index}`}>
                 <Link
                   href={item.href}
-                  className="text-sm text-muted-foreground transition-colors hover:text-accent"
+                  className="text-muted-foreground hover:text-accent text-sm transition-colors"
                 >
                   {item.label}
                 </Link>
@@ -65,12 +80,15 @@ export function Footer() {
         </div>
 
         <div>
-          <p className="mb-4 text-sm font-semibold uppercase tracking-wider">
+          <p className="mb-4 text-sm font-semibold tracking-wider uppercase">
             {copy.footer.contact}
           </p>
-          <ul className="space-y-2 text-sm text-muted-foreground">
+          <ul className="text-muted-foreground space-y-2 text-sm">
             <li>
-              <a href={`mailto:${settings.email}`} className="hover:text-accent">
+              <a
+                href={`mailto:${settings.email}`}
+                className="hover:text-accent"
+              >
                 {settings.email}
               </a>
             </li>
@@ -83,18 +101,25 @@ export function Footer() {
               {settings.address.street}, {settings.address.postal}{" "}
               {settings.address.city}
             </li>
-            <li>Org.nr: {settings.orgNr}</li>
+            <li>
+              {copy.footer.orgLabel} {settings.orgNr}
+            </li>
           </ul>
         </div>
       </div>
 
       <div className="border-t border-white/5">
-        <div className="container-narrow flex flex-col gap-2 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+        <div className="container-narrow text-muted-foreground flex flex-col gap-2 px-4 py-6 text-xs sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
           <p>
             © {year} {settings.brandName}. {copy.footer.rights}
           </p>
+          <p>
+            <Link href="/personvern" className="hover:text-accent">
+              {settings.privacy.linkLabel[locale as "no" | "en"]}
+            </Link>
+          </p>
           <p>{copy.footer.warrantyNote}</p>
-          <p className="uppercase tracking-wider">{locale}</p>
+          <p className="tracking-wider uppercase">{locale}</p>
         </div>
       </div>
     </footer>

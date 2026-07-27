@@ -1,4 +1,7 @@
 /**
+ * @deprecated Prefer versioned Payload migrations (`npm run db:migrate`).
+ * Kept as an emergency fallback for Leads column drift.
+ *
  * Keep Leads table aligned with the two-step contact form.
  * Usage: node --env-file=.env scripts/migrate-leads-columns.mjs
  */

@@ -1,4 +1,8 @@
 /**
+ * @deprecated Prefer versioned Payload migrations (`npm run db:migrate`).
+ * Kept as an emergency fallback if a production column is missing and a
+ * proper migration has not been created yet.
+ *
  * Ensure CMS columns exist for editable Site Settings + project/media uploads.
  *
  * Usage: node --env-file=.env scripts/ensure-cms-schema.mjs

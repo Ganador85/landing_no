@@ -7,6 +7,15 @@
     },
     "src/app/(payload)/api/[...slug]/route.ts": {
       "maxDuration": 60
+    },
+    "src/app/api/cron/purge-leads/route.ts": {
+      "maxDuration": 60
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/purge-leads",
+      "schedule": "0 3 * * 0"
+    }
+  ]
 }

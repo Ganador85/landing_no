@@ -1,4 +1,9 @@
 import type { CollectionConfig } from "payload";
+import {
+  adminOnly,
+  adminsAndEditors,
+  authenticatedOrPublished,
+} from "../access/roles";
 
 export const Projects: CollectionConfig = {
   slug: "projects",
@@ -7,7 +12,15 @@ export const Projects: CollectionConfig = {
     defaultColumns: ["titleNo", "order", "updatedAt"],
   },
   access: {
-    read: () => true,
+    create: adminOnly,
+    delete: adminOnly,
+    read: authenticatedOrPublished,
+    readVersions: adminsAndEditors,
+    update: adminsAndEditors,
+  },
+  versions: {
+    drafts: true,
+    maxPerDoc: 20,
   },
   fields: [
     { name: "titleNo", type: "text", required: true, label: "Title (NO)" },
@@ -28,8 +41,18 @@ export const Projects: CollectionConfig = {
             { label: "After", value: "after" },
           ],
         },
-        { name: "captionNo", type: "text", required: true, label: "Caption (NO)" },
-        { name: "captionEn", type: "text", required: true, label: "Caption (EN)" },
+        {
+          name: "captionNo",
+          type: "text",
+          required: true,
+          label: "Caption (NO)",
+        },
+        {
+          name: "captionEn",
+          type: "text",
+          required: true,
+          label: "Caption (EN)",
+        },
         {
           name: "image",
           type: "upload",

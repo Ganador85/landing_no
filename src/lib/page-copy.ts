@@ -18,6 +18,8 @@ export type PageCopy = {
     call: LocaleText;
     menu: LocaleText;
     close: LocaleText;
+    localeNo: LocaleText;
+    localeEn: LocaleText;
   };
   hero: {
     badge: LocaleText;
@@ -75,6 +77,7 @@ export type PageCopy = {
     before: LocaleText;
     during: LocaleText;
     after: LocaleText;
+    comparisonHint: LocaleText;
     swipe: LocaleText;
   };
   about: {
@@ -109,7 +112,11 @@ export type PageCopy = {
   testimonials: {
     eyebrow: LocaleText;
     title: LocaleText;
-    items: Array<{ quote: LocaleText; author: LocaleText; service: LocaleText }>;
+    items: Array<{
+      quote: LocaleText;
+      author: LocaleText;
+      service: LocaleText;
+    }>;
   };
   contact: {
     eyebrow: LocaleText;
@@ -137,6 +144,21 @@ export type PageCopy = {
       roofSize: LocaleText;
       photos: LocaleText;
       photosHint: LocaleText;
+      choosePhotos: LocaleText;
+      noPhotos: LocaleText;
+      photosSelectedOne: LocaleText;
+      photosSelectedMany: LocaleText;
+      photosTooMany: LocaleText;
+      photosLimitInline: LocaleText;
+      photoTooLarge: LocaleText;
+      photoUploading: LocaleText;
+      photoQueued: LocaleText;
+      photoReady: LocaleText;
+      photoFailed: LocaleText;
+      roofSizeInvalid: LocaleText;
+      partialUpload: LocaleText;
+      securityRequired: LocaleText;
+      privacyRequired: LocaleText;
       message: LocaleText;
       next: LocaleText;
       back: LocaleText;
@@ -154,6 +176,7 @@ export type PageCopy = {
     partOf: LocaleText;
     quickLinks: LocaleText;
     contact: LocaleText;
+    orgLabel: LocaleText;
     warrantyNote: LocaleText;
     rights: LocaleText;
   };
@@ -179,7 +202,9 @@ export type LocalizedCopy = {
                       [Q in keyof U]: U[Q] extends LocaleText ? string : U[Q];
                     }>
                   : {
-                      [Q in keyof PageCopy[K][P]]: PageCopy[K][P][Q] extends LocaleText
+                      [
+                        Q in keyof PageCopy[K][P]
+                      ]: PageCopy[K][P][Q] extends LocaleText
                         ? string
                         : PageCopy[K][P][Q];
                     };
@@ -209,6 +234,8 @@ export function pageCopyFromMessages(no: Msg, en: Msg): PageCopy {
       call: t(no.nav.call, en.nav.call),
       menu: t(no.nav.menu, en.nav.menu),
       close: t(no.nav.close, en.nav.close),
+      localeNo: t(no.nav.localeNo, en.nav.localeNo),
+      localeEn: t(no.nav.localeEn, en.nav.localeEn),
     },
     hero: {
       badge: t(no.hero.badge, en.hero.badge),
@@ -256,7 +283,9 @@ export function pageCopyFromMessages(no: Msg, en: Msg): PageCopy {
       subtitle: t(no.newRoof.subtitle, en.newRoof.subtitle),
       body: t(no.newRoof.body, en.newRoof.body),
       typesTitle: t(no.newRoof.typesTitle, en.newRoof.typesTitle),
-      types: no.newRoof.types.map((label, i) => t(label, en.newRoof.types[i] || label)),
+      types: no.newRoof.types.map((label, i) =>
+        t(label, en.newRoof.types[i] || label),
+      ),
       note: t(no.newRoof.note, en.newRoof.note),
       cta: t(no.newRoof.cta, en.newRoof.cta),
     },
@@ -268,6 +297,10 @@ export function pageCopyFromMessages(no: Msg, en: Msg): PageCopy {
       before: t(no.references.before, en.references.before),
       during: t(no.references.during, en.references.during),
       after: t(no.references.after, en.references.after),
+      comparisonHint: t(
+        no.references.comparisonHint,
+        en.references.comparisonHint,
+      ),
       swipe: t(no.references.swipe, en.references.swipe),
     },
     about: {
@@ -342,18 +375,78 @@ export function pageCopyFromMessages(no: Msg, en: Msg): PageCopy {
         email: t(no.contact.form.email, en.contact.form.email),
         phone: t(no.contact.form.phone, en.contact.form.phone),
         address: t(no.contact.form.address, en.contact.form.address),
-        houseNumber: t(no.contact.form.houseNumber, en.contact.form.houseNumber),
+        houseNumber: t(
+          no.contact.form.houseNumber,
+          en.contact.form.houseNumber,
+        ),
         postal: t(no.contact.form.postal, en.contact.form.postal),
         city: t(no.contact.form.city, en.contact.form.city),
         type: t(no.contact.form.type, en.contact.form.type),
         typeWash: t(no.contact.form.typeWash, en.contact.form.typeWash),
-        typeImpregnation: t(no.contact.form.typeImpregnation, en.contact.form.typeImpregnation),
+        typeImpregnation: t(
+          no.contact.form.typeImpregnation,
+          en.contact.form.typeImpregnation,
+        ),
         typePaint: t(no.contact.form.typePaint, en.contact.form.typePaint),
         typeNew: t(no.contact.form.typeNew, en.contact.form.typeNew),
         typeUnsure: t(no.contact.form.typeUnsure, en.contact.form.typeUnsure),
         roofSize: t(no.contact.form.roofSize, en.contact.form.roofSize),
         photos: t(no.contact.form.photos, en.contact.form.photos),
         photosHint: t(no.contact.form.photosHint, en.contact.form.photosHint),
+        choosePhotos: t(
+          no.contact.form.choosePhotos,
+          en.contact.form.choosePhotos,
+        ),
+        noPhotos: t(no.contact.form.noPhotos, en.contact.form.noPhotos),
+        photosSelectedOne: t(
+          no.contact.form.photosSelectedOne,
+          en.contact.form.photosSelectedOne,
+        ),
+        photosSelectedMany: t(
+          no.contact.form.photosSelectedMany,
+          en.contact.form.photosSelectedMany,
+        ),
+        photosTooMany: t(
+          no.contact.form.photosTooMany,
+          en.contact.form.photosTooMany,
+        ),
+        photosLimitInline: t(
+          no.contact.form.photosLimitInline,
+          en.contact.form.photosLimitInline,
+        ),
+        photoTooLarge: t(
+          no.contact.form.photoTooLarge,
+          en.contact.form.photoTooLarge,
+        ),
+        photoUploading: t(
+          no.contact.form.photoUploading,
+          en.contact.form.photoUploading,
+        ),
+        photoQueued: t(
+          no.contact.form.photoQueued,
+          en.contact.form.photoQueued,
+        ),
+        photoReady: t(no.contact.form.photoReady, en.contact.form.photoReady),
+        photoFailed: t(
+          no.contact.form.photoFailed,
+          en.contact.form.photoFailed,
+        ),
+        roofSizeInvalid: t(
+          no.contact.form.roofSizeInvalid,
+          en.contact.form.roofSizeInvalid,
+        ),
+        partialUpload: t(
+          no.contact.form.partialUpload,
+          en.contact.form.partialUpload,
+        ),
+        securityRequired: t(
+          no.contact.form.securityRequired,
+          en.contact.form.securityRequired,
+        ),
+        privacyRequired: t(
+          no.contact.form.privacyRequired,
+          en.contact.form.privacyRequired,
+        ),
         message: t(no.contact.form.message, en.contact.form.message),
         next: t(no.contact.form.next, en.contact.form.next),
         back: t(no.contact.form.back, en.contact.form.back),
@@ -363,7 +456,10 @@ export function pageCopyFromMessages(no: Msg, en: Msg): PageCopy {
         success: t(no.contact.form.success, en.contact.form.success),
         error: t(no.contact.form.error, en.contact.form.error),
         required: t(no.contact.form.required, en.contact.form.required),
-        invalidEmail: t(no.contact.form.invalidEmail, en.contact.form.invalidEmail),
+        invalidEmail: t(
+          no.contact.form.invalidEmail,
+          en.contact.form.invalidEmail,
+        ),
       },
     },
     footer: {
@@ -371,6 +467,7 @@ export function pageCopyFromMessages(no: Msg, en: Msg): PageCopy {
       partOf: t(no.footer.partOf, en.footer.partOf),
       quickLinks: t(no.footer.quickLinks, en.footer.quickLinks),
       contact: t(no.footer.contact, en.footer.contact),
+      orgLabel: t(no.footer.orgLabel, en.footer.orgLabel),
       warrantyNote: t(no.footer.warrantyNote, en.footer.warrantyNote),
       rights: t(no.footer.rights, en.footer.rights),
     },
@@ -422,7 +519,11 @@ function pickTypesList(
 function pickTestimonialItems(
   noVal: string | null | undefined,
   enVal: string | null | undefined,
-  fallback: Array<{ quote: LocaleText; author: LocaleText; service: LocaleText }>,
+  fallback: Array<{
+    quote: LocaleText;
+    author: LocaleText;
+    service: LocaleText;
+  }>,
 ): Array<{ quote: LocaleText; author: LocaleText; service: LocaleText }> {
   const parse = (raw: string) =>
     raw
@@ -430,7 +531,9 @@ function pickTestimonialItems(
       .map((line) => line.trim())
       .filter(Boolean)
       .map((line) => {
-        const [quote = "", author = "", service = ""] = line.split("|").map((s) => s.trim());
+        const [quote = "", author = "", service = ""] = line
+          .split("|")
+          .map((s) => s.trim());
         return { quote, author, service };
       });
 
@@ -455,8 +558,50 @@ function pickTestimonialItems(
   }));
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function pageCopyFromSettingsDoc(doc: any, fallback: PageCopy): PageCopy {
+function pickStructuredTestimonialItems(
+  value: unknown,
+  fallback: Array<{
+    quote: LocaleText;
+    author: LocaleText;
+    service: LocaleText;
+  }>,
+): Array<{ quote: LocaleText; author: LocaleText; service: LocaleText }> {
+  if (!Array.isArray(value)) return fallback;
+
+  const items = value
+    .filter((item): item is Record<string, unknown> =>
+      Boolean(item && typeof item === "object"),
+    )
+    .map((item) => {
+      const quoteNo =
+        typeof item.quoteNo === "string" ? item.quoteNo.trim() : "";
+      const quoteEn =
+        typeof item.quoteEn === "string" ? item.quoteEn.trim() : "";
+      const authorNo =
+        typeof item.authorNo === "string" ? item.authorNo.trim() : "";
+      const authorEn =
+        typeof item.authorEn === "string" ? item.authorEn.trim() : "";
+      const serviceNo =
+        typeof item.serviceNo === "string" ? item.serviceNo.trim() : "";
+      const serviceEn =
+        typeof item.serviceEn === "string" ? item.serviceEn.trim() : "";
+
+      return {
+        quote: { no: quoteNo || quoteEn, en: quoteEn || quoteNo },
+        author: { no: authorNo || authorEn, en: authorEn || authorNo },
+        service: { no: serviceNo || serviceEn, en: serviceEn || serviceNo },
+      };
+    })
+    .filter((item) => item.quote.no || item.quote.en);
+
+  return items.length > 0 ? items : fallback;
+}
+
+export function pageCopyFromSettingsDoc(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  doc: any,
+  fallback: PageCopy,
+): PageCopy {
   const meta = doc?.copyMeta;
   const nav = doc?.copyNav;
   const hero = doc?.copyHero;
@@ -471,34 +616,93 @@ export function pageCopyFromSettingsDoc(doc: any, fallback: PageCopy): PageCopy 
   const about = doc?.copyAbout;
   const contact = doc?.copyContact;
   const footer = doc?.copyFooter;
+  const legacyTestimonialItems = pickTestimonialItems(
+    testimonials?.itemsNo,
+    testimonials?.itemsEn,
+    fallback.testimonials.items,
+  );
 
   return {
     meta: {
       title: pickField(meta?.titleNo, meta?.titleEn, fallback.meta.title),
-      description: pickField(meta?.descriptionNo, meta?.descriptionEn, fallback.meta.description),
+      description: pickField(
+        meta?.descriptionNo,
+        meta?.descriptionEn,
+        fallback.meta.description,
+      ),
     },
     nav: {
       home: pickField(nav?.homeNo, nav?.homeEn, fallback.nav.home),
-      services: pickField(nav?.servicesNo, nav?.servicesEn, fallback.nav.services),
-      references: pickField(nav?.referencesNo, nav?.referencesEn, fallback.nav.references),
+      services: pickField(
+        nav?.servicesNo,
+        nav?.servicesEn,
+        fallback.nav.services,
+      ),
+      references: pickField(
+        nav?.referencesNo,
+        nav?.referencesEn,
+        fallback.nav.references,
+      ),
       about: pickField(nav?.aboutNo, nav?.aboutEn, fallback.nav.about),
-      products: pickField(nav?.productsNo, nav?.productsEn, fallback.nav.products),
+      products: pickField(
+        nav?.productsNo,
+        nav?.productsEn,
+        fallback.nav.products,
+      ),
       contact: pickField(nav?.contactNo, nav?.contactEn, fallback.nav.contact),
-      contactUs: pickField(nav?.contactUsNo, nav?.contactUsEn, fallback.nav.contactUs),
+      contactUs: pickField(
+        nav?.contactUsNo,
+        nav?.contactUsEn,
+        fallback.nav.contactUs,
+      ),
       call: pickField(nav?.callNo, nav?.callEn, fallback.nav.call),
       menu: pickField(nav?.menuNo, nav?.menuEn, fallback.nav.menu),
       close: pickField(nav?.closeNo, nav?.closeEn, fallback.nav.close),
+      localeNo: pickField(
+        nav?.localeNoNo,
+        nav?.localeNoEn,
+        fallback.nav.localeNo,
+      ),
+      localeEn: pickField(
+        nav?.localeEnNo,
+        nav?.localeEnEn,
+        fallback.nav.localeEn,
+      ),
     },
     hero: {
       badge: pickField(hero?.badgeNo, hero?.badgeEn, fallback.hero.badge),
       title: pickField(hero?.titleNo, hero?.titleEn, fallback.hero.title),
-      titleAccent: pickField(hero?.titleAccentNo, hero?.titleAccentEn, fallback.hero.titleAccent),
-      subtitle: pickField(hero?.subtitleNo, hero?.subtitleEn, fallback.hero.subtitle),
+      titleAccent: pickField(
+        hero?.titleAccentNo,
+        hero?.titleAccentEn,
+        fallback.hero.titleAccent,
+      ),
+      subtitle: pickField(
+        hero?.subtitleNo,
+        hero?.subtitleEn,
+        fallback.hero.subtitle,
+      ),
       cta: pickField(hero?.ctaNo, hero?.ctaEn, fallback.hero.cta),
-      ctaSecondary: pickField(hero?.ctaSecondaryNo, hero?.ctaSecondaryEn, fallback.hero.ctaSecondary),
-      trustWarranty: pickField(hero?.trustWarrantyNo, hero?.trustWarrantyEn, fallback.hero.trustWarranty),
-      trustCustomers: pickField(hero?.trustCustomersNo, hero?.trustCustomersEn, fallback.hero.trustCustomers),
-      trustRating: pickField(hero?.trustRatingNo, hero?.trustRatingEn, fallback.hero.trustRating),
+      ctaSecondary: pickField(
+        hero?.ctaSecondaryNo,
+        hero?.ctaSecondaryEn,
+        fallback.hero.ctaSecondary,
+      ),
+      trustWarranty: pickField(
+        hero?.trustWarrantyNo,
+        hero?.trustWarrantyEn,
+        fallback.hero.trustWarranty,
+      ),
+      trustCustomers: pickField(
+        hero?.trustCustomersNo,
+        hero?.trustCustomersEn,
+        fallback.hero.trustCustomers,
+      ),
+      trustRating: pickField(
+        hero?.trustRatingNo,
+        hero?.trustRatingEn,
+        fallback.hero.trustRating,
+      ),
     },
     trustBar: {
       items: pickTypesList(
@@ -512,90 +716,295 @@ export function pageCopyFromSettingsDoc(doc: any, fallback: PageCopy): PageCopy 
       book: pickField(sticky?.bookNo, sticky?.bookEn, fallback.sticky.book),
     },
     services: {
-      eyebrow: pickField(services?.eyebrowNo, services?.eyebrowEn, fallback.services.eyebrow),
-      title: pickField(services?.titleNo, services?.titleEn, fallback.services.title),
-      subtitle: pickField(services?.subtitleNo, services?.subtitleEn, fallback.services.subtitle),
-      showMore: pickField(services?.showMoreNo, services?.showMoreEn, fallback.services.showMore),
-      showLess: pickField(services?.showLessNo, services?.showLessEn, fallback.services.showLess),
+      eyebrow: pickField(
+        services?.eyebrowNo,
+        services?.eyebrowEn,
+        fallback.services.eyebrow,
+      ),
+      title: pickField(
+        services?.titleNo,
+        services?.titleEn,
+        fallback.services.title,
+      ),
+      subtitle: pickField(
+        services?.subtitleNo,
+        services?.subtitleEn,
+        fallback.services.subtitle,
+      ),
+      showMore: pickField(
+        services?.showMoreNo,
+        services?.showMoreEn,
+        fallback.services.showMore,
+      ),
+      showLess: pickField(
+        services?.showLessNo,
+        services?.showLessEn,
+        fallback.services.showLess,
+      ),
     },
     calculator: {
-      eyebrow: pickField(calculator?.eyebrowNo, calculator?.eyebrowEn, fallback.calculator.eyebrow),
-      title: pickField(calculator?.titleNo, calculator?.titleEn, fallback.calculator.title),
-      subtitle: pickField(calculator?.subtitleNo, calculator?.subtitleEn, fallback.calculator.subtitle),
-      hint: pickField(calculator?.hintNo, calculator?.hintEn, fallback.calculator.hint),
-      sizeLabel: pickField(calculator?.sizeLabelNo, calculator?.sizeLabelEn, fallback.calculator.sizeLabel),
-      newRoof: pickField(calculator?.newRoofNo, calculator?.newRoofEn, fallback.calculator.newRoof),
-      renewal: pickField(calculator?.renewalNo, calculator?.renewalEn, fallback.calculator.renewal),
-      youSave: pickField(calculator?.youSaveNo, calculator?.youSaveEn, fallback.calculator.youSave),
-      cheaper: pickField(calculator?.cheaperNo, calculator?.cheaperEn, fallback.calculator.cheaper),
-      disclaimer: pickField(calculator?.disclaimerNo, calculator?.disclaimerEn, fallback.calculator.disclaimer),
-      cta: pickField(calculator?.ctaNo, calculator?.ctaEn, fallback.calculator.cta),
+      eyebrow: pickField(
+        calculator?.eyebrowNo,
+        calculator?.eyebrowEn,
+        fallback.calculator.eyebrow,
+      ),
+      title: pickField(
+        calculator?.titleNo,
+        calculator?.titleEn,
+        fallback.calculator.title,
+      ),
+      subtitle: pickField(
+        calculator?.subtitleNo,
+        calculator?.subtitleEn,
+        fallback.calculator.subtitle,
+      ),
+      hint: pickField(
+        calculator?.hintNo,
+        calculator?.hintEn,
+        fallback.calculator.hint,
+      ),
+      sizeLabel: pickField(
+        calculator?.sizeLabelNo,
+        calculator?.sizeLabelEn,
+        fallback.calculator.sizeLabel,
+      ),
+      newRoof: pickField(
+        calculator?.newRoofNo,
+        calculator?.newRoofEn,
+        fallback.calculator.newRoof,
+      ),
+      renewal: pickField(
+        calculator?.renewalNo,
+        calculator?.renewalEn,
+        fallback.calculator.renewal,
+      ),
+      youSave: pickField(
+        calculator?.youSaveNo,
+        calculator?.youSaveEn,
+        fallback.calculator.youSave,
+      ),
+      cheaper: pickField(
+        calculator?.cheaperNo,
+        calculator?.cheaperEn,
+        fallback.calculator.cheaper,
+      ),
+      disclaimer: pickField(
+        calculator?.disclaimerNo,
+        calculator?.disclaimerEn,
+        fallback.calculator.disclaimer,
+      ),
+      cta: pickField(
+        calculator?.ctaNo,
+        calculator?.ctaEn,
+        fallback.calculator.cta,
+      ),
     },
     newRoof: {
-      eyebrow: pickField(newRoof?.eyebrowNo, newRoof?.eyebrowEn, fallback.newRoof.eyebrow),
-      title: pickField(newRoof?.titleNo, newRoof?.titleEn, fallback.newRoof.title),
-      subtitle: pickField(newRoof?.subtitleNo, newRoof?.subtitleEn, fallback.newRoof.subtitle),
+      eyebrow: pickField(
+        newRoof?.eyebrowNo,
+        newRoof?.eyebrowEn,
+        fallback.newRoof.eyebrow,
+      ),
+      title: pickField(
+        newRoof?.titleNo,
+        newRoof?.titleEn,
+        fallback.newRoof.title,
+      ),
+      subtitle: pickField(
+        newRoof?.subtitleNo,
+        newRoof?.subtitleEn,
+        fallback.newRoof.subtitle,
+      ),
       body: pickField(newRoof?.bodyNo, newRoof?.bodyEn, fallback.newRoof.body),
-      typesTitle: pickField(newRoof?.typesTitleNo, newRoof?.typesTitleEn, fallback.newRoof.typesTitle),
-      types: pickTypesList(newRoof?.typesNo, newRoof?.typesEn, fallback.newRoof.types),
+      typesTitle: pickField(
+        newRoof?.typesTitleNo,
+        newRoof?.typesTitleEn,
+        fallback.newRoof.typesTitle,
+      ),
+      types: pickTypesList(
+        newRoof?.typesNo,
+        newRoof?.typesEn,
+        fallback.newRoof.types,
+      ),
       note: pickField(newRoof?.noteNo, newRoof?.noteEn, fallback.newRoof.note),
       cta: pickField(newRoof?.ctaNo, newRoof?.ctaEn, fallback.newRoof.cta),
     },
     references: {
-      eyebrow: pickField(references?.eyebrowNo, references?.eyebrowEn, fallback.references.eyebrow),
-      title: pickField(references?.titleNo, references?.titleEn, fallback.references.title),
-      subtitle: pickField(references?.subtitleNo, references?.subtitleEn, fallback.references.subtitle),
-      note: pickField(references?.noteNo, references?.noteEn, fallback.references.note),
-      before: pickField(references?.beforeNo, references?.beforeEn, fallback.references.before),
-      during: pickField(references?.duringNo, references?.duringEn, fallback.references.during),
-      after: pickField(references?.afterNo, references?.afterEn, fallback.references.after),
-      swipe: pickField(references?.swipeNo, references?.swipeEn, fallback.references.swipe),
+      eyebrow: pickField(
+        references?.eyebrowNo,
+        references?.eyebrowEn,
+        fallback.references.eyebrow,
+      ),
+      title: pickField(
+        references?.titleNo,
+        references?.titleEn,
+        fallback.references.title,
+      ),
+      subtitle: pickField(
+        references?.subtitleNo,
+        references?.subtitleEn,
+        fallback.references.subtitle,
+      ),
+      note: pickField(
+        references?.noteNo,
+        references?.noteEn,
+        fallback.references.note,
+      ),
+      before: pickField(
+        references?.beforeNo,
+        references?.beforeEn,
+        fallback.references.before,
+      ),
+      during: pickField(
+        references?.duringNo,
+        references?.duringEn,
+        fallback.references.during,
+      ),
+      after: pickField(
+        references?.afterNo,
+        references?.afterEn,
+        fallback.references.after,
+      ),
+      comparisonHint: pickField(
+        references?.comparisonHintNo,
+        references?.comparisonHintEn,
+        fallback.references.comparisonHint,
+      ),
+      swipe: pickField(
+        references?.swipeNo,
+        references?.swipeEn,
+        fallback.references.swipe,
+      ),
     },
     about: {
-      eyebrow: pickField(about?.eyebrowNo, about?.eyebrowEn, fallback.about.eyebrow),
+      eyebrow: pickField(
+        about?.eyebrowNo,
+        about?.eyebrowEn,
+        fallback.about.eyebrow,
+      ),
       title: pickField(about?.titleNo, about?.titleEn, fallback.about.title),
-      subtitle: pickField(about?.subtitleNo, about?.subtitleEn, fallback.about.subtitle),
+      subtitle: pickField(
+        about?.subtitleNo,
+        about?.subtitleEn,
+        fallback.about.subtitle,
+      ),
       p1: pickField(about?.p1No, about?.p1En, fallback.about.p1),
       p2: pickField(about?.p2No, about?.p2En, fallback.about.p2),
       p3: pickField(about?.p3No, about?.p3En, fallback.about.p3),
-      parent: pickField(about?.parentNo, about?.parentEn, fallback.about.parent),
+      parent: pickField(
+        about?.parentNo,
+        about?.parentEn,
+        fallback.about.parent,
+      ),
       cta: pickField(about?.ctaNo, about?.ctaEn, fallback.about.cta),
       stats: [
         {
-          title: pickField(about?.stat1TitleNo, about?.stat1TitleEn, fallback.about.stats[0].title),
-          desc: pickField(about?.stat1DescNo, about?.stat1DescEn, fallback.about.stats[0].desc),
+          title: pickField(
+            about?.stat1TitleNo,
+            about?.stat1TitleEn,
+            fallback.about.stats[0].title,
+          ),
+          desc: pickField(
+            about?.stat1DescNo,
+            about?.stat1DescEn,
+            fallback.about.stats[0].desc,
+          ),
         },
         {
-          title: pickField(about?.stat2TitleNo, about?.stat2TitleEn, fallback.about.stats[1].title),
-          desc: pickField(about?.stat2DescNo, about?.stat2DescEn, fallback.about.stats[1].desc),
+          title: pickField(
+            about?.stat2TitleNo,
+            about?.stat2TitleEn,
+            fallback.about.stats[1].title,
+          ),
+          desc: pickField(
+            about?.stat2DescNo,
+            about?.stat2DescEn,
+            fallback.about.stats[1].desc,
+          ),
         },
         {
-          title: pickField(about?.stat3TitleNo, about?.stat3TitleEn, fallback.about.stats[2].title),
-          desc: pickField(about?.stat3DescNo, about?.stat3DescEn, fallback.about.stats[2].desc),
+          title: pickField(
+            about?.stat3TitleNo,
+            about?.stat3TitleEn,
+            fallback.about.stats[2].title,
+          ),
+          desc: pickField(
+            about?.stat3DescNo,
+            about?.stat3DescEn,
+            fallback.about.stats[2].desc,
+          ),
         },
         {
-          title: pickField(about?.stat4TitleNo, about?.stat4TitleEn, fallback.about.stats[3].title),
-          desc: pickField(about?.stat4DescNo, about?.stat4DescEn, fallback.about.stats[3].desc),
+          title: pickField(
+            about?.stat4TitleNo,
+            about?.stat4TitleEn,
+            fallback.about.stats[3].title,
+          ),
+          desc: pickField(
+            about?.stat4DescNo,
+            about?.stat4DescEn,
+            fallback.about.stats[3].desc,
+          ),
         },
       ],
       company: {
-        title: pickField(about?.companyTitleNo, about?.companyTitleEn, fallback.about.company.title),
-        org: pickField(about?.companyOrgNo, about?.companyOrgEn, fallback.about.company.org),
-        phone: pickField(about?.companyPhoneNo, about?.companyPhoneEn, fallback.about.company.phone),
-        email: pickField(about?.companyEmailNo, about?.companyEmailEn, fallback.about.company.email),
-        address: pickField(about?.companyAddressNo, about?.companyAddressEn, fallback.about.company.address),
+        title: pickField(
+          about?.companyTitleNo,
+          about?.companyTitleEn,
+          fallback.about.company.title,
+        ),
+        org: pickField(
+          about?.companyOrgNo,
+          about?.companyOrgEn,
+          fallback.about.company.org,
+        ),
+        phone: pickField(
+          about?.companyPhoneNo,
+          about?.companyPhoneEn,
+          fallback.about.company.phone,
+        ),
+        email: pickField(
+          about?.companyEmailNo,
+          about?.companyEmailEn,
+          fallback.about.company.email,
+        ),
+        address: pickField(
+          about?.companyAddressNo,
+          about?.companyAddressEn,
+          fallback.about.company.address,
+        ),
       },
     },
     products: {
-      eyebrow: pickField(products?.eyebrowNo, products?.eyebrowEn, fallback.products.eyebrow),
-      title: pickField(products?.titleNo, products?.titleEn, fallback.products.title),
-      subtitle: pickField(products?.subtitleNo, products?.subtitleEn, fallback.products.subtitle),
-      footer: pickField(products?.footerNo, products?.footerEn, fallback.products.footer),
+      eyebrow: pickField(
+        products?.eyebrowNo,
+        products?.eyebrowEn,
+        fallback.products.eyebrow,
+      ),
+      title: pickField(
+        products?.titleNo,
+        products?.titleEn,
+        fallback.products.title,
+      ),
+      subtitle: pickField(
+        products?.subtitleNo,
+        products?.subtitleEn,
+        fallback.products.subtitle,
+      ),
+      footer: pickField(
+        products?.footerNo,
+        products?.footerEn,
+        fallback.products.footer,
+      ),
     },
     faq: {
       eyebrow: pickField(faq?.eyebrowNo, faq?.eyebrowEn, fallback.faq.eyebrow),
       title: pickField(faq?.titleNo, faq?.titleEn, fallback.faq.title),
-      subtitle: pickField(faq?.subtitleNo, faq?.subtitleEn, fallback.faq.subtitle),
+      subtitle: pickField(
+        faq?.subtitleNo,
+        faq?.subtitleEn,
+        fallback.faq.subtitle,
+      ),
     },
     testimonials: {
       eyebrow: pickField(
@@ -603,35 +1012,98 @@ export function pageCopyFromSettingsDoc(doc: any, fallback: PageCopy): PageCopy 
         testimonials?.eyebrowEn,
         fallback.testimonials.eyebrow,
       ),
-      title: pickField(testimonials?.titleNo, testimonials?.titleEn, fallback.testimonials.title),
-      items: pickTestimonialItems(
-        testimonials?.itemsNo,
-        testimonials?.itemsEn,
-        fallback.testimonials.items,
+      title: pickField(
+        testimonials?.titleNo,
+        testimonials?.titleEn,
+        fallback.testimonials.title,
+      ),
+      items: pickStructuredTestimonialItems(
+        doc?.testimonialsItems,
+        legacyTestimonialItems,
       ),
     },
     contact: {
-      eyebrow: pickField(contact?.eyebrowNo, contact?.eyebrowEn, fallback.contact.eyebrow),
-      title: pickField(contact?.titleNo, contact?.titleEn, fallback.contact.title),
-      subtitle: pickField(contact?.subtitleNo, contact?.subtitleEn, fallback.contact.subtitle),
-      phone: pickField(contact?.phoneNo, contact?.phoneEn, fallback.contact.phone),
-      hours: pickField(contact?.hoursNo, contact?.hoursEn, fallback.contact.hours),
-      email: pickField(contact?.emailNo, contact?.emailEn, fallback.contact.email),
-      reply: pickField(contact?.replyNo, contact?.replyEn, fallback.contact.reply),
-      office: pickField(contact?.officeNo, contact?.officeEn, fallback.contact.office),
+      eyebrow: pickField(
+        contact?.eyebrowNo,
+        contact?.eyebrowEn,
+        fallback.contact.eyebrow,
+      ),
+      title: pickField(
+        contact?.titleNo,
+        contact?.titleEn,
+        fallback.contact.title,
+      ),
+      subtitle: pickField(
+        contact?.subtitleNo,
+        contact?.subtitleEn,
+        fallback.contact.subtitle,
+      ),
+      phone: pickField(
+        contact?.phoneNo,
+        contact?.phoneEn,
+        fallback.contact.phone,
+      ),
+      hours: pickField(
+        contact?.hoursNo,
+        contact?.hoursEn,
+        fallback.contact.hours,
+      ),
+      email: pickField(
+        contact?.emailNo,
+        contact?.emailEn,
+        fallback.contact.email,
+      ),
+      reply: pickField(
+        contact?.replyNo,
+        contact?.replyEn,
+        fallback.contact.reply,
+      ),
+      office: pickField(
+        contact?.officeNo,
+        contact?.officeEn,
+        fallback.contact.office,
+      ),
       form: {
-        name: pickField(contact?.formNameNo, contact?.formNameEn, fallback.contact.form.name),
-        email: pickField(contact?.formEmailNo, contact?.formEmailEn, fallback.contact.form.email),
-        phone: pickField(contact?.formPhoneNo, contact?.formPhoneEn, fallback.contact.form.phone),
-        address: pickField(contact?.formAddressNo, contact?.formAddressEn, fallback.contact.form.address),
+        name: pickField(
+          contact?.formNameNo,
+          contact?.formNameEn,
+          fallback.contact.form.name,
+        ),
+        email: pickField(
+          contact?.formEmailNo,
+          contact?.formEmailEn,
+          fallback.contact.form.email,
+        ),
+        phone: pickField(
+          contact?.formPhoneNo,
+          contact?.formPhoneEn,
+          fallback.contact.form.phone,
+        ),
+        address: pickField(
+          contact?.formAddressNo,
+          contact?.formAddressEn,
+          fallback.contact.form.address,
+        ),
         houseNumber: pickField(
           contact?.formHouseNumberNo,
           contact?.formHouseNumberEn,
           fallback.contact.form.houseNumber,
         ),
-        postal: pickField(contact?.formPostalNo, contact?.formPostalEn, fallback.contact.form.postal),
-        city: pickField(contact?.formCityNo, contact?.formCityEn, fallback.contact.form.city),
-        type: pickField(contact?.formTypeNo, contact?.formTypeEn, fallback.contact.form.type),
+        postal: pickField(
+          contact?.formPostalNo,
+          contact?.formPostalEn,
+          fallback.contact.form.postal,
+        ),
+        city: pickField(
+          contact?.formCityNo,
+          contact?.formCityEn,
+          fallback.contact.form.city,
+        ),
+        type: pickField(
+          contact?.formTypeNo,
+          contact?.formTypeEn,
+          fallback.contact.form.type,
+        ),
         typeWash: pickField(
           contact?.formTypeWashNo,
           contact?.formTypeWashEn,
@@ -647,7 +1119,11 @@ export function pageCopyFromSettingsDoc(doc: any, fallback: PageCopy): PageCopy 
           contact?.formTypePaintEn,
           fallback.contact.form.typePaint,
         ),
-        typeNew: pickField(contact?.formTypeNewNo, contact?.formTypeNewEn, fallback.contact.form.typeNew),
+        typeNew: pickField(
+          contact?.formTypeNewNo,
+          contact?.formTypeNewEn,
+          fallback.contact.form.typeNew,
+        ),
         typeUnsure: pickField(
           contact?.formTypeUnsureNo,
           contact?.formTypeUnsureEn,
@@ -658,21 +1134,136 @@ export function pageCopyFromSettingsDoc(doc: any, fallback: PageCopy): PageCopy 
           contact?.formRoofSizeEn,
           fallback.contact.form.roofSize,
         ),
-        photos: pickField(contact?.formPhotosNo, contact?.formPhotosEn, fallback.contact.form.photos),
+        photos: pickField(
+          contact?.formPhotosNo,
+          contact?.formPhotosEn,
+          fallback.contact.form.photos,
+        ),
         photosHint: pickField(
           contact?.formPhotosHintNo,
           contact?.formPhotosHintEn,
           fallback.contact.form.photosHint,
         ),
-        message: pickField(contact?.formMessageNo, contact?.formMessageEn, fallback.contact.form.message),
-        next: pickField(contact?.formNextNo, contact?.formNextEn, fallback.contact.form.next),
-        back: pickField(contact?.formBackNo, contact?.formBackEn, fallback.contact.form.back),
-        step: pickField(contact?.formStepNo, contact?.formStepEn, fallback.contact.form.step),
-        submit: pickField(contact?.formSubmitNo, contact?.formSubmitEn, fallback.contact.form.submit),
-        sending: pickField(contact?.formSendingNo, contact?.formSendingEn, fallback.contact.form.sending),
-        success: pickField(contact?.formSuccessNo, contact?.formSuccessEn, fallback.contact.form.success),
-        error: pickField(contact?.formErrorNo, contact?.formErrorEn, fallback.contact.form.error),
-        required: pickField(contact?.formRequiredNo, contact?.formRequiredEn, fallback.contact.form.required),
+        choosePhotos: pickField(
+          contact?.formChoosePhotosNo,
+          contact?.formChoosePhotosEn,
+          fallback.contact.form.choosePhotos,
+        ),
+        noPhotos: pickField(
+          contact?.formNoPhotosNo,
+          contact?.formNoPhotosEn,
+          fallback.contact.form.noPhotos,
+        ),
+        photosSelectedOne: pickField(
+          contact?.formPhotosSelectedOneNo,
+          contact?.formPhotosSelectedOneEn,
+          fallback.contact.form.photosSelectedOne,
+        ),
+        photosSelectedMany: pickField(
+          contact?.formPhotosSelectedManyNo,
+          contact?.formPhotosSelectedManyEn,
+          fallback.contact.form.photosSelectedMany,
+        ),
+        photosTooMany: pickField(
+          contact?.formPhotosTooManyNo,
+          contact?.formPhotosTooManyEn,
+          fallback.contact.form.photosTooMany,
+        ),
+        photosLimitInline: pickField(
+          contact?.formPhotosLimitInlineNo,
+          contact?.formPhotosLimitInlineEn,
+          fallback.contact.form.photosLimitInline,
+        ),
+        photoTooLarge: pickField(
+          contact?.formPhotoTooLargeNo,
+          contact?.formPhotoTooLargeEn,
+          fallback.contact.form.photoTooLarge,
+        ),
+        photoUploading: pickField(
+          contact?.formPhotoUploadingNo,
+          contact?.formPhotoUploadingEn,
+          fallback.contact.form.photoUploading,
+        ),
+        photoQueued: pickField(
+          contact?.formPhotoQueuedNo,
+          contact?.formPhotoQueuedEn,
+          fallback.contact.form.photoQueued,
+        ),
+        photoReady: pickField(
+          contact?.formPhotoReadyNo,
+          contact?.formPhotoReadyEn,
+          fallback.contact.form.photoReady,
+        ),
+        photoFailed: pickField(
+          contact?.formPhotoFailedNo,
+          contact?.formPhotoFailedEn,
+          fallback.contact.form.photoFailed,
+        ),
+        roofSizeInvalid: pickField(
+          contact?.formRoofSizeInvalidNo,
+          contact?.formRoofSizeInvalidEn,
+          fallback.contact.form.roofSizeInvalid,
+        ),
+        partialUpload: pickField(
+          contact?.formPartialUploadNo,
+          contact?.formPartialUploadEn,
+          fallback.contact.form.partialUpload,
+        ),
+        securityRequired: pickField(
+          contact?.formSecurityRequiredNo,
+          contact?.formSecurityRequiredEn,
+          fallback.contact.form.securityRequired,
+        ),
+        privacyRequired: pickField(
+          contact?.formPrivacyRequiredNo,
+          contact?.formPrivacyRequiredEn,
+          fallback.contact.form.privacyRequired,
+        ),
+        message: pickField(
+          contact?.formMessageNo,
+          contact?.formMessageEn,
+          fallback.contact.form.message,
+        ),
+        next: pickField(
+          contact?.formNextNo,
+          contact?.formNextEn,
+          fallback.contact.form.next,
+        ),
+        back: pickField(
+          contact?.formBackNo,
+          contact?.formBackEn,
+          fallback.contact.form.back,
+        ),
+        step: pickField(
+          contact?.formStepNo,
+          contact?.formStepEn,
+          fallback.contact.form.step,
+        ),
+        submit: pickField(
+          contact?.formSubmitNo,
+          contact?.formSubmitEn,
+          fallback.contact.form.submit,
+        ),
+        sending: pickField(
+          contact?.formSendingNo,
+          contact?.formSendingEn,
+          fallback.contact.form.sending,
+        ),
+        success: pickField(
+          contact?.formSuccessNo,
+          contact?.formSuccessEn,
+          fallback.contact.form.success,
+        ),
+        error: pickField(
+          contact?.formErrorNo,
+          contact?.formErrorEn,
+          fallback.contact.form.error,
+        ),
+        required: pickField(
+          contact?.formRequiredNo,
+          contact?.formRequiredEn,
+          fallback.contact.form.required,
+        ),
         invalidEmail: pickField(
           contact?.formInvalidEmailNo,
           contact?.formInvalidEmailEn,
@@ -681,17 +1272,49 @@ export function pageCopyFromSettingsDoc(doc: any, fallback: PageCopy): PageCopy 
       },
     },
     footer: {
-      tagline: pickField(footer?.taglineNo, footer?.taglineEn, fallback.footer.tagline),
-      partOf: pickField(footer?.partOfNo, footer?.partOfEn, fallback.footer.partOf),
-      quickLinks: pickField(footer?.quickLinksNo, footer?.quickLinksEn, fallback.footer.quickLinks),
-      contact: pickField(footer?.contactNo, footer?.contactEn, fallback.footer.contact),
-      warrantyNote: pickField(footer?.warrantyNoteNo, footer?.warrantyNoteEn, fallback.footer.warrantyNote),
-      rights: pickField(footer?.rightsNo, footer?.rightsEn, fallback.footer.rights),
+      tagline: pickField(
+        footer?.taglineNo,
+        footer?.taglineEn,
+        fallback.footer.tagline,
+      ),
+      partOf: pickField(
+        footer?.partOfNo,
+        footer?.partOfEn,
+        fallback.footer.partOf,
+      ),
+      quickLinks: pickField(
+        footer?.quickLinksNo,
+        footer?.quickLinksEn,
+        fallback.footer.quickLinks,
+      ),
+      contact: pickField(
+        footer?.contactNo,
+        footer?.contactEn,
+        fallback.footer.contact,
+      ),
+      orgLabel: pickField(
+        footer?.orgLabelNo,
+        footer?.orgLabelEn,
+        fallback.footer.orgLabel,
+      ),
+      warrantyNote: pickField(
+        footer?.warrantyNoteNo,
+        footer?.warrantyNoteEn,
+        fallback.footer.warrantyNote,
+      ),
+      rights: pickField(
+        footer?.rightsNo,
+        footer?.rightsEn,
+        fallback.footer.rights,
+      ),
     },
   };
 }
 
-export function localizeCopy(copy: PageCopy, locale: "no" | "en"): LocalizedCopy {
+export function localizeCopy(
+  copy: PageCopy,
+  locale: "no" | "en",
+): LocalizedCopy {
   return {
     meta: {
       title: pickText(copy.meta.title, locale),
@@ -708,6 +1331,8 @@ export function localizeCopy(copy: PageCopy, locale: "no" | "en"): LocalizedCopy
       call: pickText(copy.nav.call, locale),
       menu: pickText(copy.nav.menu, locale),
       close: pickText(copy.nav.close, locale),
+      localeNo: pickText(copy.nav.localeNo, locale),
+      localeEn: pickText(copy.nav.localeEn, locale),
     },
     hero: {
       badge: pickText(copy.hero.badge, locale),
@@ -765,6 +1390,7 @@ export function localizeCopy(copy: PageCopy, locale: "no" | "en"): LocalizedCopy
       before: pickText(copy.references.before, locale),
       during: pickText(copy.references.during, locale),
       after: pickText(copy.references.after, locale),
+      comparisonHint: pickText(copy.references.comparisonHint, locale),
       swipe: pickText(copy.references.swipe, locale),
     },
     about: {
@@ -834,6 +1460,30 @@ export function localizeCopy(copy: PageCopy, locale: "no" | "en"): LocalizedCopy
         roofSize: pickText(copy.contact.form.roofSize, locale),
         photos: pickText(copy.contact.form.photos, locale),
         photosHint: pickText(copy.contact.form.photosHint, locale),
+        choosePhotos: pickText(copy.contact.form.choosePhotos, locale),
+        noPhotos: pickText(copy.contact.form.noPhotos, locale),
+        photosSelectedOne: pickText(
+          copy.contact.form.photosSelectedOne,
+          locale,
+        ),
+        photosSelectedMany: pickText(
+          copy.contact.form.photosSelectedMany,
+          locale,
+        ),
+        photosTooMany: pickText(copy.contact.form.photosTooMany, locale),
+        photosLimitInline: pickText(
+          copy.contact.form.photosLimitInline,
+          locale,
+        ),
+        photoTooLarge: pickText(copy.contact.form.photoTooLarge, locale),
+        photoUploading: pickText(copy.contact.form.photoUploading, locale),
+        photoQueued: pickText(copy.contact.form.photoQueued, locale),
+        photoReady: pickText(copy.contact.form.photoReady, locale),
+        photoFailed: pickText(copy.contact.form.photoFailed, locale),
+        roofSizeInvalid: pickText(copy.contact.form.roofSizeInvalid, locale),
+        partialUpload: pickText(copy.contact.form.partialUpload, locale),
+        securityRequired: pickText(copy.contact.form.securityRequired, locale),
+        privacyRequired: pickText(copy.contact.form.privacyRequired, locale),
         message: pickText(copy.contact.form.message, locale),
         next: pickText(copy.contact.form.next, locale),
         back: pickText(copy.contact.form.back, locale),
@@ -851,6 +1501,7 @@ export function localizeCopy(copy: PageCopy, locale: "no" | "en"): LocalizedCopy
       partOf: pickText(copy.footer.partOf, locale),
       quickLinks: pickText(copy.footer.quickLinks, locale),
       contact: pickText(copy.footer.contact, locale),
+      orgLabel: pickText(copy.footer.orgLabel, locale),
       warrantyNote: pickText(copy.footer.warrantyNote, locale),
       rights: pickText(copy.footer.rights, locale),
     },

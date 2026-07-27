@@ -1,45 +1,15 @@
-import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { NextResponse } from "next/server";
 
 /**
- * Kept for compatibility. New uploads go through /api/lead/photo-upload.
- * Do not attach onUploadCompleted — it makes browser uploads hang waiting for a webhook.
+ * Legacy client-upload token endpoint — disabled.
+ * Use POST /api/lead/upload-ticket + /api/lead/photo-upload instead.
  */
-export async function POST(request: Request): Promise<NextResponse> {
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    return NextResponse.json(
-      { error: "Blob storage is not configured" },
-      { status: 503 },
-    );
-  }
-
-  try {
-    const body = (await request.json()) as HandleUploadBody;
-    const jsonResponse = await handleUpload({
-      body,
-      request,
-      onBeforeGenerateToken: async () => ({
-        allowedContentTypes: [
-          "image/jpeg",
-          "image/jpg",
-          "image/png",
-          "image/webp",
-          "image/heic",
-          "image/heif",
-          "image/gif",
-          "application/octet-stream",
-        ],
-        maximumSizeInBytes: 8 * 1024 * 1024,
-        addRandomSuffix: true,
-      }),
-    });
-
-    return NextResponse.json(jsonResponse);
-  } catch (err) {
-    console.error("Lead photo token failed:", err);
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Upload failed" },
-      { status: 400 },
-    );
-  }
+export async function POST() {
+  return NextResponse.json(
+    {
+      error:
+        "This upload path is disabled. Use /api/lead/photo-upload with an upload ticket.",
+    },
+    { status: 410 },
+  );
 }

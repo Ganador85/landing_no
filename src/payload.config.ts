@@ -14,6 +14,9 @@ import { Projects } from "./payload/collections/Projects";
 import { Products } from "./payload/collections/Products";
 import { Faq } from "./payload/collections/Faq";
 import { Leads } from "./payload/collections/Leads";
+import { Pages } from "./payload/collections/Pages";
+import { Posts } from "./payload/collections/Posts";
+import { Redirects } from "./payload/collections/Redirects";
 import { SiteSettings } from "./payload/collections/SiteSettings";
 import { migrations } from "./payload/migrations";
 
@@ -64,11 +67,36 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname, "app/(payload)/admin"),
     },
+    livePreview: {
+      collections: ["services", "projects", "products", "faq", "pages", "posts"],
+      globals: ["site-settings"],
+      url: `${serverURL}/api/preview?locale=no`,
+    },
   },
-  collections: [Users, Media, Services, Projects, Products, Faq, Leads],
+  collections: [
+    Users,
+    Media,
+    Services,
+    Projects,
+    Products,
+    Faq,
+    Pages,
+    Posts,
+    Redirects,
+    Leads,
+  ],
   globals: [SiteSettings],
   editor: lexicalEditor(),
-  secret: process.env.PAYLOAD_SECRET || "dev-secret-change-me-in-production",
+  secret: (() => {
+    const secret = process.env.PAYLOAD_SECRET;
+    if (!secret) {
+      if (process.env.NODE_ENV === "production") {
+        throw new Error("PAYLOAD_SECRET must be set in production");
+      }
+      return "dev-secret-change-me-in-production";
+    }
+    return secret;
+  })(),
   typescript: {
     outputFile: path.resolve(dirname, "payload", "payload-types.ts"),
   },

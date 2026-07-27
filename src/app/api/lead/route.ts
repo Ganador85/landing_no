@@ -10,6 +10,9 @@ import {
   buildLeadEmailText,
 } from "@/lib/lead-email";
 import { buildLeadPdf, leadPdfFilename } from "@/lib/lead-pdf";
+import { clientIp, rateLimit } from "@/lib/rate-limit";
+import { verifyTurnstile } from "@/lib/turnstile";
+import { captureException } from "@/lib/monitoring";
 
 const inquiryTypes = [
   "takvask",
@@ -41,31 +44,24 @@ const leadSchema = z.object({
     ),
   message: z.string().max(5000).optional(),
   photoUrls: z.array(z.string().url()).max(15).optional(),
+  turnstileToken: z.string().max(2048).optional(),
+  consent: z.literal(true),
+  consentText: z.string().min(10).max(1000),
 });
-
-const rateMap = new Map<string, { count: number; reset: number }>();
-
-function rateLimit(ip: string, limit = 8, windowMs = 60_000) {
-  const now = Date.now();
-  const entry = rateMap.get(ip);
-  if (!entry || now > entry.reset) {
-    rateMap.set(ip, { count: 1, reset: now + windowMs });
-    return true;
-  }
-  if (entry.count >= limit) return false;
-  entry.count += 1;
-  return true;
-}
 
 function parsePhotoUrls(value: unknown): string[] {
   if (Array.isArray(value)) {
-    return value.filter((v): v is string => typeof v === "string" && v.length > 0);
+    return value.filter(
+      (v): v is string => typeof v === "string" && v.length > 0,
+    );
   }
   if (typeof value === "string" && value.trim()) {
     try {
       const parsed = JSON.parse(value) as unknown;
       if (Array.isArray(parsed)) {
-        return parsed.filter((v): v is string => typeof v === "string" && v.length > 0);
+        return parsed.filter(
+          (v): v is string => typeof v === "string" && v.length > 0,
+        );
       }
     } catch {
       return value
@@ -77,22 +73,33 @@ function parsePhotoUrls(value: unknown): string[] {
   return [];
 }
 
+function honeypotFilled(value: unknown): boolean {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+/** Fake success so bots cannot tell they were rejected. */
+function silentOk() {
+  return NextResponse.json({ ok: true });
+}
+
 export async function POST(request: Request) {
   try {
-    const ip =
-      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-      request.headers.get("x-real-ip") ||
-      "unknown";
+    const ip = clientIp(request);
 
-    if (!rateLimit(ip)) {
+    const limited = await rateLimit("lead", ip, { limit: 8, windowSec: 60 });
+    if (!limited.success) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }
 
     const contentType = request.headers.get("content-type") || "";
     let raw: Record<string, unknown> = {};
+    let honeypotHit = false;
 
     if (contentType.includes("multipart/form-data")) {
       const form = await request.formData();
+      honeypotHit =
+        honeypotFilled(form.get("website")) ||
+        honeypotFilled(form.get("company_url_hp"));
       raw = {
         name: form.get("name"),
         phone: form.get("phone"),
@@ -104,20 +111,31 @@ export async function POST(request: Request) {
         roofSize: form.get("roofSize") || undefined,
         message: form.get("message") || undefined,
         photoUrls: parsePhotoUrls(form.get("photoUrls")),
+        turnstileToken: form.get("turnstileToken") || undefined,
       };
     } else {
       const body = await request.json();
-      const {
-        website: _website,
-        company_url_hp: _hp,
-        ...safeBody
-      } = body as Record<string, unknown>;
-      void _website;
-      void _hp;
+      const { website, company_url_hp, ...safeBody } = body as Record<
+        string,
+        unknown
+      >;
+      honeypotHit = honeypotFilled(website) || honeypotFilled(company_url_hp);
       raw = {
         ...safeBody,
         photoUrls: parsePhotoUrls(safeBody.photoUrls),
       };
+    }
+
+    if (honeypotHit) {
+      return silentOk();
+    }
+
+    const turnstile = await verifyTurnstile(
+      typeof raw.turnstileToken === "string" ? raw.turnstileToken : undefined,
+      ip,
+    );
+    if (!turnstile.ok) {
+      return NextResponse.json({ error: "Captcha failed" }, { status: 400 });
     }
 
     const parsed = leadSchema.safeParse({
@@ -145,6 +163,7 @@ export async function POST(request: Request) {
       address,
       roofSize,
       photoUrls = [],
+      consentText,
       ...rest
     } = parsed.data;
 
@@ -164,6 +183,8 @@ export async function POST(request: Request) {
         ...(address ? { address } : {}),
         ...(approxSqm && Number.isFinite(approxSqm) ? { approxSqm } : {}),
         ...(photoUrls.length ? { photoUrls: photoUrls.join("\n") } : {}),
+        consentAt: new Date().toISOString(),
+        consentText,
         status: "new",
       },
       overrideAccess: true,
@@ -202,7 +223,10 @@ export async function POST(request: Request) {
             },
           ];
         } catch (pdfErr) {
-          console.error("Lead PDF failed:", pdfErr);
+          captureException(pdfErr, {
+            route: "POST /api/lead",
+            operation: "build-pdf",
+          });
         }
 
         await resend.emails.send({
@@ -215,7 +239,10 @@ export async function POST(request: Request) {
           ...(attachments ? { attachments } : {}),
         });
       } catch (err) {
-        console.error("Lead email failed:", err);
+        captureException(err, {
+          route: "POST /api/lead",
+          operation: "send-email",
+        });
       }
     }
 
@@ -225,7 +252,7 @@ export async function POST(request: Request) {
       photoToken,
     });
   } catch (err) {
-    console.error("Lead create failed:", err);
+    captureException(err, { route: "POST /api/lead" });
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

@@ -13,7 +13,9 @@
     "contactUs": "Contact us",
     "call": "Call",
     "menu": "Menu",
-    "close": "Close"
+    "close": "Close",
+    "localeNo": "Norsk",
+    "localeEn": "English"
   },
   "hero": {
     "badge": "",
@@ -128,7 +130,8 @@
     "before": "Before",
     "during": "In progress",
     "after": "After",
-    "swipe": "Swipe to see more projects"
+    "comparisonHint": "Left: before · Right: after",
+    "swipe": "swipe for more"
   },
   "about": {
     "eyebrow": "About us",
@@ -215,9 +218,22 @@
       "roofSize": "Approx. roof size (m²)",
       "photos": "Photos of the roof",
       "photosHint": "Optional – max 15 photos",
+      "choosePhotos": "Choose photos",
+      "noPhotos": "No files selected",
+      "photosSelectedOne": "1 photo selected",
+      "photosSelectedMany": "{n} photos selected",
       "photosTooMany": "We only accept up to 15 photos. Extra files were not added.",
-      "photoTooLarge": "One or more photos are too large (max 8 MB)",
+      "photosLimitInline": "Maximum 15 photos. Extra files were ignored.",
+      "photoTooLarge": "One or more photos are too large (max 20 MB)",
+      "photoUploading": "Uploading…",
+      "photoQueued": "Waiting…",
+      "photoReady": "Ready",
+      "photoFailed": "Failed",
       "uploading": "Uploading photos ({current}/{total})…",
+      "roofSizeInvalid": "Enter a realistic roof size (1–2000 m²), or leave empty.",
+      "partialUpload": "Enquiry sent. Some photos could not be uploaded.",
+      "securityRequired": "Please complete the security check.",
+      "privacyRequired": "Please accept the privacy consent to continue.",
       "message": "Additional comment",
       "next": "Next",
       "back": "Back",
@@ -235,6 +251,7 @@
     "partOf": "Takfornyelse – part of",
     "quickLinks": "Quick links",
     "contact": "Contact",
+    "orgLabel": "Org.nr:",
     "warrantyNote": "Up to 10 years’ product and workmanship warranty, depending on the chosen treatment and the condition of the roof. Warranty terms are stated in the quote.",
     "rights": "All rights reserved."
   }

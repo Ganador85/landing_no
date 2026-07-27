@@ -10,7 +10,15 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Reveal } from "@/components/ui/reveal";
-import { usePageCopy, useSiteSettings } from "@/components/site-settings-provider";
+import { Link } from "@/i18n/routing";
+import {
+  usePageCopy,
+  useSiteSettings,
+} from "@/components/site-settings-provider";
+import {
+  TurnstileWidget,
+  turnstileConfigured,
+} from "@/components/leads/turnstile-widget";
 
 const MAX_PHOTOS = 15;
 const MAX_SOURCE_BYTES = 20 * 1024 * 1024;
@@ -45,12 +53,7 @@ const step1Schema = z.object({
 });
 
 const step2Schema = z.object({
-  email: z
-    .string()
-    .trim()
-    .email()
-    .optional()
-    .or(z.literal("")),
+  email: z.string().trim().email().optional().or(z.literal("")),
   address: z.string().trim().optional(),
   roofSize: z
     .string()
@@ -93,9 +96,16 @@ function photoKey(file: File) {
   return `${file.name}-${file.size}-${file.lastModified}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+function withTimeout<T>(
+  promise: Promise<T>,
+  ms: number,
+  label: string,
+): Promise<T> {
   return new Promise<T>((resolve, reject) => {
-    const timer = window.setTimeout(() => reject(new Error(`${label} timed out`)), ms);
+    const timer = window.setTimeout(
+      () => reject(new Error(`${label} timed out`)),
+      ms,
+    );
     promise.then(
       (value) => {
         window.clearTimeout(timer);
@@ -160,19 +170,46 @@ async function compressImage(file: File): Promise<File> {
   }
 }
 
-async function uploadViaServer(file: File): Promise<string> {
+async function fetchUploadTicket(
+  turnstileToken: string | null,
+): Promise<string> {
+  const res = await withTimeout(
+    fetch("/api/lead/upload-ticket", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        turnstileToken: turnstileToken || undefined,
+      }),
+    }),
+    15_000,
+    "upload-ticket",
+  );
+  const data = (await res.json().catch(() => null)) as {
+    ticket?: string;
+    error?: string;
+  } | null;
+  if (!res.ok || !data?.ticket) {
+    throw new Error(data?.error || "Could not start upload");
+  }
+  return data.ticket;
+}
+
+async function uploadViaServer(file: File, ticket: string): Promise<string> {
   const prepared = await compressImage(file);
   const body = new FormData();
   body.set("file", prepared);
+  body.set("ticket", ticket);
 
   const res = await withTimeout(
     fetch("/api/lead/photo-upload", { method: "POST", body }),
     45_000,
     "upload",
   );
-  const data = (await res.json().catch(() => null)) as
-    | { url?: string; downloadUrl?: string; error?: string }
-    | null;
+  const data = (await res.json().catch(() => null)) as {
+    url?: string;
+    downloadUrl?: string;
+    error?: string;
+  } | null;
   if (!res.ok || !data?.url) {
     throw new Error(data?.error || "Upload failed");
   }
@@ -187,12 +224,20 @@ export function ContactSection() {
   const [step, setStep] = useState<1 | 2>(1);
   const [form, setForm] = useState<FormState>(initial);
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
-  const [photosLimitNotice, setPhotosLimitNotice] = useState<string | null>(null);
+  const [photosLimitNotice, setPhotosLimitNotice] = useState<string | null>(
+    null,
+  );
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [honeypot, setHoneypot] = useState({ website: "", company_url_hp: "" });
+  const [consent, setConsent] = useState(false);
   const photosInputRef = useRef<HTMLInputElement>(null);
   const photosRef = useRef<PhotoItem[]>([]);
   const queueRef = useRef<PhotoItem[]>([]);
   const activeRef = useRef(0);
+  const uploadTicketRef = useRef<string | null>(null);
+  const turnstileTokenRef = useRef<string | null>(null);
   photosRef.current = photos;
+  turnstileTokenRef.current = turnstileToken;
 
   const typeLabels: Record<InquiryType, string> = {
     takvask: copy.contact.form.typeWash,
@@ -203,28 +248,20 @@ export function ContactSection() {
   };
 
   const ui = {
-    choosePhotos: locale === "en" ? "Choose photos" : "Velg bilder",
-    noPhotos: locale === "en" ? "No files selected" : "Ingen filer valgt",
+    choosePhotos: copy.contact.form.choosePhotos,
+    noPhotos: copy.contact.form.noPhotos,
     photosSelected: (n: number) =>
-      locale === "en"
-        ? `${n} photo${n === 1 ? "" : "s"} selected`
-        : `${n} bilde${n === 1 ? "" : "r"} valgt`,
-    photosTooMany:
-      locale === "en"
-        ? "We only accept up to 15 photos. Extra files were not added."
-        : "Vi tar imot maks 15 bilder. Flere filer ble ikke lagt til.",
-    photosLimitInline:
-      locale === "en"
-        ? "Maximum 15 photos. Extra files were ignored."
-        : "Maksimum 15 bilder. Ekstra filer ble ignorert.",
-    photoTooLarge:
-      locale === "en"
-        ? "One or more photos are too large (max 20 MB)"
-        : "Ett eller flere bilder er for store (maks 20 MB)",
-    photoUploading: locale === "en" ? "Uploading…" : "Laster opp…",
-    photoQueued: locale === "en" ? "Waiting…" : "Venter…",
-    photoReady: locale === "en" ? "Ready" : "Klar",
-    photoFailed: locale === "en" ? "Failed" : "Feilet",
+      (n === 1
+        ? copy.contact.form.photosSelectedOne
+        : copy.contact.form.photosSelectedMany
+      ).replace("{n}", String(n)),
+    photosTooMany: copy.contact.form.photosTooMany,
+    photosLimitInline: copy.contact.form.photosLimitInline,
+    photoTooLarge: copy.contact.form.photoTooLarge,
+    photoUploading: copy.contact.form.photoUploading,
+    photoQueued: copy.contact.form.photoQueued,
+    photoReady: copy.contact.form.photoReady,
+    photoFailed: copy.contact.form.photoFailed,
   };
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
@@ -237,6 +274,13 @@ export function ContactSection() {
     );
   }
 
+  async function ensureUploadTicket(): Promise<string> {
+    if (uploadTicketRef.current) return uploadTicketRef.current;
+    const ticket = await fetchUploadTicket(turnstileTokenRef.current);
+    uploadTicketRef.current = ticket;
+    return ticket;
+  }
+
   function pumpQueue() {
     while (activeRef.current < UPLOAD_CONCURRENCY && queueRef.current.length) {
       const item = queueRef.current.shift();
@@ -246,11 +290,14 @@ export function ContactSection() {
 
       void (async () => {
         try {
-          const url = await uploadViaServer(item.file);
+          const ticket = await ensureUploadTicket();
+          const url = await uploadViaServer(item.file, ticket);
           patchPhoto(item.id, { status: "ready", url });
           item.resolve(url);
         } catch (err) {
           console.error("Photo upload failed:", err);
+          // Ticket may have expired — clear so the next attempt refreshes it.
+          uploadTicketRef.current = null;
           patchPhoto(item.id, { status: "error" });
           item.resolve(null);
         } finally {
@@ -340,11 +387,7 @@ export function ContactSection() {
       if (issue?.path[0] === "email") {
         toast.error(copy.contact.form.invalidEmail);
       } else if (issue?.path[0] === "roofSize") {
-        toast.error(
-          locale === "en"
-            ? "Enter a realistic roof size (1–2000 m²), or leave empty."
-            : "Oppgi et realistisk takareal (1–2000 m²), eller la feltet stå tomt.",
-        );
+        toast.error(copy.contact.form.roofSizeInvalid);
       } else {
         toast.error(copy.contact.form.required);
       }
@@ -353,6 +396,20 @@ export function ContactSection() {
 
     setLoading(true);
     try {
+      if (turnstileConfigured() && !turnstileToken) {
+        toast.error(copy.contact.form.securityRequired);
+        setLoading(false);
+        return;
+      }
+
+      if (!consent) {
+        toast.error(copy.contact.form.privacyRequired);
+        setLoading(false);
+        return;
+      }
+
+      const consentText = settings.privacy.consentLabel[locale];
+
       const current = photosRef.current;
       const settled = await Promise.all(current.map((p) => p.done));
       const photoUrls = settled.filter((url): url is string => Boolean(url));
@@ -376,12 +433,18 @@ export function ContactSection() {
           roofSize: step2.data.roofSize || undefined,
           message: step2.data.message || undefined,
           photoUrls: photoUrls.length ? photoUrls : undefined,
+          turnstileToken: turnstileToken || undefined,
+          consent: true as const,
+          consentText,
+          website: honeypot.website,
+          company_url_hp: honeypot.company_url_hp,
         }),
       });
 
-      const data = (await res.json().catch(() => null)) as
-        | { ok?: boolean; error?: string }
-        | null;
+      const data = (await res.json().catch(() => null)) as {
+        ok?: boolean;
+        error?: string;
+      } | null;
 
       if (!res.ok || !data?.ok) {
         throw new Error(data?.error || "Failed");
@@ -389,15 +452,15 @@ export function ContactSection() {
 
       toast.success(copy.contact.form.success);
       if (failed > 0 && photoUrls.length) {
-        toast.message(
-          locale === "en"
-            ? "Enquiry sent. Some photos could not be uploaded."
-            : "Henvendelsen er sendt. Noen bilder kunne ikke lastes opp.",
-        );
+        toast.message(copy.contact.form.partialUpload);
       }
       setForm(initial);
       setPhotos([]);
       setPhotosLimitNotice(null);
+      setHoneypot({ website: "", company_url_hp: "" });
+      setTurnstileToken(null);
+      setConsent(false);
+      uploadTicketRef.current = null;
       queueRef.current = [];
       if (photosInputRef.current) photosInputRef.current.value = "";
       setStep(1);
@@ -414,46 +477,59 @@ export function ContactSection() {
       <div className="container-narrow grid gap-10 lg:grid-cols-2 lg:gap-16">
         <Reveal>
           <p className="eyebrow">{copy.contact.eyebrow}</p>
-          <h2 className="heading-display mt-3 text-balance">{copy.contact.title}</h2>
-          <p className="mt-4 text-muted-foreground">{copy.contact.subtitle}</p>
+          <h2 className="heading-display mt-3 text-balance">
+            {copy.contact.title}
+          </h2>
+          <p className="text-muted-foreground mt-4">{copy.contact.subtitle}</p>
 
           <ul className="mt-8 space-y-5">
             <li className="flex gap-4">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent">
+              <span className="bg-accent-soft text-accent flex h-11 w-11 shrink-0 items-center justify-center rounded-xl">
                 <Phone className="size-5" />
               </span>
               <div>
-                <p className="text-sm text-muted-foreground">{copy.contact.phone}</p>
-                <a href={settings.phoneHref} className="text-lg font-semibold hover:text-accent">
+                <p className="text-muted-foreground text-sm">
+                  {copy.contact.phone}
+                </p>
+                <a
+                  href={settings.phoneHref}
+                  className="hover:text-accent text-lg font-semibold"
+                >
                   {settings.phone}
                 </a>
-                <p className="text-xs text-muted-foreground">{copy.contact.hours}</p>
+                <p className="text-muted-foreground text-xs">
+                  {copy.contact.hours}
+                </p>
               </div>
             </li>
             <li className="flex gap-4">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent">
+              <span className="bg-accent-soft text-accent flex h-11 w-11 shrink-0 items-center justify-center rounded-xl">
                 <Mail className="size-5" />
               </span>
               <div>
-                <p className="text-sm text-muted-foreground">{copy.contact.email}</p>
+                <p className="text-muted-foreground text-sm">
+                  {copy.contact.email}
+                </p>
                 <a
                   href={`mailto:${settings.email}`}
-                  className="text-lg font-semibold hover:text-accent"
+                  className="hover:text-accent text-lg font-semibold"
                 >
                   {settings.email}
                 </a>
-                <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                <p className="text-muted-foreground flex items-center gap-1 text-xs">
                   <Clock className="size-3" />
                   {copy.contact.reply}
                 </p>
               </div>
             </li>
             <li className="flex gap-4">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent">
+              <span className="bg-accent-soft text-accent flex h-11 w-11 shrink-0 items-center justify-center rounded-xl">
                 <MapPin className="size-5" />
               </span>
               <div>
-                <p className="text-sm text-muted-foreground">{copy.contact.office}</p>
+                <p className="text-muted-foreground text-sm">
+                  {copy.contact.office}
+                </p>
                 <p className="font-semibold">
                   {settings.address.street}
                   <br />
@@ -465,8 +541,12 @@ export function ContactSection() {
         </Reveal>
 
         <Reveal delay={0.1}>
-          <form onSubmit={onSubmit} className="surface-card space-y-4 p-5 sm:p-8" noValidate>
-            <p className="text-xs text-muted-foreground">
+          <form
+            onSubmit={onSubmit}
+            className="surface-card relative space-y-4 p-5 sm:p-8"
+            noValidate
+          >
+            <p className="text-muted-foreground text-xs">
               {copy.contact.form.step.replace("{n}", String(step))}
             </p>
 
@@ -508,8 +588,10 @@ export function ContactSection() {
                   <select
                     id="type"
                     value={form.type}
-                    onChange={(e) => update("type", e.target.value as InquiryType)}
-                    className="flex h-11 w-full rounded-xl border border-white/10 bg-black/30 px-3 text-sm text-foreground outline-none focus-visible:border-accent/50 focus-visible:ring-2 focus-visible:ring-accent/30"
+                    onChange={(e) =>
+                      update("type", e.target.value as InquiryType)
+                    }
+                    className="text-foreground focus-visible:border-accent/50 focus-visible:ring-accent/30 flex h-11 w-full rounded-xl border border-white/10 bg-black/30 px-3 text-sm outline-none focus-visible:ring-2"
                   >
                     {inquiryTypes.map((value) => (
                       <option key={value} value={value}>
@@ -518,7 +600,12 @@ export function ContactSection() {
                     ))}
                   </select>
                 </div>
-                <Button type="button" size="lg" className="w-full" onClick={goNext}>
+                <Button
+                  type="button"
+                  size="lg"
+                  className="w-full"
+                  onClick={goNext}
+                >
                   {copy.contact.form.next}
                 </Button>
               </>
@@ -578,20 +665,25 @@ export function ContactSection() {
                     >
                       {ui.choosePhotos}
                     </Button>
-                    <span className="text-sm text-muted-foreground">
-                      {photos.length ? ui.photosSelected(photos.length) : ui.noPhotos}
+                    <span className="text-muted-foreground text-sm">
+                      {photos.length
+                        ? ui.photosSelected(photos.length)
+                        : ui.noPhotos}
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-xs">
                     {copy.contact.form.photosHint}
                   </p>
                   {photosLimitNotice ? (
-                    <p className="text-xs font-medium text-accent" role="status">
+                    <p
+                      className="text-accent text-xs font-medium"
+                      role="status"
+                    >
                       {photosLimitNotice}
                     </p>
                   ) : null}
                   {photos.length > 0 ? (
-                    <ul className="space-y-1 text-xs text-muted-foreground">
+                    <ul className="text-muted-foreground space-y-1 text-xs">
                       {photos.map((item) => (
                         <li
                           key={item.id}
@@ -601,7 +693,7 @@ export function ContactSection() {
                           <span
                             className={
                               item.status === "ready"
-                                ? "shrink-0 text-accent"
+                                ? "text-accent shrink-0"
                                 : item.status === "error"
                                   ? "shrink-0 text-red-400"
                                   : "shrink-0"
@@ -629,6 +721,59 @@ export function ContactSection() {
                     rows={3}
                   />
                 </div>
+                {/* Honeypot — hidden from users, bots often fill these. */}
+                <div
+                  aria-hidden="true"
+                  className="absolute -left-[9999px] h-0 w-0 overflow-hidden opacity-0"
+                >
+                  <label htmlFor="website">Website</label>
+                  <input
+                    id="website"
+                    name="website"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={honeypot.website}
+                    onChange={(e) =>
+                      setHoneypot((prev) => ({
+                        ...prev,
+                        website: e.target.value,
+                      }))
+                    }
+                  />
+                  <label htmlFor="company_url_hp">Company</label>
+                  <input
+                    id="company_url_hp"
+                    name="company_url_hp"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={honeypot.company_url_hp}
+                    onChange={(e) =>
+                      setHoneypot((prev) => ({
+                        ...prev,
+                        company_url_hp: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <TurnstileWidget onToken={setTurnstileToken} />
+                <label className="text-muted-foreground flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-3 text-sm leading-relaxed">
+                  <input
+                    type="checkbox"
+                    className="mt-1 size-4 shrink-0 accent-[var(--accent)]"
+                    checked={consent}
+                    onChange={(e) => setConsent(e.target.checked)}
+                    required
+                  />
+                  <span>
+                    {settings.privacy.consentLabel[locale]}{" "}
+                    <Link
+                      href="/personvern"
+                      className="text-accent underline-offset-2 hover:underline"
+                    >
+                      {settings.privacy.linkLabel[locale]}
+                    </Link>
+                  </span>
+                </label>
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <Button
                     type="button"
@@ -640,8 +785,15 @@ export function ContactSection() {
                   >
                     {copy.contact.form.back}
                   </Button>
-                  <Button type="submit" size="lg" className="w-full flex-1" disabled={loading}>
-                    {loading ? copy.contact.form.sending : copy.contact.form.submit}
+                  <Button
+                    type="submit"
+                    size="lg"
+                    className="w-full flex-1"
+                    disabled={loading}
+                  >
+                    {loading
+                      ? copy.contact.form.sending
+                      : copy.contact.form.submit}
                   </Button>
                 </div>
               </>

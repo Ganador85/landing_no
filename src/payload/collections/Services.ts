@@ -1,4 +1,9 @@
 import type { CollectionConfig } from "payload";
+import {
+  adminOnly,
+  adminsAndEditors,
+  authenticatedOrPublished,
+} from "../access/roles";
 
 export const Services: CollectionConfig = {
   slug: "services",
@@ -7,7 +12,15 @@ export const Services: CollectionConfig = {
     defaultColumns: ["titleNo", "featured", "order"],
   },
   access: {
-    read: () => true,
+    create: adminOnly,
+    delete: adminOnly,
+    read: authenticatedOrPublished,
+    readVersions: adminsAndEditors,
+    update: adminsAndEditors,
+  },
+  versions: {
+    drafts: true,
+    maxPerDoc: 20,
   },
   fields: [
     { name: "key", type: "text", required: true, unique: true },

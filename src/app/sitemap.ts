@@ -1,18 +1,105 @@
 import type { MetadataRoute } from "next";
+import { getPayload } from "@/lib/payload";
+import {
+  getPublishedPages,
+  getPublishedPosts,
+  type CmsContentDocument,
+} from "@/lib/cms-pages";
 import { siteConfig } from "@/lib/site";
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date();
+export const revalidate = 300;
 
+async function getLastModified(): Promise<Date> {
+  const fallback = new Date();
+
+  try {
+    const payload = await getPayload();
+    const settings = await payload.findGlobal({
+      slug: "site-settings",
+      depth: 0,
+      draft: false,
+      overrideAccess: true,
+    });
+    const updatedAt = (settings as { updatedAt?: string | null }).updatedAt;
+    if (!updatedAt) return fallback;
+
+    const date = new Date(updatedAt);
+    return Number.isNaN(date.getTime()) ? fallback : date;
+  } catch {
+    return fallback;
+  }
+}
+
+function validDate(value: string | null | undefined, fallback: Date): Date {
+  if (!value) return fallback;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? fallback : date;
+}
+
+function localizedEntries(
+  path: string,
+  lastModified: Date,
+  changeFrequency: "weekly" | "monthly",
+  priority: number,
+): MetadataRoute.Sitemap {
   return siteConfig.locales.map((locale) => ({
-    url: `${siteConfig.url}/${locale}`,
+    url: `${siteConfig.url}/${locale}${path}`,
     lastModified,
-    changeFrequency: "weekly",
-    priority: 1,
+    changeFrequency,
+    priority,
     alternates: {
       languages: Object.fromEntries(
-        siteConfig.locales.map((l) => [l, `${siteConfig.url}/${l}`]),
+        siteConfig.locales.map((language) => [
+          language,
+          `${siteConfig.url}/${language}${path}`,
+        ]),
       ),
     },
   }));
+}
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const lastModified = await getLastModified();
+  const staticPages = [
+    { path: "", changeFrequency: "weekly" as const, priority: 1 },
+    { path: "/blogg", changeFrequency: "weekly" as const, priority: 0.8 },
+    { path: "/personvern", changeFrequency: "monthly" as const, priority: 0.5 },
+  ];
+
+  const staticEntries = staticPages.flatMap((page) =>
+    localizedEntries(
+      page.path,
+      lastModified,
+      page.changeFrequency,
+      page.priority,
+    ),
+  );
+
+  try {
+    const [pages, posts] = await Promise.all([
+      getPublishedPages(),
+      getPublishedPosts(),
+    ]);
+    const dynamicPages = pages.flatMap((page: CmsContentDocument) =>
+      localizedEntries(
+        `/${page.slug}`,
+        validDate(page.updatedAt, lastModified),
+        "monthly",
+        0.7,
+      ),
+    );
+    const blogPosts = posts.flatMap((post) =>
+      localizedEntries(
+        `/blogg/${post.slug}`,
+        validDate(post.updatedAt, lastModified),
+        "weekly",
+        0.7,
+      ),
+    );
+
+    return [...staticEntries, ...dynamicPages, ...blogPosts];
+  } catch (error) {
+    console.error("CMS sitemap entries could not be loaded:", error);
+    return staticEntries;
+  }
 }

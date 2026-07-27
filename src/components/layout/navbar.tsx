@@ -7,9 +7,12 @@ import { useLocale } from "next-intl";
 import { Link, usePathname } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { usePageCopy, useSiteSettings } from "@/components/site-settings-provider";
+import {
+  usePageCopy,
+  useSiteSettings,
+} from "@/components/site-settings-provider";
 
-const links = [
+const fallbackLinks = [
   { href: "/#tjenester", key: "services" as const },
   { href: "/#referanser", key: "references" as const },
   { href: "/#om-oss", key: "about" as const },
@@ -24,6 +27,20 @@ export function Navbar() {
   const settings = useSiteSettings();
   const [open, setOpen] = useState(false);
   const otherLocale = locale === "no" ? "en" : "no";
+  const otherLocaleLabel =
+    otherLocale === "no" ? copy.nav.localeNo : copy.nav.localeEn;
+  const links =
+    settings.navItems.length > 0
+      ? settings.navItems
+          .filter((item) => item.visible)
+          .map((item) => ({
+            href: item.href,
+            label: item.label[locale as "no" | "en"],
+          }))
+      : fallbackLinks.map((item) => ({
+          href: item.href,
+          label: copy.nav[item.key],
+        }));
 
   const parentLine = settings.parentOrg
     ? locale === "no"
@@ -32,7 +49,7 @@ export function Navbar() {
     : null;
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-xl">
+    <header className="bg-background/80 fixed inset-x-0 top-0 z-50 border-b border-white/5 backdrop-blur-xl">
       <div className="container-narrow flex h-14 items-center justify-between gap-3 px-4 sm:h-16 sm:gap-4 sm:px-6 lg:px-8">
         <Link
           href="/"
@@ -43,8 +60,8 @@ export function Navbar() {
           <span className="flex flex-col justify-center">
             <span className="block">
               <Image
-                src="/brand/logo.webp"
-                alt={settings.brandName}
+                src={settings.images.logo.url}
+                alt={settings.images.logo.alt || settings.brandName}
                 width={900}
                 height={376}
                 sizes="(max-width: 640px) 168px, (max-width: 1024px) 220px, 240px"
@@ -54,7 +71,7 @@ export function Navbar() {
               />
             </span>
             {parentLine ? (
-              <span className="mt-1 hidden max-w-[240px] text-[10px] leading-snug text-muted-foreground lg:block">
+              <span className="text-muted-foreground mt-1 hidden max-w-[240px] text-[10px] leading-snug lg:block">
                 {parentLine}
               </span>
             ) : null}
@@ -62,13 +79,13 @@ export function Navbar() {
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">
-          {links.map((link) => (
+          {links.map((link, index) => (
             <Link
-              key={link.key}
+              key={`${link.href}-${index}`}
               href={link.href}
-              className="rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground rounded-lg px-3 py-2 text-sm transition-colors hover:bg-white/5"
             >
-              {copy.nav[link.key]}
+              {link.label}
             </Link>
           ))}
         </nav>
@@ -77,13 +94,18 @@ export function Navbar() {
           <Link
             href={pathname}
             locale={otherLocale}
-            className="hidden rounded-lg px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground sm:inline-flex"
-            aria-label={`Switch to ${otherLocale === "no" ? "Norwegian" : "English"}`}
+            className="text-muted-foreground hover:text-foreground hidden rounded-lg px-2.5 py-1.5 text-xs font-semibold tracking-wider uppercase transition-colors hover:bg-white/5 sm:inline-flex"
+            aria-label={otherLocaleLabel}
           >
-            {otherLocale}
+            {otherLocaleLabel}
           </Link>
 
-          <Button asChild size="sm" variant="secondary" className="hidden sm:inline-flex">
+          <Button
+            asChild
+            size="sm"
+            variant="secondary"
+            className="hidden sm:inline-flex"
+          >
             <a href={settings.phoneHref}>
               <Phone className="size-3.5" />
               {copy.nav.call}
@@ -96,7 +118,7 @@ export function Navbar() {
 
           <button
             type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-foreground hover:bg-white/10 lg:hidden"
+            className="text-foreground inline-flex h-10 w-10 items-center justify-center rounded-lg hover:bg-white/10 lg:hidden"
             aria-label={open ? copy.nav.close : copy.nav.menu}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
@@ -108,24 +130,24 @@ export function Navbar() {
 
       <div
         className={cn(
-          "border-t border-white/5 bg-background/95 backdrop-blur-xl lg:hidden",
+          "bg-background/95 border-t border-white/5 backdrop-blur-xl lg:hidden",
           open ? "block" : "hidden",
         )}
       >
         <nav className="container-narrow flex flex-col gap-1 px-4 py-4">
           {parentLine ? (
-            <p className="mb-2 px-4 text-xs leading-relaxed text-muted-foreground">
+            <p className="text-muted-foreground mb-2 px-4 text-xs leading-relaxed">
               {parentLine}
             </p>
           ) : null}
-          {links.map((link) => (
+          {links.map((link, index) => (
             <Link
-              key={link.key}
+              key={`${link.href}-${index}`}
               href={link.href}
               className="rounded-xl px-4 py-3 text-base font-medium hover:bg-white/5"
               onClick={() => setOpen(false)}
             >
-              {copy.nav[link.key]}
+              {link.label}
             </Link>
           ))}
           <div className="mt-2 flex gap-2 border-t border-white/10 pt-4">
@@ -144,10 +166,10 @@ export function Navbar() {
           <Link
             href={pathname}
             locale={otherLocale}
-            className="mt-2 rounded-xl px-4 py-3 text-center text-sm font-semibold uppercase tracking-wider text-muted-foreground hover:bg-white/5"
+            className="text-muted-foreground mt-2 rounded-xl px-4 py-3 text-center text-sm font-semibold tracking-wider uppercase hover:bg-white/5"
             onClick={() => setOpen(false)}
           >
-            {otherLocale === "no" ? "Norsk" : "English"}
+            {otherLocaleLabel}
           </Link>
         </nav>
       </div>

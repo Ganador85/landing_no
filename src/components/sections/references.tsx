@@ -64,10 +64,16 @@ export function ReferencesSection({ projects }: Props) {
         <Reveal>
           <div className="max-w-2xl">
             <p className="eyebrow">{copy.references.eyebrow}</p>
-            <h2 className="heading-display mt-3 text-balance">{copy.references.title}</h2>
-            <p className="mt-4 text-muted-foreground">{copy.references.subtitle}</p>
+            <h2 className="heading-display mt-3 text-balance">
+              {copy.references.title}
+            </h2>
+            <p className="text-muted-foreground mt-4">
+              {copy.references.subtitle}
+            </p>
             {copy.references.note ? (
-              <p className="mt-2 text-xs text-muted-foreground/80">{copy.references.note}</p>
+              <p className="text-muted-foreground/80 mt-2 text-xs">
+                {copy.references.note}
+              </p>
             ) : null}
           </div>
         </Reveal>
@@ -77,15 +83,16 @@ export function ReferencesSection({ projects }: Props) {
             const { pairs, during, singles } = splitStages(project.stages);
 
             return (
-              <Reveal key={project.id} delay={Math.min(projectIndex * 0.05, 0.2)}>
+              <Reveal
+                key={project.id}
+                delay={Math.min(projectIndex * 0.05, 0.2)}
+              >
                 <article className="overflow-hidden rounded-2xl border border-white/10 bg-black/20">
                   <div className="border-b border-white/10 px-4 py-4 sm:px-5">
                     <h3 className="font-semibold">{project.title[locale]}</h3>
                     {pairs.length > 0 ? (
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {locale === "no"
-                          ? "Venstre: før · Høyre: etter"
-                          : "Left: before · Right: after"}
+                      <p className="text-muted-foreground mt-1 text-xs">
+                        {copy.references.comparisonHint}
                       </p>
                     ) : null}
                   </div>
@@ -155,6 +162,7 @@ export function ReferencesSection({ projects }: Props) {
           startIndex={lightbox.index}
           locale={locale}
           labelFor={(label) => copy.references[label]}
+          swipeHint={copy.references.swipe}
           onClose={() => setLightbox(null)}
         />
       ) : null}
@@ -175,7 +183,10 @@ function PhotoCell({
   onOpen: () => void;
   wide?: boolean;
 }) {
-  const src = optimizeRemoteImageUrl(stage.image, { width: 1200, quality: 75 });
+  const src = optimizeRemoteImageUrl(stage.image.url, {
+    width: 1200,
+    quality: 75,
+  });
 
   return (
     <button
@@ -188,10 +199,14 @@ function PhotoCell({
     >
       <Image
         src={src}
-        alt={stage.caption[locale]}
+        alt={stage.image.alt || stage.caption[locale]}
         width={1200}
         height={900}
-        sizes={wide ? "(max-width: 640px) 100vw, 560px" : "(max-width: 640px) 50vw, 420px"}
+        sizes={
+          wide
+            ? "(max-width: 640px) 100vw, 560px"
+            : "(max-width: 640px) 50vw, 420px"
+        }
         className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         loading="lazy"
       />
@@ -199,10 +214,10 @@ function PhotoCell({
         className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"
         aria-hidden
       />
-      <span className="absolute left-2 top-2 inline-flex rounded-md bg-black/55 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur-sm sm:left-3 sm:top-3 sm:text-[11px]">
+      <span className="absolute top-2 left-2 inline-flex rounded-md bg-black/55 px-2 py-1 text-[10px] font-bold tracking-wider text-white uppercase backdrop-blur-sm sm:top-3 sm:left-3 sm:text-[11px]">
         {label}
       </span>
-      <p className="absolute inset-x-2 bottom-2 line-clamp-2 text-[11px] font-medium leading-snug text-white/95 sm:inset-x-3 sm:bottom-3 sm:text-sm">
+      <p className="absolute inset-x-2 bottom-2 line-clamp-2 text-[11px] leading-snug font-medium text-white/95 sm:inset-x-3 sm:bottom-3 sm:text-sm">
         {stage.caption[locale]}
       </p>
     </button>
@@ -215,6 +230,7 @@ function Lightbox({
   startIndex,
   locale,
   labelFor,
+  swipeHint,
   onClose,
 }: {
   title: string;
@@ -222,6 +238,7 @@ function Lightbox({
   startIndex: number;
   locale: "no" | "en";
   labelFor: (label: Stage["label"]) => string;
+  swipeHint: string;
   onClose: () => void;
 }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -273,16 +290,12 @@ function Lightbox({
       aria-modal="true"
       aria-label={title}
     >
-      <div className="flex items-center justify-between gap-3 px-3 pb-2 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-6">
+      <div className="flex items-center justify-between gap-3 px-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2 sm:px-6">
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-white">{title}</p>
           <p className="text-xs text-white/60">
             {index + 1} / {stages.length}
-            {stages.length > 1
-              ? locale === "no"
-                ? " · sveip for å se mer"
-                : " · swipe for more"
-              : ""}
+            {stages.length > 1 ? ` · ${swipeHint}` : ""}
           </p>
         </div>
         <button
@@ -300,13 +313,16 @@ function Lightbox({
           <div className="flex h-full touch-pan-y">
             {stages.map((item, i) => (
               <div
-                key={`${item.image}-${i}`}
+                key={`${item.image.url}-${i}`}
                 className="relative min-w-0 shrink-0 grow-0 basis-full px-2 sm:px-8"
               >
                 <div className="relative mx-auto h-full w-full max-w-5xl">
                   <Image
-                    src={optimizeRemoteImageUrl(item.image, { width: 1800, quality: 85 })}
-                    alt={item.caption[locale]}
+                    src={optimizeRemoteImageUrl(item.image.url, {
+                      width: 1800,
+                      quality: 85,
+                    })}
+                    alt={item.image.alt || item.caption[locale]}
                     fill
                     className="object-contain"
                     sizes="100vw"
@@ -325,7 +341,7 @@ function Lightbox({
               aria-label="Previous"
               disabled={!canPrev}
               onClick={() => emblaApi?.scrollPrev()}
-              className="absolute left-1 top-1/2 z-10 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white disabled:opacity-0 sm:left-4"
+              className="absolute top-1/2 left-1 z-10 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white disabled:opacity-0 sm:left-4"
             >
               <ChevronLeft className="size-5" />
             </button>
@@ -334,7 +350,7 @@ function Lightbox({
               aria-label="Next"
               disabled={!canNext}
               onClick={() => emblaApi?.scrollNext()}
-              className="absolute right-1 top-1/2 z-10 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white disabled:opacity-0 sm:right-4"
+              className="absolute top-1/2 right-1 z-10 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white disabled:opacity-0 sm:right-4"
             >
               <ChevronRight className="size-5" />
             </button>
@@ -342,11 +358,13 @@ function Lightbox({
         ) : null}
       </div>
 
-      <div className="px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 sm:px-6">
-        <span className="inline-flex rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white/90">
+      <div className="px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-6">
+        <span className="inline-flex rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold tracking-wider text-white/90 uppercase">
           {labelFor(stage.label)}
         </span>
-        <p className="mt-2 text-sm font-medium text-white">{stage.caption[locale]}</p>
+        <p className="mt-2 text-sm font-medium text-white">
+          {stage.caption[locale]}
+        </p>
       </div>
     </div>
   );

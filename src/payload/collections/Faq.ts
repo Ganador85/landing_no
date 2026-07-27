@@ -1,4 +1,9 @@
 import type { CollectionConfig } from "payload";
+import {
+  adminOnly,
+  adminsAndEditors,
+  authenticatedOrPublished,
+} from "../access/roles";
 
 export const Faq: CollectionConfig = {
   slug: "faq",
@@ -6,7 +11,15 @@ export const Faq: CollectionConfig = {
     useAsTitle: "questionNo",
   },
   access: {
-    read: () => true,
+    create: adminOnly,
+    delete: adminOnly,
+    read: authenticatedOrPublished,
+    readVersions: adminsAndEditors,
+    update: adminsAndEditors,
+  },
+  versions: {
+    drafts: true,
+    maxPerDoc: 20,
   },
   fields: [
     { name: "questionNo", type: "text", required: true },

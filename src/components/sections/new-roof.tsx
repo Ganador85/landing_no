@@ -7,24 +7,32 @@ import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
 import { usePageCopy } from "@/components/site-settings-provider";
 import { siteImages } from "@/content/images";
+import type { CmsMedia } from "@/lib/cms-content";
 import { optimizeRemoteImageUrl } from "@/lib/images";
 
 type Props = {
-  imageUrl?: string;
+  image?: CmsMedia;
 };
 
-export function NewRoofSection({ imageUrl = siteImages.newRoof }: Props) {
+export function NewRoofSection({ image }: Props) {
   const copy = usePageCopy();
-  const src = optimizeRemoteImageUrl(imageUrl, { width: 1200, quality: 75 });
+  const media = image ?? { url: siteImages.newRoof, alt: "" };
+  const src = optimizeRemoteImageUrl(media.url, { width: 1200, quality: 75 });
 
   return (
     <section id="nytt-tak" className="section-pad">
       <div className="container-narrow grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
         <Reveal>
           <p className="eyebrow">{copy.newRoof.eyebrow}</p>
-          <h2 className="heading-display mt-3 text-balance">{copy.newRoof.title}</h2>
-          <p className="mt-4 text-muted-foreground leading-relaxed">{copy.newRoof.subtitle}</p>
-          <p className="mt-4 text-muted-foreground leading-relaxed">{copy.newRoof.body}</p>
+          <h2 className="heading-display mt-3 text-balance">
+            {copy.newRoof.title}
+          </h2>
+          <p className="text-muted-foreground mt-4 leading-relaxed">
+            {copy.newRoof.subtitle}
+          </p>
+          <p className="text-muted-foreground mt-4 leading-relaxed">
+            {copy.newRoof.body}
+          </p>
           <Button asChild size="lg" className="mt-8">
             <Link href="/#kontakt">{copy.newRoof.cta}</Link>
           </Button>
@@ -35,7 +43,7 @@ export function NewRoofSection({ imageUrl = siteImages.newRoof }: Props) {
             <div className="relative aspect-[4/3]">
               <Image
                 src={src}
-                alt={copy.newRoof.title}
+                alt={media.alt || copy.newRoof.title}
                 width={1200}
                 height={900}
                 sizes="(max-width: 1024px) 100vw, 560px"
@@ -45,18 +53,23 @@ export function NewRoofSection({ imageUrl = siteImages.newRoof }: Props) {
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
             </div>
             <div className="surface-card rounded-none border-0 p-6 sm:p-8">
-              <h3 className="text-lg font-semibold">{copy.newRoof.typesTitle}</h3>
+              <h3 className="text-lg font-semibold">
+                {copy.newRoof.typesTitle}
+              </h3>
               <ul className="mt-5 space-y-3">
                 {copy.newRoof.types.map((type) => (
-                  <li key={type} className="flex items-start gap-3 text-sm text-muted-foreground">
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent">
+                  <li
+                    key={type}
+                    className="text-muted-foreground flex items-start gap-3 text-sm"
+                  >
+                    <span className="bg-accent-soft text-accent mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full">
                       <Check className="size-3" />
                     </span>
                     {type}
                   </li>
                 ))}
               </ul>
-              <p className="mt-6 rounded-xl border border-white/10 bg-black/20 p-4 text-sm leading-relaxed text-muted-foreground">
+              <p className="text-muted-foreground mt-6 rounded-xl border border-white/10 bg-black/20 p-4 text-sm leading-relaxed">
                 {copy.newRoof.note}
               </p>
             </div>

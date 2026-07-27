@@ -8,10 +8,11 @@ import { Reveal } from "@/components/ui/reveal";
 import { TrustBarSection } from "@/components/sections/trust-bar";
 import { usePageCopy } from "@/components/site-settings-provider";
 import { siteImages } from "@/content/images";
+import type { CmsMedia } from "@/lib/cms-content";
 import { optimizeRemoteImageUrl } from "@/lib/images";
 
 type Props = {
-  heroImage?: string;
+  heroImage?: CmsMedia;
 };
 
 /** Keep "70 %" together; on mobile wrap after it, on desktop keep one line. */
@@ -28,15 +29,16 @@ function HeroTitle({ title }: { title: string }) {
   );
 }
 
-export function HeroSection({ heroImage = siteImages.hero }: Props) {
+export function HeroSection({ heroImage }: Props) {
   const copy = usePageCopy();
-  const src = optimizeRemoteImageUrl(heroImage, { width: 2000, quality: 72 });
+  const media = heroImage ?? { url: siteImages.hero, alt: "" };
+  const src = optimizeRemoteImageUrl(media.url, { width: 2000, quality: 72 });
 
   return (
     <section className="relative flex min-h-[100svh] flex-col overflow-hidden pt-28 md:pt-24">
       <Image
         src={src}
-        alt={`${copy.hero.title} ${copy.hero.titleAccent}`}
+        alt={media.alt || `${copy.hero.title} ${copy.hero.titleAccent}`}
         width={2000}
         height={1125}
         priority
@@ -54,18 +56,18 @@ export function HeroSection({ heroImage = siteImages.hero }: Props) {
       <div className="container-narrow relative z-10 flex w-full flex-1 flex-col justify-end px-4 pb-8 sm:px-6 md:justify-center md:pb-10 lg:px-8">
         {copy.hero.badge ? (
           <Reveal>
-            <div className="mb-5 inline-flex max-w-full items-center gap-2 rounded-full border border-accent/30 bg-accent-soft px-3 py-1.5 text-xs font-medium text-accent sm:text-sm">
-              <Star className="size-3.5 shrink-0 fill-accent" />
+            <div className="border-accent/30 bg-accent-soft text-accent mb-5 inline-flex max-w-full items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium sm:text-sm">
+              <Star className="fill-accent size-3.5 shrink-0" />
               <span className="truncate">{copy.hero.badge}</span>
             </div>
           </Reveal>
         ) : null}
 
         <Reveal delay={0.08}>
-          <h1 className="max-w-4xl text-3xl font-bold leading-[1.12] tracking-tight sm:text-5xl lg:max-w-5xl lg:text-6xl xl:text-[4.25rem]">
+          <h1 className="max-w-4xl text-3xl leading-[1.12] font-bold tracking-tight sm:text-5xl lg:max-w-5xl lg:text-6xl xl:text-[4.25rem]">
             <HeroTitle title={copy.hero.title} />
             {copy.hero.titleAccent ? (
-              <span className="mt-2 block text-[0.72em] font-semibold text-accent sm:mt-3">
+              <span className="text-accent mt-2 block text-[0.72em] font-semibold sm:mt-3">
                 {copy.hero.titleAccent}
               </span>
             ) : null}
@@ -80,7 +82,11 @@ export function HeroSection({ heroImage = siteImages.hero }: Props) {
 
         <Reveal delay={0.2}>
           <div className="mt-7 flex flex-col gap-2.5 sm:mt-8 sm:flex-row sm:items-center sm:gap-3">
-            <Button asChild size="lg" className="h-11 w-full rounded-lg shadow-md shadow-accent/15 sm:h-12 sm:w-auto sm:rounded-xl">
+            <Button
+              asChild
+              size="lg"
+              className="shadow-accent/15 h-11 w-full rounded-lg shadow-md sm:h-12 sm:w-auto sm:rounded-xl"
+            >
               <Link href="/#kontakt">{copy.hero.cta}</Link>
             </Button>
             <Button
@@ -105,8 +111,8 @@ export function HeroSection({ heroImage = siteImages.hero }: Props) {
                 key={label}
                 className="flex flex-col items-center gap-1.5 rounded-xl border border-white/10 bg-black/30 px-2 py-3 text-center backdrop-blur-sm sm:flex-row sm:items-center sm:justify-center sm:gap-2 sm:px-3"
               >
-                <Icon className="size-4 shrink-0 text-accent" />
-                <span className="text-[10px] font-medium leading-tight text-white/90 sm:text-xs">
+                <Icon className="text-accent size-4 shrink-0" />
+                <span className="text-[10px] leading-tight font-medium text-white/90 sm:text-xs">
                   {label}
                 </span>
               </li>

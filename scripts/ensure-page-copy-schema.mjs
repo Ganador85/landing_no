@@ -1,4 +1,7 @@
 /**
+ * @deprecated Prefer versioned Payload migrations (`npm run db:migrate`).
+ * Kept as an emergency fallback for missing page-copy columns.
+ *
  * Ensure site_settings page-copy columns exist (Payload group fields → snake_case).
  * Usage: node --env-file=.env scripts/ensure-page-copy-schema.mjs
  */

@@ -13,7 +13,9 @@
     "contactUs": "Kontakt oss",
     "call": "Ring",
     "menu": "Meny",
-    "close": "Lukk"
+    "close": "Lukk",
+    "localeNo": "Norsk",
+    "localeEn": "English"
   },
   "hero": {
     "badge": "",
@@ -128,7 +130,8 @@
     "before": "Før",
     "during": "Under arbeid",
     "after": "Etter",
-    "swipe": "Sveip for å se flere prosjekter"
+    "comparisonHint": "Venstre: før · Høyre: etter",
+    "swipe": "sveip for å se mer"
   },
   "about": {
     "eyebrow": "Om oss",
@@ -215,9 +218,22 @@
       "roofSize": "Ca. takstørrelse (m²)",
       "photos": "Bilder av taket",
       "photosHint": "Valgfritt – maks 15 bilder",
+      "choosePhotos": "Velg bilder",
+      "noPhotos": "Ingen filer valgt",
+      "photosSelectedOne": "1 bilde valgt",
+      "photosSelectedMany": "{n} bilder valgt",
       "photosTooMany": "Vi tar imot maks 15 bilder. Flere filer ble ikke lagt til.",
-      "photoTooLarge": "Ett eller flere bilder er for store (maks 8 MB)",
+      "photosLimitInline": "Maksimum 15 bilder. Ekstra filer ble ignorert.",
+      "photoTooLarge": "Ett eller flere bilder er for store (maks 20 MB)",
+      "photoUploading": "Laster opp…",
+      "photoQueued": "Venter…",
+      "photoReady": "Klar",
+      "photoFailed": "Feilet",
       "uploading": "Laster opp bilder ({current}/{total})…",
+      "roofSizeInvalid": "Oppgi et realistisk takareal (1–2000 m²), eller la feltet stå tomt.",
+      "partialUpload": "Henvendelsen er sendt. Noen bilder kunne ikke lastes opp.",
+      "securityRequired": "Fullfør sikkerhetskontrollen.",
+      "privacyRequired": "Du må godta personvernvilkårene for å sende inn.",
       "message": "Tilleggskommentar",
       "next": "Neste",
       "back": "Tilbake",
@@ -235,6 +251,7 @@
     "partOf": "Takfornyelse – en del av",
     "quickLinks": "Hurtiglenker",
     "contact": "Kontakt",
+    "orgLabel": "Org.nr:",
     "warrantyNote": "Opptil 10 års produkt- og utførelsesgaranti, avhengig av valgt behandling og takets tilstand. Garantivilkår oppgis i tilbudet.",
     "rights": "Alle rettigheter reservert."
   }

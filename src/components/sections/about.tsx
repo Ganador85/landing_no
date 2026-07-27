@@ -4,24 +4,29 @@ import Image from "next/image";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
-import { usePageCopy, useSiteSettings } from "@/components/site-settings-provider";
-import type { CmsSettings } from "@/lib/cms-content";
+import {
+  usePageCopy,
+  useSiteSettings,
+} from "@/components/site-settings-provider";
+import type { CmsMedia, CmsSettings } from "@/lib/cms-content";
 import { siteImages } from "@/content/images";
 import { optimizeRemoteImageUrl } from "@/lib/images";
 
 type Props = {
-  imageUrl?: string;
+  image?: CmsMedia;
   settings?: CmsSettings;
 };
 
-export function AboutSection({ imageUrl, settings: settingsProp }: Props) {
+export function AboutSection({
+  image: imageProp,
+  settings: settingsProp,
+}: Props) {
   const copy = usePageCopy();
   const ctx = useSiteSettings();
   const settings = settingsProp ?? ctx;
-  const image = optimizeRemoteImageUrl(
-    imageUrl ?? settings.images.about ?? siteImages.about,
-    { width: 1200, quality: 75 },
-  );
+  const media = imageProp ??
+    settings.images.about ?? { url: siteImages.about, alt: "" };
+  const image = optimizeRemoteImageUrl(media.url, { width: 1200, quality: 75 });
 
   return (
     <section id="om-oss" className="section-pad">
@@ -31,7 +36,7 @@ export function AboutSection({ imageUrl, settings: settingsProp }: Props) {
             <div className="relative mb-8 aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 lg:mb-10">
               <Image
                 src={image}
-                alt={copy.about.title}
+                alt={media.alt || copy.about.title}
                 width={1200}
                 height={750}
                 sizes="(max-width: 1024px) 100vw, 560px"
@@ -41,9 +46,13 @@ export function AboutSection({ imageUrl, settings: settingsProp }: Props) {
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
             </div>
             <p className="eyebrow">{copy.about.eyebrow}</p>
-            <h2 className="heading-display mt-3 text-balance">{copy.about.title}</h2>
-            <p className="mt-4 text-lg text-muted-foreground">{copy.about.subtitle}</p>
-            <div className="mt-6 space-y-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
+            <h2 className="heading-display mt-3 text-balance">
+              {copy.about.title}
+            </h2>
+            <p className="text-muted-foreground mt-4 text-lg">
+              {copy.about.subtitle}
+            </p>
+            <div className="text-muted-foreground mt-6 space-y-4 text-sm leading-relaxed sm:text-base">
               <p>{copy.about.p1}</p>
               <p>{copy.about.p2}</p>
               <p>{copy.about.p3}</p>
@@ -60,8 +69,10 @@ export function AboutSection({ imageUrl, settings: settingsProp }: Props) {
             <div className="grid gap-3 sm:grid-cols-2">
               {copy.about.stats.map((stat) => (
                 <div key={stat.title} className="surface-card p-5">
-                  <p className="font-semibold text-accent">{stat.title}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{stat.desc}</p>
+                  <p className="text-accent font-semibold">{stat.title}</p>
+                  <p className="text-muted-foreground mt-1 text-sm">
+                    {stat.desc}
+                  </p>
                 </div>
               ))}
             </div>
@@ -70,11 +81,15 @@ export function AboutSection({ imageUrl, settings: settingsProp }: Props) {
               <h3 className="font-semibold">{copy.about.company.title}</h3>
               <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
                 <div>
-                  <dt className="text-muted-foreground">{copy.about.company.org}</dt>
+                  <dt className="text-muted-foreground">
+                    {copy.about.company.org}
+                  </dt>
                   <dd className="font-medium">{settings.orgNr}</dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">{copy.about.company.phone}</dt>
+                  <dt className="text-muted-foreground">
+                    {copy.about.company.phone}
+                  </dt>
                   <dd className="font-medium">
                     <a href={settings.phoneHref} className="hover:text-accent">
                       {settings.phone}
@@ -82,15 +97,22 @@ export function AboutSection({ imageUrl, settings: settingsProp }: Props) {
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">{copy.about.company.email}</dt>
+                  <dt className="text-muted-foreground">
+                    {copy.about.company.email}
+                  </dt>
                   <dd className="font-medium">
-                    <a href={`mailto:${settings.email}`} className="hover:text-accent">
+                    <a
+                      href={`mailto:${settings.email}`}
+                      className="hover:text-accent"
+                    >
                       {settings.email}
                     </a>
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-muted-foreground">{copy.about.company.address}</dt>
+                  <dt className="text-muted-foreground">
+                    {copy.about.company.address}
+                  </dt>
                   <dd className="font-medium">
                     {settings.address.street}, {settings.address.postal}{" "}
                     {settings.address.city}

@@ -4,7 +4,7 @@ import type { Field, Tab } from "payload";
 export function biText(
   base: string,
   label: string,
-  opts?: { textarea?: boolean; required?: boolean },
+  opts?: { textarea?: boolean; required?: boolean; hidden?: boolean },
 ): Field[] {
   if (opts?.textarea) {
     return [
@@ -13,12 +13,14 @@ export function biText(
         type: "textarea",
         label: `${label} (NO)`,
         required: opts?.required,
+        ...(opts?.hidden ? { admin: { hidden: true } } : {}),
       },
       {
         name: `${base}En`,
         type: "textarea",
         label: `${label} (EN)`,
         required: opts?.required,
+        ...(opts?.hidden ? { admin: { hidden: true } } : {}),
       },
     ];
   }
@@ -28,12 +30,14 @@ export function biText(
       type: "text",
       label: `${label} (NO)`,
       required: opts?.required,
+      ...(opts?.hidden ? { admin: { hidden: true } } : {}),
     },
     {
       name: `${base}En`,
       type: "text",
       label: `${label} (EN)`,
       required: opts?.required,
+      ...(opts?.hidden ? { admin: { hidden: true } } : {}),
     },
   ];
 }
@@ -47,7 +51,10 @@ export const pageCopyTabs: Tab[] = [
         name: "copyMeta",
         type: "group",
         label: "SEO Meta",
-        fields: [...biText("title", "Title"), ...biText("description", "Description", { textarea: true })],
+        fields: [
+          ...biText("title", "Title"),
+          ...biText("description", "Description", { textarea: true }),
+        ],
       },
       {
         name: "copyNav",
@@ -64,6 +71,8 @@ export const pageCopyTabs: Tab[] = [
           ...biText("call", "Call"),
           ...biText("menu", "Menu"),
           ...biText("close", "Close"),
+          ...biText("localeNo", "Norwegian locale label"),
+          ...biText("localeEn", "English locale label"),
         ],
       },
     ],
@@ -149,6 +158,7 @@ export const pageCopyTabs: Tab[] = [
           ...biText("before", "Before label"),
           ...biText("during", "During label"),
           ...biText("after", "After label"),
+          ...biText("comparisonHint", "Before/after comparison hint"),
           ...biText("swipe", "Swipe hint"),
         ],
       },
@@ -180,9 +190,13 @@ export const pageCopyTabs: Tab[] = [
         fields: [
           ...biText("eyebrow", "Eyebrow"),
           ...biText("title", "Title"),
-          ...biText("items", "Items (quote | author | service — one per line)", {
-            textarea: true,
-          }),
+          ...biText(
+            "items",
+            "Items (quote | author | service — one per line)",
+            {
+              textarea: true,
+            },
+          ),
         ],
       },
     ],
@@ -255,9 +269,9 @@ export const pageCopyTabs: Tab[] = [
           ...biText("formEmail", "Form: email"),
           ...biText("formPhone", "Form: phone"),
           ...biText("formAddress", "Form: address"),
-          ...biText("formHouseNumber", "Form: house number"),
+          ...biText("formHouseNumber", "Form: house number", { hidden: true }),
           ...biText("formPostal", "Form: postal"),
-          ...biText("formCity", "Form: city"),
+          ...biText("formCity", "Form: city", { hidden: true }),
           ...biText("formType", "Form: type"),
           ...biText("formTypeWash", "Form: type wash"),
           ...biText("formTypeImpregnation", "Form: type impregnation"),
@@ -267,6 +281,35 @@ export const pageCopyTabs: Tab[] = [
           ...biText("formRoofSize", "Form: roof size"),
           ...biText("formPhotos", "Form: photos"),
           ...biText("formPhotosHint", "Form: photos hint"),
+          ...biText("formChoosePhotos", "Form: choose photos"),
+          ...biText("formNoPhotos", "Form: no photos selected"),
+          ...biText("formPhotosSelectedOne", "Form: one photo selected"),
+          ...biText("formPhotosSelectedMany", "Form: photos selected ({n})"),
+          ...biText("formPhotosTooMany", "Form: too many photos", {
+            textarea: true,
+          }),
+          ...biText("formPhotosLimitInline", "Form: photo limit inline", {
+            textarea: true,
+          }),
+          ...biText("formPhotoTooLarge", "Form: photo too large", {
+            textarea: true,
+          }),
+          ...biText("formPhotoUploading", "Form: photo uploading"),
+          ...biText("formPhotoQueued", "Form: photo queued"),
+          ...biText("formPhotoReady", "Form: photo ready"),
+          ...biText("formPhotoFailed", "Form: photo failed"),
+          ...biText("formRoofSizeInvalid", "Form: invalid roof size", {
+            textarea: true,
+          }),
+          ...biText("formPartialUpload", "Form: partial photo upload", {
+            textarea: true,
+          }),
+          ...biText("formSecurityRequired", "Form: security check required", {
+            textarea: true,
+          }),
+          ...biText("formPrivacyRequired", "Form: privacy consent required", {
+            textarea: true,
+          }),
           ...biText("formMessage", "Form: message"),
           ...biText("formNext", "Form: next"),
           ...biText("formBack", "Form: back"),
@@ -288,6 +331,7 @@ export const pageCopyTabs: Tab[] = [
           ...biText("partOf", "Part of"),
           ...biText("quickLinks", "Quick links"),
           ...biText("contact", "Contact"),
+          ...biText("orgLabel", "Organisation number label"),
           ...biText("warrantyNote", "Warranty note", { textarea: true }),
           ...biText("rights", "Rights"),
         ],

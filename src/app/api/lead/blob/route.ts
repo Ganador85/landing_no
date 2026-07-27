@@ -5,6 +5,7 @@ import {
   parseLeadPhotoUrls,
   verifyLeadPhotoToken,
 } from "@/lib/lead-photo-token";
+import { captureException } from "@/lib/monitoring";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -82,14 +83,13 @@ export async function GET(request: Request) {
     }
 
     const contentType = result.blob.contentType || "application/octet-stream";
-    const ext =
-      contentType.includes("png")
-        ? "png"
-        : contentType.includes("webp")
-          ? "webp"
-          : contentType.includes("gif")
-            ? "gif"
-            : "jpg";
+    const ext = contentType.includes("png")
+      ? "png"
+      : contentType.includes("webp")
+        ? "webp"
+        : contentType.includes("gif")
+          ? "gif"
+          : "jpg";
     const filename = `takfornyelse-lead-${id}.${ext}`;
 
     const headers: Record<string, string> = {
@@ -103,7 +103,7 @@ export async function GET(request: Request) {
 
     return new NextResponse(result.stream, { headers });
   } catch (err) {
-    console.error("Lead blob proxy failed:", err);
+    captureException(err, { route: "GET /api/lead/blob" });
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

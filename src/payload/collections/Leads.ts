@@ -1,29 +1,42 @@
 import type { CollectionConfig } from "payload";
+import { adminOnly, adminOnlyField, adminsAndEditors } from "../access/roles";
+
+const adminManagedField = {
+  update: adminOnlyField,
+};
 
 export const Leads: CollectionConfig = {
   slug: "leads",
   admin: {
     useAsTitle: "name",
-    defaultColumns: ["name", "phone", "postal", "inquiryType", "language", "createdAt"],
+    defaultColumns: [
+      "name",
+      "phone",
+      "postal",
+      "inquiryType",
+      "language",
+      "createdAt",
+    ],
   },
   access: {
-    create: () => true,
-    read: ({ req }) => Boolean(req.user),
-    update: ({ req }) => Boolean(req.user),
-    delete: ({ req }) => Boolean(req.user),
+    create: adminOnly,
+    delete: adminOnly,
+    read: adminsAndEditors,
+    update: adminsAndEditors,
   },
   fields: [
-    { name: "name", type: "text", required: true },
-    { name: "email", type: "email" },
-    { name: "phone", type: "text", required: true },
-    { name: "address", type: "text" },
-    { name: "houseNumber", type: "text" },
-    { name: "postal", type: "text", required: true },
-    { name: "city", type: "text" },
-    { name: "approxSqm", type: "number" },
+    { name: "name", type: "text", required: true, access: adminManagedField },
+    { name: "email", type: "email", access: adminManagedField },
+    { name: "phone", type: "text", required: true, access: adminManagedField },
+    { name: "address", type: "text", access: adminManagedField },
+    { name: "houseNumber", type: "text", access: adminManagedField },
+    { name: "postal", type: "text", required: true, access: adminManagedField },
+    { name: "city", type: "text", access: adminManagedField },
+    { name: "approxSqm", type: "number", access: adminManagedField },
     {
       name: "photoUrls",
       type: "textarea",
+      access: adminManagedField,
       admin: {
         description:
           "Lead photos from the website form. Previews work in admin; direct Blob links are private.",
@@ -36,6 +49,7 @@ export const Leads: CollectionConfig = {
       name: "inquiryType",
       type: "select",
       required: true,
+      access: adminManagedField,
       options: [
         { label: "Takvask", value: "takvask" },
         { label: "Impregnering", value: "impregnering" },
@@ -47,11 +61,12 @@ export const Leads: CollectionConfig = {
         { label: "Cladding (legacy)", value: "kledning" },
       ],
     },
-    { name: "message", type: "textarea" },
+    { name: "message", type: "textarea", access: adminManagedField },
     {
       name: "language",
       type: "select",
       required: true,
+      access: adminManagedField,
       options: [
         { label: "Norwegian", value: "no" },
         { label: "English", value: "en" },
@@ -67,6 +82,25 @@ export const Leads: CollectionConfig = {
         { label: "Qualified", value: "qualified" },
         { label: "Closed", value: "closed" },
       ],
+    },
+    {
+      name: "consentAt",
+      type: "date",
+      access: adminManagedField,
+      admin: {
+        readOnly: true,
+        description: "When the visitor accepted the privacy consent checkbox.",
+        date: { pickerAppearance: "dayAndTime" },
+      },
+    },
+    {
+      name: "consentText",
+      type: "textarea",
+      access: adminManagedField,
+      admin: {
+        readOnly: true,
+        description: "Exact consent label shown at submit time.",
+      },
     },
   ],
 };

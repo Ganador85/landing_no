@@ -1,7 +1,9 @@
 /**
  * Push Payload schema to Postgres (Neon).
- * Production skips drizzle push, so Vercel can end up with no tables
- * and /admin hangs on a black screen while queries wait.
+ *
+ * @deprecated Prefer versioned migrations (`npm run db:migrate`).
+ * Use this only for brand-new empty databases or emergencies when a
+ * migration was not created. Production builds should never rely on push.
  *
  * Usage:
  *   npm run db:push

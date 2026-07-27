@@ -49,15 +49,17 @@ export default async function HomePage({ params }: Props) {
         locale={locale as "no" | "en"}
         settings={content.settings}
         faq={content.faq}
+        services={content.services}
+        testimonials={content.copy.testimonials.items}
         description={content.copy.meta.description[locale as "no" | "en"]}
       />
       <HeroSection heroImage={content.settings.images.hero} />
       <ServicesSection items={content.services} />
       <CalculatorSection calculator={content.settings.calculator} />
-      <NewRoofSection imageUrl={content.settings.images.newRoof} />
+      <NewRoofSection image={content.settings.images.newRoof} />
       <ReferencesSection projects={content.projects} />
       <AboutSection
-        imageUrl={content.settings.images.about}
+        image={content.settings.images.about}
         settings={content.settings}
       />
       <TestimonialsSection />

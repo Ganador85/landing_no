@@ -1,7 +1,9 @@
 import { cache } from "react";
+import { draftMode } from "next/headers";
 import { getPayload } from "@/lib/payload";
 import { siteConfig } from "@/lib/site";
 import { siteImages } from "@/content/images";
+import { privacyFallback } from "@/content/privacy";
 import {
   faqItems as fallbackFaq,
   products as fallbackProducts,
@@ -15,6 +17,17 @@ import {
   pageCopyFromSettingsDoc,
   type PageCopy,
 } from "@/lib/page-copy";
+
+export type CmsMedia = {
+  url: string;
+  alt: string;
+};
+
+export type CmsNavItem = {
+  label: { no: string; en: string };
+  href: string;
+  visible: boolean;
+};
 
 export type CmsService = {
   id: string;
@@ -33,7 +46,7 @@ export type CmsProject = {
   stages: Array<{
     label: "before" | "during" | "after";
     caption: { no: string; en: string };
-    image: string;
+    image: CmsMedia;
   }>;
 };
 
@@ -43,6 +56,7 @@ export type CmsProduct = {
   category: { no: string; en: string };
   description: { no: string; en: string };
   badges: { no: string[]; en: string[] };
+  image?: CmsMedia;
   order: number;
 };
 
@@ -61,13 +75,30 @@ export type CmsSettings = {
   address: { street: string; postal: string; city: string };
   orgNr: string;
   parentOrg: string;
+  navItems: CmsNavItem[];
   calculator: typeof siteConfig.calculator;
   trust: typeof siteConfig.trust;
   images: {
-    hero: string;
-    about: string;
-    newRoof: string;
+    logo: CmsMedia;
+    hero: CmsMedia;
+    about: CmsMedia;
+    newRoof: CmsMedia;
   };
+  seo: {
+    areaServed: { no: string; en: string };
+    openingHours: {
+      days: string[];
+      opens: string;
+      closes: string;
+    };
+  };
+  privacy: {
+    title: { no: string; en: string };
+    body: { no: string; en: string };
+    linkLabel: { no: string; en: string };
+    consentLabel: { no: string; en: string };
+  };
+  retentionMonths: number;
 };
 
 export type SiteContent = {
@@ -82,8 +113,10 @@ export type SiteContent = {
 
 function fallbackServices(): CmsService[] {
   return serviceKeys.map((key, index) => {
-    const noItem = noMessages.services.items[key as keyof typeof noMessages.services.items];
-    const enItem = enMessages.services.items[key as keyof typeof enMessages.services.items];
+    const noItem =
+      noMessages.services.items[key as keyof typeof noMessages.services.items];
+    const enItem =
+      enMessages.services.items[key as keyof typeof enMessages.services.items];
     return {
       id: key,
       key,
@@ -126,13 +159,33 @@ function fallbackContent(): SiteContent {
       },
       orgNr: siteConfig.orgNr,
       parentOrg: siteConfig.parentOrg,
+      navItems: [],
       calculator: siteConfig.calculator,
       trust: siteConfig.trust,
       images: {
-        hero: siteImages.hero,
-        about: siteImages.about,
-        newRoof: siteImages.newRoof,
+        logo: { url: "/brand/logo.webp", alt: siteConfig.name },
+        hero: { url: siteImages.hero, alt: "" },
+        about: { url: siteImages.about, alt: "" },
+        newRoof: { url: siteImages.newRoof, alt: "" },
       },
+      seo: {
+        areaServed: {
+          no: "Oslo, Viken, Innlandet, Vestfold og Telemark, Agder, Rogaland, Vestland, Møre og Romsdal og Trøndelag",
+          en: "Oslo, Viken, Innlandet, Vestfold og Telemark, Agder, Rogaland, Vestland, Møre og Romsdal and Trøndelag",
+        },
+        openingHours: {
+          days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+          opens: "08:00",
+          closes: "16:00",
+        },
+      },
+      privacy: {
+        title: { ...privacyFallback.title },
+        body: { ...privacyFallback.body },
+        linkLabel: { ...privacyFallback.linkLabel },
+        consentLabel: { ...privacyFallback.consentLabel },
+      },
+      retentionMonths: 24,
     },
     services: fallbackServices(),
     projects: fallbackProjects.map((p, i) => ({
@@ -142,7 +195,7 @@ function fallbackContent(): SiteContent {
       stages: p.stages.map((s) => ({
         label: s.label,
         caption: s.caption,
-        image: s.image,
+        image: { url: s.image, alt: "" },
       })),
     })),
     products: fallbackProducts.map((p, i) => ({
@@ -174,6 +227,7 @@ type MediaLike =
   | string
   | {
       url?: string | null;
+      alt?: string | null;
       sizes?: {
         hero?: { url?: string | null } | null;
         card?: { url?: string | null } | null;
@@ -182,35 +236,75 @@ type MediaLike =
   | null
   | undefined;
 
-function resolveMediaUrl(
+export function resolveMedia(
   media: MediaLike,
   preferredSize?: "hero" | "card",
-): string | undefined {
+): CmsMedia | undefined {
   if (!media || typeof media === "number" || typeof media === "string") {
     return undefined;
   }
+  let url: string | null | undefined;
   if (preferredSize === "hero" && media.sizes?.hero?.url) {
-    return media.sizes.hero.url;
+    url = media.sizes.hero.url;
+  } else if (preferredSize === "card" && media.sizes?.card?.url) {
+    url = media.sizes.card.url;
+  } else {
+    url = media.url;
   }
-  if (preferredSize === "card" && media.sizes?.card?.url) {
-    return media.sizes.card.url;
-  }
-  return media.url || undefined;
+  if (!url) return undefined;
+  return { url, alt: media.alt?.trim() || "" };
+}
+
+export function resolveMediaUrl(
+  media: MediaLike,
+  preferredSize?: "hero" | "card",
+): string | undefined {
+  return resolveMedia(media, preferredSize)?.url;
+}
+
+function mediaFromUploadOrUrl(
+  media: MediaLike,
+  url: string | null | undefined,
+  fallback: CmsMedia,
+  preferredSize?: "hero" | "card",
+): CmsMedia {
+  const uploaded = resolveMedia(media, preferredSize);
+  if (uploaded) return uploaded;
+  const fallbackUrl = url?.trim();
+  return fallbackUrl ? { url: fallbackUrl, alt: fallback.alt } : fallback;
+}
+
+function parseOpeningDays(
+  value: string | null | undefined,
+  fallback: string[],
+): string[] {
+  const days = (value || "")
+    .split(/[\n,]/)
+    .map((day) => day.trim())
+    .filter(Boolean);
+  return days.length > 0 ? days : fallback;
 }
 
 export const getSiteContent = cache(async (): Promise<SiteContent> => {
   const fallback = fallbackContent();
 
   try {
+    const { isEnabled: isDraftMode } = await draftMode();
     const payload = await getPayload();
     const [settingsDoc, servicesRes, projectsRes, productsRes, faqRes] =
       await Promise.all([
-        payload.findGlobal({ slug: "site-settings", depth: 1 }),
+        payload.findGlobal({
+          slug: "site-settings",
+          depth: 1,
+          draft: isDraftMode,
+          overrideAccess: true,
+        }),
         payload.find({
           collection: "services",
           sort: "order",
           limit: 50,
           depth: 0,
+          draft: isDraftMode,
           overrideAccess: true,
         }),
         payload.find({
@@ -218,13 +312,15 @@ export const getSiteContent = cache(async (): Promise<SiteContent> => {
           sort: "order",
           limit: 50,
           depth: 1,
+          draft: isDraftMode,
           overrideAccess: true,
         }),
         payload.find({
           collection: "products",
           sort: "order",
           limit: 50,
-          depth: 0,
+          depth: 1,
+          draft: isDraftMode,
           overrideAccess: true,
         }),
         payload.find({
@@ -232,6 +328,7 @@ export const getSiteContent = cache(async (): Promise<SiteContent> => {
           sort: "order",
           limit: 50,
           depth: 0,
+          draft: isDraftMode,
           overrideAccess: true,
         }),
       ]);
@@ -245,6 +342,24 @@ export const getSiteContent = cache(async (): Promise<SiteContent> => {
     const copyFallback = pageCopyFromMessages(noMessages, enMessages);
     const copy = pageCopyFromSettingsDoc(settingsDoc, copyFallback);
     const hasCmsCopy = Boolean(settingsDoc.copyMeta?.titleNo?.trim());
+    const navItems: CmsNavItem[] = (
+      (settingsDoc.navItems || []) as Array<{
+        labelNo?: string | null;
+        labelEn?: string | null;
+        href?: string | null;
+        visible?: boolean | null;
+      }>
+    )
+      .map((item) => {
+        const no = item.labelNo?.trim() || "";
+        const en = item.labelEn?.trim() || "";
+        return {
+          label: { no: no || en, en: en || no },
+          href: item.href?.trim() || "",
+          visible: item.visible !== false,
+        };
+      })
+      .filter((item) => item.href && (item.label.no || item.label.en));
 
     const settings: CmsSettings = {
       brandName: settingsDoc.brandName || fallback.settings.brandName,
@@ -258,11 +373,15 @@ export const getSiteContent = cache(async (): Promise<SiteContent> => {
       },
       orgNr: settingsDoc.orgNr || fallback.settings.orgNr,
       parentOrg: settingsDoc.parentOrg || fallback.settings.parentOrg,
+      navItems,
       calculator: {
-        minSqm: settingsDoc.calculator?.minSqm ?? fallback.settings.calculator.minSqm,
-        maxSqm: settingsDoc.calculator?.maxSqm ?? fallback.settings.calculator.maxSqm,
+        minSqm:
+          settingsDoc.calculator?.minSqm ?? fallback.settings.calculator.minSqm,
+        maxSqm:
+          settingsDoc.calculator?.maxSqm ?? fallback.settings.calculator.maxSqm,
         defaultSqm:
-          settingsDoc.calculator?.defaultSqm ?? fallback.settings.calculator.defaultSqm,
+          settingsDoc.calculator?.defaultSqm ??
+          fallback.settings.calculator.defaultSqm,
         newRoofPerSqm:
           settingsDoc.calculator?.newRoofPerSqm ??
           fallback.settings.calculator.newRoofPerSqm,
@@ -271,27 +390,102 @@ export const getSiteContent = cache(async (): Promise<SiteContent> => {
           fallback.settings.calculator.renewalPerSqm,
       },
       trust: {
-        sqmRenewed: settingsDoc.trust?.sqmRenewed || fallback.settings.trust.sqmRenewed,
+        sqmRenewed:
+          settingsDoc.trust?.sqmRenewed || fallback.settings.trust.sqmRenewed,
         warrantyYears:
-          settingsDoc.trust?.warrantyYears ?? fallback.settings.trust.warrantyYears,
+          settingsDoc.trust?.warrantyYears ??
+          fallback.settings.trust.warrantyYears,
         happyCustomers:
-          settingsDoc.trust?.happyCustomers || fallback.settings.trust.happyCustomers,
+          settingsDoc.trust?.happyCustomers ||
+          fallback.settings.trust.happyCustomers,
         rating: settingsDoc.trust?.rating || fallback.settings.trust.rating,
       },
       images: {
-        hero:
-          resolveMediaUrl(settingsDoc.heroImage as MediaLike, "hero") ||
-          settingsDoc.heroImageUrl ||
+        logo: mediaFromUploadOrUrl(
+          settingsDoc.logo as MediaLike,
+          undefined,
+          fallback.settings.images.logo,
+        ),
+        hero: mediaFromUploadOrUrl(
+          settingsDoc.heroImage as MediaLike,
+          settingsDoc.heroImageUrl,
           fallback.settings.images.hero,
-        about:
-          resolveMediaUrl(settingsDoc.aboutImage as MediaLike, "card") ||
-          settingsDoc.aboutImageUrl ||
+          "hero",
+        ),
+        about: mediaFromUploadOrUrl(
+          settingsDoc.aboutImage as MediaLike,
+          settingsDoc.aboutImageUrl,
           fallback.settings.images.about,
-        newRoof:
-          resolveMediaUrl(settingsDoc.newRoofImage as MediaLike, "card") ||
-          settingsDoc.newRoofImageUrl ||
+          "card",
+        ),
+        newRoof: mediaFromUploadOrUrl(
+          settingsDoc.newRoofImage as MediaLike,
+          settingsDoc.newRoofImageUrl,
           fallback.settings.images.newRoof,
+          "card",
+        ),
       },
+      seo: {
+        areaServed: {
+          no:
+            settingsDoc.areaServedNo?.trim() ||
+            fallback.settings.seo.areaServed.no,
+          en:
+            settingsDoc.areaServedEn?.trim() ||
+            fallback.settings.seo.areaServed.en,
+        },
+        openingHours: {
+          days: parseOpeningDays(
+            settingsDoc.openingDays,
+            fallback.settings.seo.openingHours.days,
+          ),
+          opens:
+            settingsDoc.openingTime?.trim() ||
+            fallback.settings.seo.openingHours.opens,
+          closes:
+            settingsDoc.closingTime?.trim() ||
+            fallback.settings.seo.openingHours.closes,
+        },
+      },
+      privacy: {
+        title: {
+          no:
+            (settingsDoc.privacyTitleNo as string | undefined)?.trim() ||
+            fallback.settings.privacy.title.no,
+          en:
+            (settingsDoc.privacyTitleEn as string | undefined)?.trim() ||
+            fallback.settings.privacy.title.en,
+        },
+        body: {
+          no:
+            (settingsDoc.privacyBodyNo as string | undefined)?.trim() ||
+            fallback.settings.privacy.body.no,
+          en:
+            (settingsDoc.privacyBodyEn as string | undefined)?.trim() ||
+            fallback.settings.privacy.body.en,
+        },
+        linkLabel: {
+          no:
+            (settingsDoc.privacyLinkNo as string | undefined)?.trim() ||
+            fallback.settings.privacy.linkLabel.no,
+          en:
+            (settingsDoc.privacyLinkEn as string | undefined)?.trim() ||
+            fallback.settings.privacy.linkLabel.en,
+        },
+        consentLabel: {
+          no:
+            (settingsDoc.consentLabelNo as string | undefined)?.trim() ||
+            fallback.settings.privacy.consentLabel.no,
+          en:
+            (settingsDoc.consentLabelEn as string | undefined)?.trim() ||
+            fallback.settings.privacy.consentLabel.en,
+        },
+      },
+      retentionMonths:
+        typeof settingsDoc.retentionMonths === "number" &&
+        settingsDoc.retentionMonths > 0
+          ? settingsDoc.retentionMonths
+          : fallback.settings.retentionMonths,
     };
 
     const services: CmsService[] =
@@ -323,10 +517,12 @@ export const getSiteContent = cache(async (): Promise<SiteContent> => {
               }) => ({
                 label: stage.label,
                 caption: { no: stage.captionNo, en: stage.captionEn },
-                image:
-                  resolveMediaUrl(stage.image, "card") ||
-                  stage.imageUrl ||
+                image: mediaFromUploadOrUrl(
+                  stage.image,
+                  stage.imageUrl,
                   fallback.settings.images.hero,
+                  "card",
+                ),
               }),
             ),
           }))
@@ -339,6 +535,7 @@ export const getSiteContent = cache(async (): Promise<SiteContent> => {
             name: doc.name,
             category: { no: doc.categoryNo, en: doc.categoryEn },
             description: { no: doc.descriptionNo, en: doc.descriptionEn },
+            image: resolveMedia(doc.image as MediaLike, "card"),
             badges: {
               no: (doc.badgesNo || [])
                 .map((b: { label: string }) => b.label)

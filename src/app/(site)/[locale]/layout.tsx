@@ -1,5 +1,6 @@
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
+import { draftMode } from "next/headers";
 import { notFound } from "next/navigation";
 import type { Metadata, Viewport } from "next";
 import { Manrope } from "next/font/google";
@@ -13,6 +14,7 @@ import { SiteSettingsProvider } from "@/components/site-settings-provider";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { StickyBottomCta } from "@/components/layout/sticky-cta";
+import { LivePreviewRefresh } from "@/components/live-preview-refresh";
 import "../../globals.css";
 
 export const revalidate = 30;
@@ -42,7 +44,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const content = await getSiteContent();
   const meta = localizeCopy(content.copy, locale as "no" | "en").meta;
-  const ogImage = optimizeRemoteImageUrl(content.settings.images.hero, {
+  const ogImage = optimizeRemoteImageUrl(content.settings.images.hero.url, {
     width: 1200,
     quality: 70,
   });
@@ -78,7 +80,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           url: ogImage,
           width: 1200,
           height: 630,
-          alt: content.settings.brandName,
+          alt: content.settings.images.hero.alt || content.settings.brandName,
         },
       ],
     },
@@ -100,11 +102,16 @@ export default async function LocaleLayout({ children, params }: Props) {
   }
 
   setRequestLocale(locale);
-  const [messages, content] = await Promise.all([getMessages(), getSiteContent()]);
+  const { isEnabled: isDraftMode } = await draftMode();
+  const [messages, content] = await Promise.all([
+    getMessages(),
+    getSiteContent(),
+  ]);
 
   return (
     <html lang={locale} className="dark" suppressHydrationWarning>
       <body className={`${manrope.variable} font-sans antialiased`}>
+        {isDraftMode && <LivePreviewRefresh />}
         <NextIntlClientProvider messages={messages}>
           <SiteSettingsProvider settings={content.settings} copy={content.copy}>
             <Navbar />

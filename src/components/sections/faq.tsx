@@ -24,8 +24,10 @@ export function FaqSection({ items }: Props) {
       <div className="container-narrow max-w-3xl">
         <Reveal>
           <p className="eyebrow">{copy.faq.eyebrow}</p>
-          <h2 className="heading-display mt-3 text-balance">{copy.faq.title}</h2>
-          <p className="mt-4 text-muted-foreground">{copy.faq.subtitle}</p>
+          <h2 className="heading-display mt-3 text-balance">
+            {copy.faq.title}
+          </h2>
+          <p className="text-muted-foreground mt-4">{copy.faq.subtitle}</p>
         </Reveal>
 
         <Reveal delay={0.1}>
@@ -33,7 +35,9 @@ export function FaqSection({ items }: Props) {
             {items.map((item) => (
               <AccordionItem key={item.id} value={item.id}>
                 <AccordionTrigger>
-                  <h3 className="pr-4 text-base font-medium leading-snug">{item.question[locale]}</h3>
+                  <span className="pr-4 text-base leading-snug font-medium">
+                    {item.question[locale]}
+                  </span>
                 </AccordionTrigger>
                 <AccordionContent>{item.answer[locale]}</AccordionContent>
               </AccordionItem>
