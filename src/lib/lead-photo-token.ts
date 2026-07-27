@@ -1,14 +1,8 @@
 import { createHmac, timingSafeEqual } from "crypto";
+import { resolvePayloadSecret } from "@/lib/payload-secret";
 
 function requireSecret(): string {
-  const secret = process.env.PAYLOAD_SECRET;
-  if (!secret) {
-    if (process.env.NODE_ENV === "production") {
-      throw new Error("PAYLOAD_SECRET must be set in production");
-    }
-    return "dev-secret-change-me-in-production";
-  }
-  return secret;
+  return resolvePayloadSecret();
 }
 
 /** Legacy forever-token (v1) — kept so already-sent emails keep working. */

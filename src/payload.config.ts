@@ -19,6 +19,7 @@ import { Posts } from "./payload/collections/Posts";
 import { Redirects } from "./payload/collections/Redirects";
 import { SiteSettings } from "./payload/collections/SiteSettings";
 import { migrations } from "./payload/migrations";
+import { resolvePayloadSecret } from "./lib/payload-secret";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -87,16 +88,7 @@ export default buildConfig({
   ],
   globals: [SiteSettings],
   editor: lexicalEditor(),
-  secret: (() => {
-    const secret = process.env.PAYLOAD_SECRET;
-    if (!secret) {
-      if (process.env.NODE_ENV === "production") {
-        throw new Error("PAYLOAD_SECRET must be set in production");
-      }
-      return "dev-secret-change-me-in-production";
-    }
-    return secret;
-  })(),
+  secret: resolvePayloadSecret(),
   typescript: {
     outputFile: path.resolve(dirname, "payload", "payload-types.ts"),
   },
